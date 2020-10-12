@@ -5,6 +5,30 @@ import java.util.Map;
 
 public interface ImproveTracker {
 
+    String MODEL_KEY = "model";
+    String HISTORY_ID_KEY = "history_id";
+    String TIMESTAMP_KEY = "timestamp";
+    String MESSAGE_ID_KEY = "message_id";
+    String TYPE_KEY = "type";
+    String VARIANT_KEY = "variant";
+    String CONTEXT_KEY = "context";
+    String REWARDS_KEY = "rewards";
+    String VARIANTS_COUNT_KEY = "variants_count";
+    String VARIANTS_KEY = "variants";
+    String SAMPLE_VARIANT_KEY = "sample_variant";
+    String REWARD_KEY_KEY = "reward_key";
+    String EVENT_KEY = "event";
+    String PROPERTIES_KEY = "properties";
+
+    String DECISION_TYPE = "decision";
+    String REWARDS_TYPE = "rewards";
+    String EVENT_TYPE = "event";
+
+    String API_KEY_HEADER = "x-api-key";
+    String CONTENT_TYPE_HEADER = "Content-Type";
+    String APPLICATION_JSON = "application/json";
+    String HISTORY_ID_DEFAULTS_KEY = "ai.improve.history_id";
+
     /**
      * Track that a variant was chosen in order to train the system to learn what rewards it receives.
      *

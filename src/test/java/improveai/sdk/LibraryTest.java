@@ -3,10 +3,22 @@
  */
 package improveai.sdk;
 
+import org.json.JSONObject;
 import org.junit.jupiter.api.Test;
+
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class LibraryTest {
     @Test void testSomeLibraryMethod() {
+        System.out.println(DateTimeFormatter.ISO_INSTANT.format(Instant.now()));
+
+        HashMap map = new HashMap<>();
+        map.put("one", "two");
+        System.out.println(new JSONObject(map).toString());
     }
 }
