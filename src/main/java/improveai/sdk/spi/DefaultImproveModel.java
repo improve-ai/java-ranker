@@ -3,6 +3,7 @@ package improveai.sdk.spi;
 import biz.k11i.xgboost.Predictor;
 import improveai.sdk.ImproveModel;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -39,5 +40,15 @@ public class DefaultImproveModel implements ImproveModel {
     @Override
     public List sort(List variants, Map context) {
         return variants;
+    }
+
+    @Override
+    public List<Number> score(List variants) {
+        return score(variants, Collections.EMPTY_MAP);
+    }
+
+    @Override
+    public List<Number> score(List variants, Map context) {
+        return Collections.nCopies(variants.size(), 0);
     }
 }

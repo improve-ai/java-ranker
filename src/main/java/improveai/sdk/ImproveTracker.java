@@ -76,4 +76,25 @@ public interface ImproveTracker {
     void addRewards(Map<String, Double> rewards, ImproveTrackCompletion completionHandler);
 
 
+    /**
+     * Tracks a general analytics event that may be further processed by backend scripts.  You may use this for example
+     * to keep reward assignment logic on the backend.  In the case where all reward logic is handled on the backend
+     * you may wish to disable autoTrack on choose calls and not call trackRewards.
+     *
+     * @param event      the name of the event to track
+     * @param properties JSON encodable event properties
+     */
+    void trackAnalyticsEvent(String event, Map<String, Object> properties);
+
+    /**
+     * Tracks a general analytics event that may be further processed by backend scripts.  You may use this for example
+     * to keep reward assignment logic on the backend.  In the case where all reward logic is handled on the backend
+     * you may wish to disable autoTrack on choose calls and not call trackRewards.
+     *
+     * @param event      the name of the event to track
+     * @param properties JSON encodable event properties
+     * @param context    JSON encodeable context
+     */
+    void trackAnalyticsEvent(String event, Map<String, Object> properties, Map<String, Object> context);
+
 }

@@ -58,4 +58,16 @@ public class DefaultImproveTracker implements ImproveTracker {
     public void addRewards(Map<String, Double> rewards, ImproveTrackCompletion completionHandler) {
 
     }
+
+    @Override
+    public void trackAnalyticsEvent(String event, Map<String, Object> properties) {
+
+    }
+
+    @Override
+    public void trackAnalyticsEvent(String event, Map<String, Object> properties, Map<String, Object> context) {
+
+    }
+
+
 }
