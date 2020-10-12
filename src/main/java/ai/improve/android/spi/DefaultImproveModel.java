@@ -1,7 +1,7 @@
-package improveai.sdk.spi;
+package ai.improve.android.spi;
 
 import biz.k11i.xgboost.Predictor;
-import improveai.sdk.ImproveModel;
+import ai.improve.android.ImproveModel;
 
 import java.util.Collections;
 import java.util.List;

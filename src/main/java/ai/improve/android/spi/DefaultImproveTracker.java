@@ -1,8 +1,8 @@
-package improveai.sdk.spi;
+package ai.improve.android.spi;
 
-import improveai.sdk.HttpUtil;
-import improveai.sdk.ImproveTrackCompletion;
-import improveai.sdk.ImproveTracker;
+import ai.improve.android.HttpUtil;
+import ai.improve.android.ImproveTrackCompletion;
+import ai.improve.android.ImproveTracker;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;

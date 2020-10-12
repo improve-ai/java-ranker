@@ -1,4 +1,4 @@
-package improveai.sdk;
+package ai.improve.android;
 
 public interface ImproveTrackCompletion {
 

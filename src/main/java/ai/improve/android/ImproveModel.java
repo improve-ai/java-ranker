@@ -1,4 +1,4 @@
-package improveai.sdk;
+package ai.improve.android;
 
 import java.util.List;
 import java.util.Map;
