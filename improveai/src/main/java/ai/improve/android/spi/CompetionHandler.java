@@ -1,6 +1,6 @@
-package ai.improve.android;
+package ai.improve.android.spi;
 
-public interface ImproveTrackCompletion {
+public interface CompetionHandler {
 
 
     void onError(String error);

@@ -1,5 +1,7 @@
 package ai.improve.android;
 
+import ai.improve.android.spi.CompetionHandler;
+
 import java.util.List;
 import java.util.Map;
 
@@ -67,18 +69,18 @@ public interface ImproveTracker {
      *                          trackRewards must also use this key to assign rewards to this chosen variant.
      * @param completionHandler Called after sending the decision to the server.
      */
-    void trackDecision(Object variant, List variants, String modelName, Map context, String rewardKey, ImproveTrackCompletion completionHandler);
+    void trackDecision(Object variant, List variants, String modelName, Map context, String rewardKey, CompetionHandler completionHandler);
 
 
     /**
      * Tracks a reward value for one or more chosen variants. Rewards are additive by default. Multiple chosen variants
      * can be listening for the same reward key
      *
-     * @param reward    a JSON encodeable reward vaue to add to recent chosen variants for rewardKey.
-     *                  May be a negative number.  Must not be NaN or infinity.
      * @param rewardKey the model name or custom rewardKey to track this reward for.
+     * @param reward    a JSON encodeable reward vaue to add to recent chosen variants for rewardKey.
+ *                  May be a negative number.  Must not be NaN or infinity.
      */
-    void addReward(Double reward, String rewardKey);
+    void addReward(String rewardKey, Double reward);
 
     /**
      * Tracks rewards for one or more chosen variants. Rewards are additive by default.  Multiple chosen variants can
@@ -97,7 +99,7 @@ public interface ImproveTracker {
      *                          variants.  Reward values may be negative numbers, must not be NaN or infinity.
      * @param completionHandler Called after sending the rewards.
      */
-    void addRewards(Map<String, Double> rewards, ImproveTrackCompletion completionHandler);
+    void addRewards(Map<String, Double> rewards, CompetionHandler completionHandler);
 
 
     /**

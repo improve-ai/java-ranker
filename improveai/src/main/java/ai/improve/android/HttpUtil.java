@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 import java.io.BufferedWriter;
 import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -23,12 +24,13 @@ public class HttpUtil {
     private URL url;
     private HttpURLConnection connection;
 
-    public static HttpUtil withUrl(String url) throws MalformedURLException {
-        return new HttpUtil(url);
+
+    HttpUtil(String url) throws MalformedURLException {
+            this.url = new URL(url);
     }
 
-    public HttpUtil(String url) throws MalformedURLException {
-            this.url = new URL(url);
+    public static HttpUtil withUrl(String url) throws MalformedURLException {
+        return new HttpUtil(url);
     }
 
     public HttpUtil withHeaders(Map<String, String> headers) {
@@ -51,7 +53,9 @@ public class HttpUtil {
                 connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
-                new JSONObject(body).write(new BufferedWriter(new OutputStreamWriter(connection.getOutputStream())));
+                String jsonBody = new JSONObject(body).toString();
+                connection.getOutputStream().write(jsonBody.getBytes());
+                connection.getOutputStream().flush();
                 int code = connection.getResponseCode();
                 if(code >= 400) {
                     logger.severe("Error posting HTTP Data to " + url.toString() + ": status code " + code);
