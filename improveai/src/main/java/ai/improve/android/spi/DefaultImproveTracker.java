@@ -18,12 +18,25 @@ public class DefaultImproveTracker implements ImproveTracker {
     private static final Random random = new SecureRandom();
     private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
 
+    /**
+     * Android Context (usually Application instance)
+     * Used to store historyId across multiple instances
+     */
     private Context context;
 
+    /**
+     * Tracking URL
+     */
     private String trackUrl;
 
+    /**
+     * API Key to post to tracker
+     */
     private String apiKey;
 
+    /**
+     * Unique identifier
+     */
     private String historyId;
 
 
@@ -55,9 +68,7 @@ public class DefaultImproveTracker implements ImproveTracker {
 
 
     private String generateHistoryId() {
-        int historyIdSize = 32; // 256 bits
-        byte[] data = new byte[historyIdSize];
-        random.nextBytes(data);
+        byte[] data = UUID.randomUUID().toString().getBytes();
         return Base64.encodeToString(data, Base64.DEFAULT);
     }
 
@@ -112,10 +123,10 @@ public class DefaultImproveTracker implements ImproveTracker {
         }
 
         if (variants != null && variants.size() > 0) {
-            body.put(VARIANTS_COUNT_KEY, variants.size());
 
             if (random.nextDouble() > 1.0 / (double) variants.size()) {
                 Object randomSample = variants.get(random.nextInt(variants.size()));
+                body.put(VARIANTS_COUNT_KEY, variants.size());
                 body.put(SAMPLE_VARIANT_KEY, randomSample);
             } else {
                 body.put(VARIANTS_KEY, variants);

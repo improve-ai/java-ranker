@@ -1,7 +1,12 @@
 package ai.improve.android.spi;
 
+import ai.improve.android.xgbpredictor.ImprovePredictor;
+import ai.improve.android.xgbpredictor.JSONArrayConverter;
 import biz.k11i.xgboost.Predictor;
 import ai.improve.android.ImproveModel;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.List;
@@ -11,13 +16,36 @@ public class DefaultImproveModel implements ImproveModel {
 
     private String modelName;
 
-    private Predictor model;
+    private ImprovePredictor model;
+    private List<Number> lookupTable;
+    private long modelSeed;
 
     public static DefaultImproveModel initWithUrl() {
         return new DefaultImproveModel("dummy");
     }
 
-    public DefaultImproveModel(String modelName) {
+    public static DefaultImproveModel initWithModel(ImprovePredictor model) {
+        DefaultImproveModel instance = new DefaultImproveModel(model.toString());
+        instance.model = model;
+        try {
+            instance.parseMetadata(model.getModelMetadata().getUserDefinedMetadata());
+        } catch(JSONException ex) {
+            //TODO think about this later
+            throw new RuntimeException(ex);
+        }
+        return instance;
+    }
+
+    private void parseMetadata(String userDefinedMetadata) throws JSONException {
+        JSONObject o = new JSONObject(userDefinedMetadata);
+        JSONObject meta = o.getJSONObject("json");
+        modelSeed = meta.getLong("model_seed");
+        JSONArray array = meta.getJSONArray("table");
+        lookupTable = JSONArrayConverter.toList(array);
+    }
+
+
+    DefaultImproveModel(String modelName) {
         this.modelName = modelName;
     }
 

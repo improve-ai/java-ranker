@@ -11,6 +11,8 @@ import org.junit.Test;
 import org.mockserver.integration.ClientAndServer;
 import org.mockserver.junit.MockServerRule;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.logging.Logger;
 
@@ -33,5 +35,8 @@ public class SimpleTest {
         jul.finer("FINER");
         jul.finest("FINEST");
 
+        Object x = new int[10];
+
+        System.out.println(Arrays.asList(x).get(0));
     }
 }
