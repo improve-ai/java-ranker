@@ -1,51 +1,90 @@
 package ai.improve.android.chooser;
 
 import ai.improve.android.hasher.FeatureEncoder;
-import biz.k11i.xgboost.Predictor;
+import ai.improve.android.xgbpredictor.ImprovePredictor;
+import android.util.Pair;
+import biz.k11i.xgboost.util.FVec;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 
 public class ImproveChooser {
 
-    private Predictor predictor;
+    private ImprovePredictor predictor;
+    private List<Number> table;
+    private int modelSeed;
 
-    public ImproveChooser(Predictor p) {
-        this.predictor = p;
+
+    public ImproveChooser(ImprovePredictor predictor, List<Number> table, int modelSeed) {
+        this.predictor = predictor;
+        this.table = table;
+        this.modelSeed = modelSeed;
     }
 
     public Object choose(List variants, Map<String, Object> context) {
-
-//        NSArray *encodedFeatures = [self encodeVariants:variants withContext:context];
-//        NSArray *scores = [self batchPrediction:encodedFeatures];
-
-        List<Number> scores = Collections.singletonList(1.0);
+        List<Map<Integer, Double>> features = encodeVariants(variants, context);
+        List<Number> scores = batchPrediction(features);
         return findBestSample(variants, scores);
     }
 
-    private Map encodeVariants(List variants, Map<String, Object> context)
-    {
+    public List<Object> score(List variants, Map<String, Object> context) {
+
+        List shuffledVariants = new ArrayList(variants); // ensure mutability
+        Collections.shuffle(variants);
+
+        List<Map<Integer, Double>> features = encodeVariants(variants, context);
+        List<Number> scores = batchPrediction(features);
+        if(scores == null || scores.isEmpty()) {
+            return Collections.EMPTY_LIST;
+        }
+
+        List<Pair> scored = new ArrayList();
+
+        for(int i = 0; i < scores.size(); ++i) {
+            Pair p = new Pair(scores.get(i), shuffledVariants.get(i));
+            scored.add(p);
+        }
+
+        Collections.sort(scored, new Comparator<Pair>() {
+            @Override
+            public int compare(Pair lhs, Pair rhs) {
+                return Double.compare(((Number)lhs.first).doubleValue(), ((Number)rhs.first).doubleValue());
+            }
+        });
+
+        List<Object> sorted = new ArrayList<>(scored.size());
+
+        for(Pair p: scored) {
+            sorted.add(p.second);
+        }
+        return sorted;
+    }
+
+    private List<Number> batchPrediction(List<Map<Integer, Double>> features) {
+        List<Number> result = new ArrayList<>(features.size());
+        for (Map<Integer, Double> feat : features) {
+            FVec fVec = FVec.Transformer.fromMap(feat);
+            result.add(predictor.predictSingle(fVec));
+        }
+        return result;
+    }
+
+    private List<Map<Integer, Double>> encodeVariants(List variants, Map<String, Object> context) {
         if (context == null) {
             // Safe nil context handling
             context = Collections.EMPTY_MAP;
         }
 //        IMPLog("Context: %@", context);
-//        FeatureEncoder encoder = new FeatureEncoder();
-//        encoder.encodeFeatures(context);
+        FeatureEncoder encoder = new FeatureEncoder(table, modelSeed);
+        Map<Integer, Double> encodedContext = encoder.encodeFeatures(context);
 
-//        IMPFeatureHasher *hasher = [[IMPFeatureHasher alloc] initWithMetadata:self.metadata];
-//        IMPFeaturesDictT *encodedContext = [hasher encodeFeatures:@{ @"context": context }];
-//        IMPLog("Encoded context: %@", encodedContext);
-//        NSMutableArray *encodedFeatures = [NSMutableArray arrayWithCapacity:variants.count];
-//        for (NSDictionary *variant in variants) {
-//        [encodedFeatures addObject:[hasher encodeFeatures:@{@"variant": variant}
-//        startWith:encodedContext]];
-//    }
-//        return encodedFeatures;
-        return Collections.emptyMap();
+        List<Map<Integer, Double>> result = new ArrayList<>(variants.size());
+        for (Object variant : variants) {
+            result.add(encoder.encodeFeatures(variant, encodedContext));
+        }
+
+        return result;
     }
+
     /**
      * Performs reservoir sampling to break ties when variants have the same score.
      *
@@ -75,4 +114,5 @@ public class ImproveChooser {
         }
         return bestVariant;
     }
+
 }

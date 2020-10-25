@@ -1,9 +1,9 @@
 package ai.improve.android.spi;
 
+import ai.improve.android.chooser.ImproveChooser;
 import ai.improve.android.xgbpredictor.ImprovePredictor;
 import ai.improve.android.xgbpredictor.JSONArrayConverter;
-import biz.k11i.xgboost.Predictor;
-import ai.improve.android.ImproveModel;
+import ai.improve.android.DecisionModel;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -12,24 +12,27 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-public class DefaultImproveModel implements ImproveModel {
+public class DefaultDecisionModel implements DecisionModel {
 
     private String modelName;
 
     private ImprovePredictor model;
     private List<Number> lookupTable;
-    private long modelSeed;
+    private int modelSeed;
 
-    public static DefaultImproveModel initWithUrl() {
-        return new DefaultImproveModel("dummy");
+    private ImproveChooser chooser;
+
+    public static DefaultDecisionModel initWithUrl() {
+        return new DefaultDecisionModel("dummy");
     }
 
-    public static DefaultImproveModel initWithModel(ImprovePredictor model) {
-        DefaultImproveModel instance = new DefaultImproveModel(model.toString());
+    public static DefaultDecisionModel initWithModel(ImprovePredictor model) {
+        DefaultDecisionModel instance = new DefaultDecisionModel(model.toString());
         instance.model = model;
         try {
             instance.parseMetadata(model.getModelMetadata().getUserDefinedMetadata());
-        } catch(JSONException ex) {
+            instance.init();
+        } catch (JSONException ex) {
             //TODO think about this later
             throw new RuntimeException(ex);
         }
@@ -39,25 +42,28 @@ public class DefaultImproveModel implements ImproveModel {
     private void parseMetadata(String userDefinedMetadata) throws JSONException {
         JSONObject o = new JSONObject(userDefinedMetadata);
         JSONObject meta = o.getJSONObject("json");
-        modelSeed = meta.getLong("model_seed");
+        modelSeed = (int) meta.getLong("model_seed");
         JSONArray array = meta.getJSONArray("table");
         lookupTable = JSONArrayConverter.toList(array);
     }
 
 
-    DefaultImproveModel(String modelName) {
+    DefaultDecisionModel(String modelName) {
         this.modelName = modelName;
+    }
+
+    void init() {
+        this.chooser = new ImproveChooser(model, lookupTable, modelSeed);
     }
 
     @Override
     public Object choose(List variants) {
-        // Stubbed out method
-        return variants.get(0);
+        return choose(variants, null);
     }
 
     @Override
     public Object choose(List variants, Map context) {
-        return variants.get(0);
+        return chooser.choose(variants, context);
     }
 
     @Override
@@ -77,6 +83,6 @@ public class DefaultImproveModel implements ImproveModel {
 
     @Override
     public List<Number> score(List variants, Map context) {
-        return Collections.nCopies(variants.size(), 0);
+        return chooser.score(variants, context);
     }
 }

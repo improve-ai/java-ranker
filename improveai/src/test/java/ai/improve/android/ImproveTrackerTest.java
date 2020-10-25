@@ -3,7 +3,7 @@
  */
 package ai.improve.android;
 
-import ai.improve.android.spi.DefaultImproveTracker;
+import ai.improve.android.spi.DefaultDecisionTracker;
 import android.app.Application;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -22,18 +22,18 @@ import static org.mockserver.model.HttpRequest.request;
 import static org.mockserver.model.HttpResponse.response;
 
 @RunWith(RobolectricTestRunner.class)
-public class LibraryTest {
+public class ImproveTrackerTest {
 
     @Rule
     public MockServerRule mockServerRule = new MockServerRule(this, 8888);
 
 
-    private static final Logger jul = Logger.getLogger(LibraryTest.class.getName());
+    private static final Logger jul = Logger.getLogger(ImproveTrackerTest.class.getName());
 
     private MockServerClient client;
     private Application application;
 
-    public LibraryTest() {
+    public ImproveTrackerTest() {
 
     }
 
@@ -61,22 +61,22 @@ public class LibraryTest {
 
     @Test
     public void testDecisionTracker() {
-        ImproveTracker tracker = new DefaultImproveTracker(application,"http://localhost:8888/endpoint", "0000");
+        DecisionTracker tracker = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
         tracker.trackDecision("word", Collections.singletonList("word"), "test");
     }
 
     @Test
     public void testRewardTracker() {
-        ImproveTracker tracker = new DefaultImproveTracker(application,"http://localhost:8888/endpoint", "0000");
+        DecisionTracker tracker = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
         tracker.addReward("reward", 100.23);
     }
     @Test
     public void testAnalyticsTracker() {
-        ImproveTracker tracker = new DefaultImproveTracker(application,"http://localhost:8888/endpoint", "0000");
+        DecisionTracker tracker = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
         tracker.trackAnalyticsEvent("event1", Collections.singletonMap("propertyName", "propertyValue"));
 
         //ensure historyId is preserved between instances
-        ImproveTracker tracker2 = new DefaultImproveTracker(application,"http://localhost:8888/endpoint", "0000");
+        DecisionTracker tracker2 = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
         tracker2.trackAnalyticsEvent("event2", Collections.singletonMap("propertyName", "propertyValue"));
     }
 }

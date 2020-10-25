@@ -3,9 +3,8 @@
  */
 package ai.improve.android;
 
-import ai.improve.android.spi.DefaultImproveModel;
+import ai.improve.android.spi.DefaultDecisionModel;
 import ai.improve.android.xgbpredictor.ImprovePredictor;
-import biz.k11i.xgboost.Predictor;
 import biz.k11i.xgboost.util.ModelReader;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -17,7 +16,7 @@ import java.util.logging.Logger;
 
 @RunWith(RobolectricTestRunner.class)
 public class ImproveModelTest {
-    private static final Logger jul = Logger.getLogger(LibraryTest.class.getName());
+    private static final Logger jul = Logger.getLogger(ImproveTrackerTest.class.getName());
 
 
     public ImproveModelTest() {
@@ -27,9 +26,9 @@ public class ImproveModelTest {
     public void testImproveModel() throws IOException {
         ImprovePredictor p = new ImprovePredictor(getClass().getResourceAsStream("/model_appended.xgb"));
         System.out.println(p.getModelMetadata().getUserDefinedMetadata());
-        ImproveModel model = DefaultImproveModel.initWithModel(p);
+        DecisionModel model = DefaultDecisionModel.initWithModel(p);
 
-                String choice = (String) model.choose(Arrays.asList("test", "data", "which", "22222", "00000"));
+        String choice = (String) model.choose(Arrays.asList("test", "data", "which", "22222", "00000"));
         jul.info("Choice: " + choice);
 
         jul.severe("SEVERE");

@@ -1,7 +1,7 @@
 package ai.improve.android.spi;
 
 import ai.improve.android.HttpUtil;
-import ai.improve.android.ImproveTracker;
+import ai.improve.android.DecisionTracker;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Base64;
@@ -12,9 +12,9 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Logger;
 
-public class DefaultImproveTracker implements ImproveTracker {
+public class DefaultDecisionTracker implements DecisionTracker {
 
-    private static final Logger logger = Logger.getLogger(DefaultImproveTracker.class.getName());
+    private static final Logger logger = Logger.getLogger(DefaultDecisionTracker.class.getName());
     private static final Random random = new SecureRandom();
     private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
 
@@ -40,15 +40,15 @@ public class DefaultImproveTracker implements ImproveTracker {
     private String historyId;
 
 
-    public DefaultImproveTracker(Context context) {
+    public DefaultDecisionTracker(Context context) {
         this(context, null, null);
     }
 
-    public DefaultImproveTracker(Context context, String trackUrl) {
+    public DefaultDecisionTracker(Context context, String trackUrl) {
         this(context, trackUrl, null);
     }
 
-    public DefaultImproveTracker(Context context, String trackUrl, String apiKey) {
+    public DefaultDecisionTracker(Context context, String trackUrl, String apiKey) {
         this.context = context;
         this.trackUrl = trackUrl;
         this.apiKey = apiKey;

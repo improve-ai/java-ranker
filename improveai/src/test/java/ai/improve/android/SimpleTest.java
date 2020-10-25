@@ -3,17 +3,9 @@
  */
 package ai.improve.android;
 
-import ai.improve.android.spi.DefaultImproveTracker;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Rule;
 import org.junit.Test;
-import org.mockserver.integration.ClientAndServer;
-import org.mockserver.junit.MockServerRule;
 
-import java.lang.reflect.Array;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.logging.Logger;
 
 import static org.mockserver.model.HttpRequest.request;
@@ -21,7 +13,7 @@ import static org.mockserver.model.HttpResponse.response;
 
 //@RunWith(RobolectricTestRunner.class)
 public class SimpleTest {
-    private static final Logger jul = Logger.getLogger(LibraryTest.class.getName());
+    private static final Logger jul = Logger.getLogger(ImproveTrackerTest.class.getName());
 
 
     public SimpleTest() {

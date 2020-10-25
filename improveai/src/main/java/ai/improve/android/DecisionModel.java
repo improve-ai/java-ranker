@@ -3,7 +3,7 @@ package ai.improve.android;
 import java.util.List;
 import java.util.Map;
 
-public interface ImproveModel {
+public interface DecisionModel {
 
 
     /**

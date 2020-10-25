@@ -5,7 +5,7 @@ import ai.improve.android.spi.CompetionHandler;
 import java.util.List;
 import java.util.Map;
 
-public interface ImproveTracker {
+public interface DecisionTracker {
 
     String MODEL_KEY = "model";
     String HISTORY_ID_KEY = "history_id";
