@@ -20,12 +20,6 @@ public class ImproveChooser {
         this.modelSeed = modelSeed;
     }
 
-    public Object choose(List variants, Map<String, Object> context) {
-        List<Map<Integer, Double>> features = encodeVariants(variants, context);
-        List<Number> scores = batchPrediction(features);
-        return findBestSample(variants, scores);
-    }
-
     public List<Object> score(List variants, Map<String, Object> context) {
 
         List shuffledVariants = new ArrayList(variants); // ensure mutability
@@ -73,7 +67,6 @@ public class ImproveChooser {
             // Safe nil context handling
             context = Collections.EMPTY_MAP;
         }
-//        IMPLog("Context: %@", context);
         FeatureEncoder encoder = new FeatureEncoder(table, modelSeed);
         Map<Integer, Double> encodedContext = encoder.encodeFeatures(context);
 
@@ -84,35 +77,6 @@ public class ImproveChooser {
 
         return result;
     }
-
-    /**
-     * Performs reservoir sampling to break ties when variants have the same score.
-     *
-     * @param variants
-     * @param scores
-     * @return
-     */
-    private Object findBestSample(List variants, List<Number> scores) {
-        double bestScore = -Double.MAX_VALUE;
-        Object bestVariant = null;
-        int replacementCount = 0;
-        Random random = new Random();
-        for (int i = 0; i < scores.size(); ++i) {
-            double score = scores.get(i).doubleValue();
-            if (score > bestScore) {
-                bestScore = score;
-                bestVariant = variants.get(i);
-                replacementCount = 0;
-            } else if (score == bestScore) {
-                double replacementProbability = 1.0 / (double) (2 + replacementCount);
-                replacementCount++;
-                if (random.nextDouble() <= replacementProbability) {
-                    bestScore = score;
-                    bestVariant = variants.get(i);
-                }
-            }
-        }
-        return bestVariant;
-    }
+    
 
 }

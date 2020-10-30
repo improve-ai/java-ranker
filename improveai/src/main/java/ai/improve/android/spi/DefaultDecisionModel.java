@@ -52,28 +52,13 @@ public class DefaultDecisionModel implements DecisionModel {
         this.modelName = modelName;
     }
 
+    @Override
+    public String getModelName() {
+        return modelName;
+    }
+
     void init() {
         this.chooser = new ImproveChooser(model, lookupTable, modelSeed);
-    }
-
-    @Override
-    public Object choose(List variants) {
-        return choose(variants, null);
-    }
-
-    @Override
-    public Object choose(List variants, Map context) {
-        return chooser.choose(variants, context);
-    }
-
-    @Override
-    public List sort(List variants) {
-        return variants;
-    }
-
-    @Override
-    public List sort(List variants, Map context) {
-        return variants;
     }
 
     @Override

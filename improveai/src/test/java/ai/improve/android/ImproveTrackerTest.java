@@ -60,23 +60,12 @@ public class ImproveTrackerTest {
     }
 
     @Test
-    public void testDecisionTracker() {
-        DecisionTracker tracker = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
-        tracker.trackDecision("word", Collections.singletonList("word"), "test");
-    }
-
-    @Test
-    public void testRewardTracker() {
-        DecisionTracker tracker = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
-        tracker.addReward("reward", 100.23);
-    }
-    @Test
     public void testAnalyticsTracker() {
         DecisionTracker tracker = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
-        tracker.trackAnalyticsEvent("event1", Collections.singletonMap("propertyName", "propertyValue"));
+        tracker.trackEvent("event1", Collections.singletonMap("propertyName", "propertyValue"));
 
         //ensure historyId is preserved between instances
         DecisionTracker tracker2 = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
-        tracker2.trackAnalyticsEvent("event2", Collections.singletonMap("propertyName", "propertyValue"));
+        tracker2.trackEvent("event2", Collections.singletonMap("propertyName", "propertyValue"));
     }
 }

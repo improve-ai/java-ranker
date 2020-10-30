@@ -28,8 +28,8 @@ public class ImproveModelTest {
         System.out.println(p.getModelMetadata().getUserDefinedMetadata());
         DecisionModel model = DefaultDecisionModel.initWithModel(p);
 
-        String choice = (String) model.choose(Arrays.asList("test", "data", "which", "22222", "00000"));
-        jul.info("Choice: " + choice);
+//        String choice = (String) model.choose(Arrays.asList("test", "data", "which", "22222", "00000"));
+//        jul.info("Choice: " + choice);
 
         jul.severe("SEVERE");
         jul.info("INFO");

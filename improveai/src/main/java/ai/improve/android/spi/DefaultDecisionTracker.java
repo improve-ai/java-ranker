@@ -1,5 +1,6 @@
 package ai.improve.android.spi;
 
+import ai.improve.android.Decision;
 import ai.improve.android.HttpUtil;
 import ai.improve.android.DecisionTracker;
 import android.content.Context;
@@ -17,6 +18,8 @@ public class DefaultDecisionTracker implements DecisionTracker {
     private static final Logger logger = Logger.getLogger(DefaultDecisionTracker.class.getName());
     private static final Random random = new SecureRandom();
     private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
+
+    private static final float DEFAULT_EVENT_VALUE = 0.01f;
 
     /**
      * Android Context (usually Application instance)
@@ -55,7 +58,7 @@ public class DefaultDecisionTracker implements DecisionTracker {
 
         SharedPreferences preferences = context.getSharedPreferences("ai.improve", Context.MODE_PRIVATE);
 
-        if(preferences.contains(HISTORY_ID_KEY)) {
+        if (preferences.contains(HISTORY_ID_KEY)) {
             this.historyId = preferences.getString(HISTORY_ID_KEY, "");
         } else {
             this.historyId = generateHistoryId();
@@ -74,103 +77,67 @@ public class DefaultDecisionTracker implements DecisionTracker {
 
 
     @Override
-    public void trackDecision(Object variant, List variants, String modelName) {
-        trackDecision(variant, variants, modelName, null, null, null);
-    }
-
-    @Override
-    public void trackDecision(Object variant, List variants, String modelName, Map context) {
-        trackDecision(variant, variants, modelName, context, null, null);
-
-    }
-
-    @Override
-    public void trackDecision(Object variant, List variants, String modelName, Map context, String rewardKey) {
-        trackDecision(variant, variants, modelName, context, rewardKey, null);
-    }
-
-    @Override
-    public void trackDecision(Object variant, List variants, String modelName, Map context, String rewardKey, CompetionHandler completionHandler) {
-        //do nothing yet
+    public Object trackUsingBestFrom(Decision decision) {
         if (trackUrl == null) {
-            return; // no tracking url set - nothing to track.
+            return null;
         }
-        if (variant == null) {
-            logger.severe("Skipping trackDecision for nil variant. To track null values use [NSNull null]");
-            if (completionHandler != null) {
-                completionHandler.onError(null);
-            }
-            return;
+        List topRunnersUp;
+        if (decision.isTrackRunnersUp()) {
+            topRunnersUp = decision.topRunnersUp();
         }
-
-        // the rewardKey is never nil
-        if (rewardKey == null) {
-            logger.info("Using model name as rewardKey: " + modelName);
-            if (completionHandler != null) {
-                completionHandler.onError(null);
-            }
-            rewardKey = modelName;
-        }
+        Object best = decision.best();
 
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, DECISION_TYPE);
-        body.put(VARIANT_KEY, variant);
-        body.put(MODEL_KEY, modelName);
-        body.put(REWARD_KEY_KEY, rewardKey);
+        body.put(MODEL_KEY, decision.getModelName());
+        body.put(DECISION_BEST_KEY, best);
+        if(decision.topRunnersUp() != null) {
+            body.put(RUNNERS_UP_KEY, decision.topRunnersUp().size());
+        }
+        body.put(COUNT_KEY, decision.getVariants().size());
 
         if (context != null) {
             body.put(CONTEXT_KEY, context);
         }
 
-        if (variants != null && variants.size() > 0) {
+        // Producing random sample from variants other than best and runners up. Exclude field if none
 
+        List variants = new ArrayList();
+        variants.addAll(decision.getVariants());
+        variants.removeAll(decision.topRunnersUp());
+        variants.remove(decision.best());
+        if (variants != null && variants.size() > 0) {
             if (random.nextDouble() > 1.0 / (double) variants.size()) {
                 Object randomSample = variants.get(random.nextInt(variants.size()));
-                body.put(VARIANTS_COUNT_KEY, variants.size());
                 body.put(SAMPLE_VARIANT_KEY, randomSample);
-            } else {
-                body.put(VARIANTS_KEY, variants);
             }
         }
 
         postTrackingRequest(trackUrl, body);
+        return decision.best();
     }
 
 
     @Override
-    public void addReward(String rewardKey, Double reward) {
-        addRewards(Collections.singletonMap(rewardKey, reward));
+    public void trackEvent(String event) {
+        trackEvent(event, null, null);
     }
 
     @Override
-    public void addRewards(Map<String, Double> rewards) {
-        addRewards(rewards, null);
+    public void trackEvent(String event, Map<String, Object> properties) {
+        trackEvent(event, properties, null);
     }
 
     @Override
-    public void addRewards(Map<String, Double> rewards, CompetionHandler completionHandler) {
-        if (rewards != null && !rewards.isEmpty()) {
-            logger.info("Tracking rewards: " + rewards);
-            track(Collections.singletonMap(REWARDS_TYPE, rewards), completionHandler);
-        } else {
-            logger.severe("Skipping trackRewards for null or empty rewards");
-            if (completionHandler != null) completionHandler.onError("Null rewards");
-        }
-    }
-
-    @Override
-    public void trackAnalyticsEvent(String event, Map<String, Object> properties) {
-        trackAnalyticsEvent(event, properties, null);
-    }
-
-    @Override
-    public void trackAnalyticsEvent(String event, Map<String, Object> properties, Map<String, Object> context) {
+    public void trackEvent(String event, Map<String, Object> properties, Map<String, Object> context) {
         Map<String, Object> body = new HashMap<>();
         if (event != null) {
             body.put(EVENT_KEY, event);
         }
         if (properties != null) {
             body.put(PROPERTIES_KEY, properties);
+        } else {
+            body.put(PROPERTIES_KEY, Collections.singletonMap(VALUE_KEY, DEFAULT_EVENT_VALUE));
         }
         if (context != null) {
             body.put(CONTEXT_KEY, context);
@@ -179,10 +146,6 @@ public class DefaultDecisionTracker implements DecisionTracker {
     }
 
     private void track(Map<String, Object> body) {
-        track(body, null);
-    }
-
-    private void track(Map<String, Object> body, CompetionHandler handler) {
         if (this.trackUrl == null) {
             return;
         }

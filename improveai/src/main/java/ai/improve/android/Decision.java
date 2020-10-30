@@ -1,18 +1,26 @@
 package ai.improve.android;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Decision {
 
-    List<Double> scores(List<Object> variants);
+    List<Object> getVariants();
 
-    List<Object> ranked(List<Object> variants);
+    Map getContext();
 
-    List<ScoredVariant> scored(List<Object> variants);
+    boolean isTrackRunnersUp();
 
-    Object best(List<Object> variants);
+    List<? extends Number> scores();
 
-    List<Object> topRunnersUp(List<Object> variants);
+    List<Object> ranked();
+
+    List<ScoredVariant> scored();
+
+    Object best();
+
+    List<Object> topRunnersUp();
 
 
+    Object getModelName();
 }

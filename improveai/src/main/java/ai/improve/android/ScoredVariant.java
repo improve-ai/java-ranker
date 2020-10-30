@@ -12,11 +12,11 @@ public class ScoredVariant {
     }
 
 
-    public void setVariant(Object variant) {
-        this.variant = variant;
+    public Object getVariant() {
+        return variant;
     }
 
-    public void setScore(double score) {
-        this.score = score;
+    public double getScore() {
+        return score;
     }
 }
