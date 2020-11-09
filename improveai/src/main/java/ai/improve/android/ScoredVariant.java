@@ -1,6 +1,6 @@
 package ai.improve.android;
 
-public class ScoredVariant {
+public class ScoredVariant implements Comparable<ScoredVariant> {
 
     private Object variant;
 
@@ -18,5 +18,13 @@ public class ScoredVariant {
 
     public double getScore() {
         return score;
+    }
+
+    @Override
+    public int compareTo(ScoredVariant another) {
+        if(another == null) {
+            return -1;
+        }
+        return Double.compare(this.score, another.score);
     }
 }

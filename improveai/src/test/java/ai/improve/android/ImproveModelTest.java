@@ -11,7 +11,6 @@ import org.junit.runner.RunWith;
 import org.robolectric.RobolectricTestRunner;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.logging.Logger;
 
 @RunWith(RobolectricTestRunner.class)

@@ -7,7 +7,7 @@ public interface Decision {
 
     List<Object> getVariants();
 
-    Map getContext();
+    Map<String, Object> getContext();
 
     boolean isTrackRunnersUp();
 

@@ -10,12 +10,12 @@ public interface DecisionModel {
     /**
      * Takes an array of variants and returns an List of Numbers with the scores.
      */
-    List<Number> score(List variants);
+    List<ScoredVariant> score(List<Object> variants);
 
     /**
      * Takes an array of variants and context and returns an array of NSNumbers of the scores.
      */
-    List<Number> score(List variants, Map context);
+    List<ScoredVariant> score(List<Object> variants, Map<String, Object> context);
 
 
 }

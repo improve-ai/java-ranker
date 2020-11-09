@@ -1,5 +1,6 @@
 package ai.improve.android.spi;
 
+import ai.improve.android.ScoredVariant;
 import ai.improve.android.chooser.ImproveChooser;
 import ai.improve.android.xgbpredictor.ImprovePredictor;
 import ai.improve.android.xgbpredictor.JSONArrayConverter;
@@ -62,12 +63,12 @@ public class DefaultDecisionModel implements DecisionModel {
     }
 
     @Override
-    public List<Number> score(List variants) {
-        return score(variants, Collections.EMPTY_MAP);
+    public List<ScoredVariant> score(List<Object> variants) {
+        return score(variants, Collections.emptyMap());
     }
 
     @Override
-    public List<Number> score(List variants, Map context) {
+    public List<ScoredVariant> score(List<Object> variants, Map<String, Object> context) {
         return chooser.score(variants, context);
     }
 }

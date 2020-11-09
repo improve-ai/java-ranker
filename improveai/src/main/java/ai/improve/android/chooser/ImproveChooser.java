@@ -1,11 +1,14 @@
 package ai.improve.android.chooser;
 
+import ai.improve.android.ScoredVariant;
 import ai.improve.android.hasher.FeatureEncoder;
 import ai.improve.android.xgbpredictor.ImprovePredictor;
-import android.util.Pair;
 import biz.k11i.xgboost.util.FVec;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 public class ImproveChooser {
 
@@ -20,39 +23,40 @@ public class ImproveChooser {
         this.modelSeed = modelSeed;
     }
 
-    public List<Object> score(List variants, Map<String, Object> context) {
+    /**
+     *
+     * @param variants
+     * @param context
+     * @return
+     */
+    public List<ScoredVariant> score(List<Object> variants, Map<String, Object> context) {
 
-        List shuffledVariants = new ArrayList(variants); // ensure mutability
-        Collections.shuffle(variants);
+        List<Object> shuffledVariants = new ArrayList<>(variants); // ensure mutability
+        Collections.shuffle(shuffledVariants);
 
         List<Map<Integer, Double>> features = encodeVariants(variants, context);
         List<Number> scores = batchPrediction(features);
-        if(scores == null || scores.isEmpty()) {
-            return Collections.EMPTY_LIST;
+        if(scores.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        List<Pair> scored = new ArrayList();
+        List<ScoredVariant> scored = new ArrayList();
 
         for(int i = 0; i < scores.size(); ++i) {
-            Pair p = new Pair(scores.get(i), shuffledVariants.get(i));
+            ScoredVariant p = new ScoredVariant(shuffledVariants.get(i), scores.get(i).doubleValue());
             scored.add(p);
         }
 
-        Collections.sort(scored, new Comparator<Pair>() {
-            @Override
-            public int compare(Pair lhs, Pair rhs) {
-                return Double.compare(((Number)lhs.first).doubleValue(), ((Number)rhs.first).doubleValue());
-            }
-        });
+        Collections.sort(scored);
 
-        List<Object> sorted = new ArrayList<>(scored.size());
-
-        for(Pair p: scored) {
-            sorted.add(p.second);
-        }
-        return sorted;
+        return scored;
     }
 
+    /**
+     *
+     * @param features
+     * @return
+     */
     private List<Number> batchPrediction(List<Map<Integer, Double>> features) {
         List<Number> result = new ArrayList<>(features.size());
         for (Map<Integer, Double> feat : features) {
@@ -62,10 +66,16 @@ public class ImproveChooser {
         return result;
     }
 
+    /**
+     *
+     * @param variants
+     * @param context
+     * @return
+     */
     private List<Map<Integer, Double>> encodeVariants(List variants, Map<String, Object> context) {
         if (context == null) {
             // Safe nil context handling
-            context = Collections.EMPTY_MAP;
+            context = Collections.emptyMap();
         }
         FeatureEncoder encoder = new FeatureEncoder(table, modelSeed);
         Map<Integer, Double> encodedContext = encoder.encodeFeatures(context);

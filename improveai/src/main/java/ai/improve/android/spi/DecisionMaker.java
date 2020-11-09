@@ -18,7 +18,7 @@ public class DecisionMaker implements Decision {
     private DecisionModel model;
 
     private String modelName;
-    private Map context;
+    private Map<String, Object> context;
 
     private int maxRunnersUp = DEFAULT_MAX_RUNNERSUP;
 
@@ -36,41 +36,34 @@ public class DecisionMaker implements Decision {
     private RandomGenerator randomGenerator = new JDKRandomGenerator();
 
 
-    public static Map simpleContext() {
-        return new HashMap();
+    public static Map<String, Object> simpleContext() {
+        return new HashMap<String, Object>();
     }
 
 
     public DecisionMaker(List<Object> variants, DecisionModel model) {
-        this.variants = variants;
-        this.model = model;
-        this.context = DecisionMaker.simpleContext();
-        this.trackRunnersUp = isTrackRunnersUpEnabled();
+        this(variants, model, null);
     }
 
-    public DecisionMaker(List<Object> variants, DecisionModel model, Map context) {
-        this.variants = variants;
-        this.model = model;
-        this.context = context;
-        this.trackRunnersUp = isTrackRunnersUpEnabled();
-
+    public DecisionMaker(List<Object> variants, DecisionModel model, Map<String, Object> context) {
+        this(variants, model, model.getModelName(), context);
     }
 
 
     public DecisionMaker(List<Object> variants, String modelName) {
-        this.variants = variants;
-        this.modelName = modelName;
-        this.context = DecisionMaker.simpleContext();
-        this.trackRunnersUp = isTrackRunnersUpEnabled();
-
+        this(variants, modelName, null);
     }
 
-    public DecisionMaker(List<Object> variants, String modelName, Map context) {
-        this.variants = variants;
-        this.modelName = modelName;
-        this.context = context;
-        this.trackRunnersUp = isTrackRunnersUpEnabled();
+    public DecisionMaker(List<Object> variants, String modelName, Map<String, Object> context) {
+        this(variants, null, modelName, context);
+    }
 
+    DecisionMaker(List<Object> variants, DecisionModel model, String modelName, Map<String, Object> context) {
+        this.variants = Collections.unmodifiableList(variants);
+        this.model = model;
+        this.modelName = modelName;
+        this.context = context != null ? context : DecisionMaker.simpleContext();
+        this.trackRunnersUp = isTrackRunnersUpEnabled();
     }
 
     public String getModelName() {
@@ -79,7 +72,6 @@ public class DecisionMaker implements Decision {
         }
         return modelName;
     }
-
 
 
     public void setMaxRunnersUp(int maxRunnersUp) {
@@ -92,7 +84,7 @@ public class DecisionMaker implements Decision {
     }
 
     @Override
-    public Map getContext() {
+    public Map<String, Object> getContext() {
         return context;
     }
 
@@ -110,22 +102,26 @@ public class DecisionMaker implements Decision {
         if (localScores != null) {
             return localScores;
         }
-        if (model != null) {
-            this.localScores = model.score(variants, context);
-        } else {
-            this.localScores = generateScoresForRankedVariants();
+        List<ScoredVariant> scoredVariants = scored();
+        List<Number> result = new ArrayList<>();
+        for (ScoredVariant sv : scoredVariants) {
+            result.add(sv.getScore());
         }
+        this.localScores = Collections.unmodifiableList(result);
         return this.localScores;
     }
 
-    private List<? extends Number> generateScoresForRankedVariants() {
+    private List<ScoredVariant> generateScoresForRankedVariants() {
         Double[] scores = new Double[variants.size()];
 
         for (int i = 0; i < variants.size(); ++i) {
             scores[i] = randomGenerator.nextGaussian();
         }
-        List<Double> result = Arrays.asList(scores);
-        Collections.sort(result);
+        Arrays.sort(scores);
+        List<ScoredVariant> result = new ArrayList<>(variants.size());
+        for (int i = 0; i < variants.size(); ++i) {
+            result.add(new ScoredVariant(variants.get(i), scores[i]));
+        }
         return result;
     }
 
@@ -138,17 +134,12 @@ public class DecisionMaker implements Decision {
             return localRanked;
         }
         List<ScoredVariant> scoredVariants = scored();
-        Collections.sort(scoredVariants, new Comparator<ScoredVariant>() {
-            @Override
-            public int compare(ScoredVariant lhs, ScoredVariant rhs) {
-                return Double.compare(lhs.getScore(), rhs.getScore());
-            }
-        });
+        Collections.sort(scoredVariants);
         List<Object> ranked = new ArrayList<>(scoredVariants.size());
         for (ScoredVariant v : scoredVariants) {
             ranked.add(v.getVariant());
         }
-        this.localRanked = ranked;
+        this.localRanked = Collections.unmodifiableList(ranked);
         return localRanked;
     }
 
@@ -157,13 +148,12 @@ public class DecisionMaker implements Decision {
         if (localScored != null) {
             return localScored;
         }
-        List<? extends Number> scores = scores();
-        List<ScoredVariant> result = new ArrayList<>();
-        for (int i = 0; i < variants.size(); ++i) {
-            result.add(new ScoredVariant(variants.get(i), scores.get(i).doubleValue()));
+        if (model != null) {
+            this.localScored = Collections.unmodifiableList(model.score(variants, context));
+        } else {
+            this.localScored = generateScoresForRankedVariants();
         }
-        this.localScored = result;
-        return result;
+        return this.localScored;
     }
 
     @Override
