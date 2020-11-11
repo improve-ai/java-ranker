@@ -133,7 +133,7 @@ public class DecisionMaker implements Decision {
         if (localRanked != null) {
             return localRanked;
         }
-        List<ScoredVariant> scoredVariants = scored();
+        List<ScoredVariant> scoredVariants = new ArrayList<>(scored());
         Collections.sort(scoredVariants);
         List<Object> ranked = new ArrayList<>(scoredVariants.size());
         for (ScoredVariant v : scoredVariants) {
