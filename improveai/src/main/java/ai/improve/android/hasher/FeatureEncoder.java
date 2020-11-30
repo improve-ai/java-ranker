@@ -50,13 +50,13 @@ public class FeatureEncoder {
         this.modelSeed = modelSeed;
     }
 
-    public Map<Integer, Double> encodeFeatures(Object data) {
-        Map<String, Object> jsonData = Collections.singletonMap("json", data);
+    public Map<Integer, Double> encodeFeatures(String type, Object data) {
+        Map<String, Object> jsonData = Collections.singletonMap(type, data);
         return encodeFeatures(jsonData, null);
     }
 
-    public Map<Integer, Double> encodeFeatures(Object data, Map<Integer, Double> context) {
-        Map<String, Object> jsonData = Collections.singletonMap("json", data);
+    public Map<Integer, Double> encodeFeatures(String type, Object data, Map<Integer, Double> context) {
+        Map<String, Object> jsonData = Collections.singletonMap(type, data);
         return encodeFeatures(jsonData, context);
     }
 
@@ -89,9 +89,11 @@ public class FeatureEncoder {
             features.putAll(initialContext);
         }
 
-        double noise = new JDKRandomGenerator().nextGaussian();
+        double noise = -3; //new JDKRandomGenerator().nextGaussian();
         for (Map.Entry<String, Object> entry : flatData.entrySet()) {
             int column = lookupColumn(entry.getKey(), modelSeed);
+            //System.out.println(column + " - " + entry.getKey());
+
             Object v = entry.getValue();
             if (v == null) {
                 continue;
@@ -104,7 +106,10 @@ public class FeatureEncoder {
             } else if (v instanceof String) {
                 features.put(column, lookupValue(column, (String) v, modelSeed, noise));
             }
+            System.out.println(features.get(column) + " - " + v);
         }
+        //System.out.println("Noise: " + noise);
+
         return features;
     }
 
@@ -147,11 +152,14 @@ public class FeatureEncoder {
         int columnIndex = (int) (hash % columns.size());
         int columnValue = columns.get(columnIndex).intValue();
 
+        int result = 0;
         if (columnValue < 0) {
-            return Math.abs(columnValue) - 1;
+            result = Math.abs(columnValue) - 1;
         } else {
-            return (int) (unsignedMmh3Hash(key, (int) (columnValue ^ modelSeed)) % (FastMath.floorDiv(values.size(), w)));
+            result = (int) (unsignedMmh3Hash(key, (int) (columnValue ^ modelSeed)) % (FastMath.floorDiv(values.size(), w)));
         }
+        System.out.println("C: " + columnIndex + " : " + columnValue + " : " + result + " : " + modelSeed + " : " + hash);
+        return result;
     }
 
     /**
@@ -170,6 +178,8 @@ public class FeatureEncoder {
 
         int subcolumn = lookupColumn(subtable, key, modelSeed, 2) * 2;
         double result = subvalues.get(subcolumn).doubleValue() + (subvalues.get(subcolumn + 1).doubleValue() * noise);
+
+        System.out.println(subcolumn + " : " + subvalues.get(subcolumn) + " : " + subvalues.get(subcolumn + 1) + " : " + noise);
         return result;
     }
 

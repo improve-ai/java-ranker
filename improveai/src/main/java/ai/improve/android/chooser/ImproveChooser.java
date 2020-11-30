@@ -32,9 +32,11 @@ public class ImproveChooser {
     public List<ScoredVariant> score(List<Object> variants, Map<String, Object> context) {
 
         List<Object> shuffledVariants = new ArrayList<>(variants); // ensure mutability
-        Collections.shuffle(shuffledVariants);
+        //Collections.shuffle(shuffledVariants);
 
         List<Map<Integer, Double>> features = encodeVariants(variants, context);
+        //TODO remove debug output
+        //System.out.println(features);
         List<Number> scores = batchPrediction(features);
         if(scores.isEmpty()) {
             return Collections.emptyList();
@@ -78,11 +80,11 @@ public class ImproveChooser {
             context = Collections.emptyMap();
         }
         FeatureEncoder encoder = new FeatureEncoder(table, modelSeed);
-        Map<Integer, Double> encodedContext = encoder.encodeFeatures(context);
+        Map<Integer, Double> encodedContext = encoder.encodeFeatures("context", context);
 
         List<Map<Integer, Double>> result = new ArrayList<>(variants.size());
         for (Object variant : variants) {
-            result.add(encoder.encodeFeatures(variant, encodedContext));
+            result.add(encoder.encodeFeatures("variant", variant, encodedContext));
         }
 
         return result;
