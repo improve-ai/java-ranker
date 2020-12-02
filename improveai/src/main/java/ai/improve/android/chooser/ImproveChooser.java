@@ -4,6 +4,8 @@ import ai.improve.android.ScoredVariant;
 import ai.improve.android.hasher.FeatureEncoder;
 import ai.improve.android.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ImproveChooser {
+
+    private static final RandomGenerator randomGenerator = new JDKRandomGenerator();
+    private static final double NOISE_LEVEL = 10000000000000d;
 
     private ImprovePredictor predictor;
     private List<Number> table;
@@ -35,8 +40,6 @@ public class ImproveChooser {
         //Collections.shuffle(shuffledVariants);
 
         List<Map<Integer, Double>> features = encodeVariants(variants, context);
-        //TODO remove debug output
-        //System.out.println(features);
         List<Number> scores = batchPrediction(features);
         if(scores.isEmpty()) {
             return Collections.emptyList();
@@ -45,7 +48,10 @@ public class ImproveChooser {
         List<ScoredVariant> scored = new ArrayList();
 
         for(int i = 0; i < scores.size(); ++i) {
-            ScoredVariant p = new ScoredVariant(shuffledVariants.get(i), scores.get(i).doubleValue());
+            double score = scores.get(i).doubleValue() + 1;
+
+            double flexiScore = score + (randomGenerator.nextDouble() / NOISE_LEVEL);
+            ScoredVariant p = new ScoredVariant(shuffledVariants.get(i), flexiScore);
             scored.add(p);
         }
 

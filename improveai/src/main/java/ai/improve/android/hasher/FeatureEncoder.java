@@ -1,9 +1,9 @@
 package ai.improve.android.hasher;
 
 import org.apache.commons.codec.digest.MurmurHash3;
-import org.apache.commons.math3.random.JDKRandomGenerator;
 import org.apache.commons.math3.util.FastMath;
 
+import java.io.UnsupportedEncodingException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -79,13 +79,13 @@ public class FeatureEncoder {
     /**
      * Encodes features from pre-flattened JSON data
      *
-     * @param flatData - flattened JSON data
+     * @param flatData       - flattened JSON data
      * @param initialContext initial context features
      * @return Feature map in form of Integer:Double pairs
      */
     private Map<Integer, Double> encodeFeaturesFromFlattenedData(Map<String, Object> flatData, Map<Integer, Double> initialContext) {
         Map<Integer, Double> features = new HashMap<>();
-        if(initialContext != null) {
+        if (initialContext != null) {
             features.putAll(initialContext);
         }
 
@@ -106,7 +106,7 @@ public class FeatureEncoder {
             } else if (v instanceof String) {
                 features.put(column, lookupValue(column, (String) v, modelSeed, noise));
             }
-            System.out.println(features.get(column) + " - " + v);
+            //System.out.println(features.get(column) + " - " + v);
         }
         //System.out.println("Noise: " + noise);
 
@@ -121,8 +121,12 @@ public class FeatureEncoder {
      * @return Unsigned Murmurhash32 value
      */
     private long unsignedMmh3Hash(String value, int modelSeed) {
-        long hash = MurmurHash3.hash32x86(value.getBytes(), 0, value.length(), modelSeed);
-        return hash & 0x0ffffffffl; //convert to unsigned
+        try {
+            long hash = new GuavaMmh3Hasher(modelSeed).hashBytes(value.getBytes("UTF-8")).asInt();
+            return hash & 0x0ffffffffl; //convert to unsigned
+        } catch (UnsupportedEncodingException ex) {
+            return 0;
+        }
     }
 
     /**
@@ -158,7 +162,7 @@ public class FeatureEncoder {
         } else {
             result = (int) (unsignedMmh3Hash(key, (int) (columnValue ^ modelSeed)) % (FastMath.floorDiv(values.size(), w)));
         }
-        System.out.println("C: " + columnIndex + " : " + columnValue + " : " + result + " : " + modelSeed + " : " + hash);
+        //System.out.println("C: " + columnIndex + " : " + columnValue + " : " + result + " : " + modelSeed + " : " + hash);
         return result;
     }
 
@@ -179,7 +183,7 @@ public class FeatureEncoder {
         int subcolumn = lookupColumn(subtable, key, modelSeed, 2) * 2;
         double result = subvalues.get(subcolumn).doubleValue() + (subvalues.get(subcolumn + 1).doubleValue() * noise);
 
-        System.out.println(subcolumn + " : " + subvalues.get(subcolumn) + " : " + subvalues.get(subcolumn + 1) + " : " + noise);
+        //System.out.println(subcolumn + " : " + subvalues.get(subcolumn) + " : " + subvalues.get(subcolumn + 1) + " : " + noise);
         return result;
     }
 

@@ -1,12 +1,19 @@
-[{
-  "ref": "Matthew 10:16",
-  "text": "Behold, I send you out as sheep among wolves. Therefore be wise as serpents, and harmless as doves."
-},
 {
-"ref": "Psalm 23:3",
-"text": "He restores my soul. He guides me in the paths of righteousness for his name\u2019s sake."
-},
-{
-"ref": "Revelation 3:20",
-"text": "Behold, I stand at the door and knock. If anyone hears my voice and opens the door, then I will come in to him, and will dine with him, and he with me."
-}]
+  "device_manufacturer": "Apple",
+  "version_name": "4.3",
+  "os_name": "ios",
+  "share_ratio": 0.05000000074505806,
+  "day": 80,
+  "shared": {
+    "This moment is a fresh beginning.": 1,
+    "You will die some day. How are you living today?": 1,
+    "Accept this moment as it is and you will find peace.": 1,
+    "Be the witness to the story, rather than the actor in it.": 1
+  },
+  "language": "English",
+  "page": 80,
+  "os_version": "12.1.2",
+  "country": "United States",
+  "carrier": "AT&T",
+  "device_model": "iPhone 7 Plus"
+}

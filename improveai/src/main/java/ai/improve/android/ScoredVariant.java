@@ -27,4 +27,12 @@ public class ScoredVariant implements Comparable<ScoredVariant> {
         }
         return Double.compare(this.score, another.score);
     }
+
+    @Override
+    public String toString() {
+        return "ScoredVariant{" +
+                "score=" + score +
+                ", variant=" + variant +
+                "}\n";
+    }
 }
