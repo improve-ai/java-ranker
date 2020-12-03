@@ -1,15 +1,16 @@
 package ai.improve.android;
 
+import android.os.Environment;
+import android.util.Log;
 import org.json.JSONObject;
 
-import java.io.BufferedWriter;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.logging.Logger;
+import java.util.zip.GZIPInputStream;
 
 /**
  * Basic wrapper for HttpURLConnection
@@ -67,6 +68,26 @@ public class HttpUtil {
         } catch (Exception e) {
             logger.severe("Error posting HTTP data");
         }
+    }
+
+    /**
+     * Downloads the file to specified filename/path
+     * @param filename
+     * @return absolute file path
+     */
+    public String download(String filename) throws IOException, SecurityException {
+            URL u = url;
+            InputStream is = u.openStream();
+            GZIPInputStream dis = new GZIPInputStream(is);
+
+            byte[] buffer = new byte[1024];
+            int length;
+            String absfile = Environment.getExternalStorageDirectory() + "/" + filename;
+            FileOutputStream fos = new FileOutputStream(new File(absfile));
+            while ((length = dis.read(buffer)) > 0) {
+                fos.write(buffer, 0, length);
+            }
+            return absfile;
     }
 
 

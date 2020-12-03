@@ -9,6 +9,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,8 +25,9 @@ public class DefaultDecisionModel implements DecisionModel {
 
     private ImproveChooser chooser;
 
-    public static DefaultDecisionModel initWithUrl() {
-        return new DefaultDecisionModel("dummy");
+    public static DefaultDecisionModel initWithUrl(String url) throws IOException {
+        ImprovePredictor model = ModelDownloader.fromUrl(url);
+        return initWithModel(model);
     }
 
     public static DefaultDecisionModel initWithModel(ImprovePredictor model) {

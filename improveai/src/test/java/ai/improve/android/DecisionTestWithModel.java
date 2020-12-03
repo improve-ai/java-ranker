@@ -103,8 +103,8 @@ public class DecisionTestWithModel {
 
     }
 
-    private Map<String, Object> loadContext(String resource) throws Exception {
-        String json = IOUtils.toString(getClass().getResourceAsStream(resource), "UTF-8");
+    static Map<String, Object> loadContext(String resource) throws Exception {
+        String json = IOUtils.toString(DecisionTestWithModel.class.getResourceAsStream(resource), "UTF-8");
         JSONObject obj = new JSONObject(json);
         Map<String, Object> result = new HashMap<>();
         for(Iterator<String> r = obj.keys(); r.hasNext();) {
@@ -115,8 +115,8 @@ public class DecisionTestWithModel {
     }
 
 
-    private List<Object> loadVariants(String resource) throws Exception {
-        String json = IOUtils.toString(getClass().getResourceAsStream(resource));
+    static List<Object> loadVariants(String resource) throws Exception {
+        String json = IOUtils.toString(DecisionTestWithModel.class.getResourceAsStream(resource));
         JSONArray arr = new JSONArray(json);
         List<Object> result = new ArrayList();
         for (int i = 0; i < arr.length(); ++i) {
