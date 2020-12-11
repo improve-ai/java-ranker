@@ -18,6 +18,9 @@ public class ModelWithUrlTest {
 
     @Test
     public void testWithUrl() throws Exception {
+        // This test requires environment variable to work properly:
+        // DOWNLOAD_CACHE = /tmp
+
         DecisionModel model = DefaultDecisionModel.initWithUrl(MODEL_URL);
 
         List<Object> variants = DecisionTestWithModel.loadVariants("/datasets/2bs_bible_verses_full.json");
