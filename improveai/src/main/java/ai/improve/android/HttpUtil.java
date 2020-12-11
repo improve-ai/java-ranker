@@ -82,7 +82,7 @@ public class HttpUtil {
 
             byte[] buffer = new byte[1024];
             int length;
-            String absfile = Environment.getDownloadCacheDirectory() + "/" + filename;
+            String absfile = Environment.getDownloadCacheDirectory() + "/ai.improve." + filename;
             FileOutputStream fos = new FileOutputStream(new File(absfile));
             while ((length = dis.read(buffer)) > 0) {
                 fos.write(buffer, 0, length);
