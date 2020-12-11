@@ -90,5 +90,16 @@ public class HttpUtil {
             return absfile;
     }
 
+    /**
+     * Streams the file as an InputStream, handles gzip compression on the fly
+     * @return InputStream
+     */
+    public InputStream stream() throws IOException, SecurityException {
+        URL u = url;
+        InputStream is = u.openStream();
+        GZIPInputStream dis = new GZIPInputStream(is);
+        return dis;
+    }
+
 
 }
