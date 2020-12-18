@@ -3,6 +3,7 @@
  */
 package ai.improve.android;
 
+import ai.improve.android.spi.DecisionMaker;
 import ai.improve.android.spi.DefaultDecisionTracker;
 import android.app.Application;
 import org.junit.Before;
@@ -67,5 +68,15 @@ public class ImproveTrackerTest {
         //ensure historyId is preserved between instances
         DecisionTracker tracker2 = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
         tracker2.trackEvent("event2", Collections.singletonMap("propertyName", "propertyValue"));
+    }
+
+    @Test
+    public void testTrackUsingBestFrom() {
+        DecisionTracker tracker = new DefaultDecisionTracker(application,"http://localhost:8888/endpoint", "0000");
+        Decision decision1 = new DecisionMaker(Collections.singletonList("variant"), "none");
+
+        tracker.trackUsingBestFrom(decision1);
+
+
     }
 }

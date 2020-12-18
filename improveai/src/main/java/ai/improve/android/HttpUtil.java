@@ -8,6 +8,7 @@ import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.Map;
 import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
@@ -96,7 +97,10 @@ public class HttpUtil {
      */
     public InputStream stream() throws IOException, SecurityException {
         URL u = url;
-        InputStream is = u.openStream();
+        URLConnection c = u.openConnection();
+        c.setUseCaches(true);
+        c.setDefaultUseCaches(true);
+        InputStream is = c.getInputStream();
         GZIPInputStream dis = new GZIPInputStream(is);
         return dis;
     }
