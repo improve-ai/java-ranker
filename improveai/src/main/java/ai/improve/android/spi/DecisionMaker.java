@@ -180,6 +180,9 @@ public class DecisionMaker implements Decision {
     @Override
     public List<Object> topRunnersUp() {
         List<Object> ranked = ranked();
+        if(ranked.size() <= 1) {
+            return ranked;
+        }
         return ranked.subList(1, Math.min(ranked.size() - 1, maxRunnersUp));
     }
 }
