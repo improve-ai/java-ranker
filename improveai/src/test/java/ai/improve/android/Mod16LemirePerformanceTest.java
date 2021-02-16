@@ -34,7 +34,7 @@ public class Mod16LemirePerformanceTest {
 
     @Test
     public void testMmh3() {
-        int NUM_SAMPLES = 10000000;
+        int NUM_SAMPLES = 1000000;
         int SAMPLE_SIZE = 8;
         String[] samples = new String[NUM_SAMPLES];
         for( int i = 0; i < NUM_SAMPLES; ++i) {
@@ -45,39 +45,40 @@ public class Mod16LemirePerformanceTest {
         // Force initialisation to remove possible abberations
         unsignedMmh3Hash(samples[0], modelSeed);
 
-        long millis = System.currentTimeMillis();
+        long nano = System.nanoTime();
 
         for( int i = 0; i < NUM_SAMPLES; ++i) {
             long hash32 = unsignedMmh3Hash(samples[i], modelSeed);
         }
 
-        System.out.println(String.format("Mmh3 hash time:          %d ms", (System.currentTimeMillis() - millis)));
+        System.out.println("Mod16 vs Lemire benchmark over " + NUM_SAMPLES + " samples");
+        System.out.println(String.format("Mmh3 hash time:          %d ns", (System.nanoTime() - nano)));
 
-        millis = System.currentTimeMillis();
+        nano = System.nanoTime();
 
         for( int i = 0; i < NUM_SAMPLES; ++i) {
             long hash32 = unsignedMmh3Hash(samples[i], modelSeed);
         }
 
-        System.out.println(String.format("Mmh3 hash time #2:       %d ms", (System.currentTimeMillis() - millis)));
+        System.out.println(String.format("Mmh3 hash time #2:       %d ns", (System.nanoTime() - nano)));
 
-        millis = System.currentTimeMillis();
+        nano = System.nanoTime();
 
         for( int i = 0; i < NUM_SAMPLES; ++i) {
             long hash32 = unsignedMmh3Hash(samples[i], modelSeed);
             long hash32mod16 = (int)(hash32 % 65535);
         }
 
-        System.out.println(String.format("Mmh3 hash time + mod16:  %d ms", (System.currentTimeMillis() - millis)));
+        System.out.println(String.format("Mmh3 hash time + mod16:  %d ns", (System.nanoTime() - nano)));
 
-        millis = System.currentTimeMillis();
+        nano = System.nanoTime();
 
         for( int i = 0; i < NUM_SAMPLES; ++i) {
             long hash32 = unsignedMmh3Hash(samples[i], modelSeed);
             long hash32lemire = (hash32 * 65535) >> 32;
         }
 
-        System.out.println(String.format("Mmh3 hash time + Lemire: %d ms", (System.currentTimeMillis() - millis)));
+        System.out.println(String.format("Mmh3 hash time + Lemire: %d ns", (System.nanoTime() - nano)));
 
     }
 }
