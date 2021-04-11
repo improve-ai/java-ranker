@@ -115,7 +115,7 @@ public class DecisionTestWithModel {
     }
 
 
-    static List<Object> loadVariants(String resource) throws Exception {
+    public static List<Object> loadVariants(String resource) throws Exception {
         String json = IOUtils.toString(DecisionTestWithModel.class.getResourceAsStream(resource));
         JSONArray arr = new JSONArray(json);
         List<Object> result = new ArrayList();
