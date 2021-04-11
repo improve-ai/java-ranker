@@ -4,18 +4,11 @@
 package ai.improve.android;
 
 import ai.improve.android.hasher.GuavaMmh3Hasher;
-import org.apache.commons.codec.digest.MurmurHash3;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.RandomUtils;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.logging.Logger;
-
-import static org.mockserver.model.HttpRequest.request;
-import static org.mockserver.model.HttpResponse.response;
 
 public class Mod16LemirePerformanceTest {
 

@@ -12,7 +12,6 @@ import java.io.InputStream;
 import java.io.Serializable;
 
 /**
- * Copied from https://github.com/komiya-atsushi/xgboost-predictor-java
  * Predicts using the Xgboost model.
  */
 public class ImprovePredictor implements Serializable {
@@ -22,7 +21,9 @@ public class ImprovePredictor implements Serializable {
     private String name_gbm;
     private ObjFunction obj;
     private GradBooster gbm;
-    private ModelMetadata metadata;
+    private ModelMetadata modelMetadata;
+
+    private float base_score;
 
     public ImprovePredictor(InputStream in) throws IOException {
         this(in, null);
@@ -46,8 +47,14 @@ public class ImprovePredictor implements Serializable {
         initObjFunction(configuration);
         initObjGbm();
 
-        gbm.loadModel(reader, mparam.saved_with_pbuffer != 0);
-        metadata = new ModelMetadata(reader);
+        gbm.loadModel(configuration, reader, mparam.saved_with_pbuffer != 0);
+
+        if (mparam.major_version >= 1) {
+            base_score = obj.probToMargin(mparam.base_score);
+        } else {
+            base_score = mparam.base_score;
+        }
+        modelMetadata = new ModelMetadata(reader);
     }
 
     void readParam(ModelReader reader) throws IOException {
@@ -124,15 +131,7 @@ public class ImprovePredictor implements Serializable {
         obj = ObjFunction.fromName(name_obj);
         gbm = GradBooster.Factory.createGradBooster(name_gbm);
         gbm.setNumClass(mparam.num_class);
-    }
-
-
-    /**
-     * Returns model metadata
-     * @return
-     */
-    public ModelMetadata getModelMetadata() {
-        return metadata;
+        gbm.setNumFeature(mparam.num_feature);
     }
 
     /**
@@ -141,7 +140,7 @@ public class ImprovePredictor implements Serializable {
      * @param feat feature vector
      * @return prediction values
      */
-    public double[] predict(FVec feat) {
+    public float[] predict(FVec feat) {
         return predict(feat, false);
     }
 
@@ -152,8 +151,33 @@ public class ImprovePredictor implements Serializable {
      * @param output_margin whether to only predict margin value instead of transformed prediction
      * @return prediction values
      */
-    public double[] predict(FVec feat, boolean output_margin) {
+    public float[] predict(FVec feat, boolean output_margin) {
         return predict(feat, output_margin, 0);
+    }
+
+    /**
+     * Generates predictions for given feature vector.
+     *
+     * @param feat          feature vector
+     * @param base_margin   predict with base margin for each prediction
+     * @return prediction values
+     */
+    public float[] predict(FVec feat, float base_margin) {
+        return predict(feat, base_margin, 0);
+    }
+
+    /**
+     * Generates predictions for given feature vector.
+     *
+     * @param feat          feature vector
+     * @param base_margin   predict with base margin for each prediction
+     * @param ntree_limit   limit the number of trees used in prediction
+     * @return prediction values
+     */
+    public float[] predict(FVec feat, float base_margin, int ntree_limit) {
+        float[] preds = predictRaw(feat, base_margin, ntree_limit);
+        preds = obj.predTransform(preds);
+        return preds;
     }
 
     /**
@@ -164,18 +188,18 @@ public class ImprovePredictor implements Serializable {
      * @param ntree_limit   limit the number of trees used in prediction
      * @return prediction values
      */
-    public double[] predict(FVec feat, boolean output_margin, int ntree_limit) {
-        double[] preds = predictRaw(feat, ntree_limit);
-        if (!output_margin) {
-            return obj.predTransform(preds);
+    public float[] predict(FVec feat, boolean output_margin, int ntree_limit) {
+        float[] preds = predictRaw(feat, base_score, ntree_limit);
+        if (! output_margin) {
+            preds = obj.predTransform(preds);
         }
         return preds;
     }
 
-    double[] predictRaw(FVec feat, int ntree_limit) {
-        double[] preds = gbm.predict(feat, ntree_limit);
+    float[] predictRaw(FVec feat, float base_score, int ntree_limit) {
+        float[] preds = gbm.predict(feat, ntree_limit);
         for (int i = 0; i < preds.length; i++) {
-            preds[i] += mparam.base_score;
+            preds[i] += base_score;
         }
         return preds;
     }
@@ -189,7 +213,7 @@ public class ImprovePredictor implements Serializable {
      * @param feat feature vector
      * @return prediction value
      */
-    public double predictSingle(FVec feat) {
+    public float predictSingle(FVec feat) {
         return predictSingle(feat, false);
     }
 
@@ -203,7 +227,7 @@ public class ImprovePredictor implements Serializable {
      * @param output_margin whether to only predict margin value instead of transformed prediction
      * @return prediction value
      */
-    public double predictSingle(FVec feat, boolean output_margin) {
+    public float predictSingle(FVec feat, boolean output_margin) {
         return predictSingle(feat, output_margin, 0);
     }
 
@@ -218,16 +242,16 @@ public class ImprovePredictor implements Serializable {
      * @param ntree_limit   limit the number of trees used in prediction
      * @return prediction value
      */
-    public double predictSingle(FVec feat, boolean output_margin, int ntree_limit) {
-        double pred = predictSingleRaw(feat, ntree_limit);
+    public float predictSingle(FVec feat, boolean output_margin, int ntree_limit) {
+        float pred = predictSingleRaw(feat, ntree_limit);
         if (!output_margin) {
-            return obj.predTransform(pred);
+            pred = obj.predTransform(pred);
         }
         return pred;
     }
 
-    double predictSingleRaw(FVec feat, int ntree_limit) {
-        return gbm.predictSingle(feat, ntree_limit) + mparam.base_score;
+    float predictSingleRaw(FVec feat, int ntree_limit) {
+        return gbm.predictSingle(feat, ntree_limit) + base_score;
     }
 
     /**
@@ -244,16 +268,40 @@ public class ImprovePredictor implements Serializable {
      * Predicts leaf index of each tree.
      *
      * @param feat        feature vector
-     * @param ntree_limit limit
+     * @param ntree_limit limit, 0 for all
      * @return leaf indexes
      */
-    public int[] predictLeaf(FVec feat,
-                             int ntree_limit) {
+    public int[] predictLeaf(FVec feat, int ntree_limit) {
         return gbm.predictLeaf(feat, ntree_limit);
+    }
+
+    /**
+     * Predicts path to leaf of each tree.
+     *
+     * @param feat        feature vector
+     * @return leaf paths
+     */
+    public String[] predictLeafPath(FVec feat) {
+        return predictLeafPath(feat, 0);
+    }
+
+    /**
+     * Predicts path to leaf of each tree.
+     *
+     * @param feat        feature vector
+     * @param ntree_limit limit, 0 for all
+     * @return leaf paths
+     */
+    public String[] predictLeafPath(FVec feat, int ntree_limit) {
+        return gbm.predictLeafPath(feat, ntree_limit);
     }
 
     public SparkModelParam getSparkModelParam() {
         return sparkModelParam;
+    }
+
+    public ModelMetadata getModelMetadata() {
+        return modelMetadata;
     }
 
     /**
@@ -277,6 +325,11 @@ public class ImprovePredictor implements Serializable {
         final int num_class;
         /*! \brief whether the model itself is saved with pbuffer */
         final int saved_with_pbuffer;
+        /*! \brief Model contain eval metrics */
+        private final int contain_eval_metrics;
+        /*! \brief the version of XGBoost. */
+        private final int major_version;
+        private final int minor_version;
         /*! \brief reserved field */
         final int[] reserved;
 
@@ -285,7 +338,23 @@ public class ImprovePredictor implements Serializable {
             this.num_feature = num_feature;
             this.num_class = reader.readInt();
             this.saved_with_pbuffer = reader.readInt();
-            this.reserved = reader.readIntArray(30);
+            this.contain_eval_metrics = reader.readInt();
+            this.major_version = reader.readUnsignedInt();
+            this.minor_version = reader.readUnsignedInt();
+            this.reserved = reader.readIntArray(27);
         }
     }
+
+    public GradBooster getBooster(){
+        return gbm;
+    }
+
+    public String getObjName() {
+        return name_obj;
+    }
+
+    public float getBaseScore() {
+        return base_score;
+    }
+
 }
