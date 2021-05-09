@@ -10,16 +10,13 @@ import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-//import ai.improve.android.hasher.FeatureEncoder;
-
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.android.hasher.FeatureEncoder;
 import ai.improve.android.hasher.XXFeatureEncoder;
 
 import static org.junit.Assert.*;
@@ -49,7 +46,7 @@ public class ExampleInstrumentedTest {
     @Test
     public void testFeatureEncoder() throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open("all_feature_encoder_test_cases.txt");
+        InputStream inputStream = appContext.getAssets().open("feature_encoder_test_suite.txt");
         byte[] buffer = new byte[inputStream.available()];
         inputStream.read(buffer);
         inputStream.close();
@@ -57,12 +54,18 @@ public class ExampleInstrumentedTest {
         String content = new String(buffer);
         String[] allTestCases = content.split("\\n");
         for (int i = 0; i < allTestCases.length; ++i) {
-            Log.d(Tag, "verify case " + i + ": " + allTestCases[i]);
-            verify(allTestCases[i]);
+            if (!"noise_1_string.json".equals(allTestCases[i])) {
+                continue;
+            }
+            Log.d(Tag, "verify case " + allTestCases[i] + ", " + allTestCases[i]);
+            if(!verify(allTestCases[i])) {
+                Log.e(Tag, "verify case " + allTestCases[i] + ", " + allTestCases[i]);
+                break;
+            }
         }
     }
 
-    private void verify(String filename) throws Exception {
+    private boolean verify(String filename) throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         InputStream inputStream = appContext.getAssets().open(filename);
         byte[] buffer = new byte[inputStream.available()];
@@ -75,11 +78,37 @@ public class ExampleInstrumentedTest {
 
         long modelSeed = root.getLong("model_seed");
         double noise = root.getDouble("noise");
+        JSONObject expected = root.getJSONObject("test_output");
 
         XXFeatureEncoder featureEncoder = new XXFeatureEncoder(modelSeed);
         featureEncoder.testMode = true;
         featureEncoder.noise = noise;
-        List<Map> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
+        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
         Log.d(Tag, "model_seed=" + modelSeed + ", features=" + features);
+        return isEqual(expected, features.get(0));
+    }
+
+    List<String> getAllKeysOfJSONObject(JSONObject object) {
+        List<String> result = new ArrayList<>();
+        Iterator<String> keys = object.keys();
+        while (keys.hasNext()) {
+            result.add(keys.next());
+        }
+        return result;
+    }
+
+    boolean isEqual(JSONObject expected, Map<String, Double> output) {
+        List<String> allExpectedKeys = getAllKeysOfJSONObject(expected);
+
+        if(allExpectedKeys.size() != output.keySet().size()) {
+            return false;
+        }
+
+        for (String key: allExpectedKeys) {
+            if(!output.keySet().contains(key)) {
+                return false;
+            }
+        }
+        return true;
     }
 }

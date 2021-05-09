@@ -2,8 +2,13 @@ package ai.improve.android.hasher;
 
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -33,34 +38,29 @@ public class XXFeatureEncoder {
         mVariantSeed = xxhash3("variant".getBytes(), mModelSeed);
         mValueSeed = xxhash3("$value".getBytes(), mVariantSeed);//$value
         mContextSeed = xxhash3("context".getBytes(), mModelSeed);
-
-        byte[] xx = "$value".getBytes();
-
-        Log.d(Tag, "max long " + Long.MAX_VALUE);
-
         Log.d(Tag, "variantSeed="+mVariantSeed + ", valueSeed=" + mValueSeed + ", contextSeed=" + mContextSeed);
     }
 
-    public List<Map> encodeVariants(List<Object> variants, Map context){
+    public List<Map<String, Double>> encodeVariants(List<Object> variants, Map context) throws JSONException {
         double noise = testMode ? this.noise : Math.random();
 
         Map<String, Double> contextFeature = context != null ? encodeContext(context, noise) : null;
 
-        List<Map> result = new ArrayList(variants.size());
+        List<Map<String, Double>> result = new ArrayList(variants.size());
         for (Object variant: variants) {
-            Map variantFeatures = (contextFeature != null) ? contextFeature : new HashMap();
+            Map<String, Double> variantFeatures = (contextFeature != null) ? contextFeature : new HashMap();
             result.add(encodeVariant(variant, noise, variantFeatures));
         }
         return result;
     }
 
-    private Map<String, Double> encodeContext(Object context, double noise) {
+    private Map<String, Double> encodeContext(Object context, double noise) throws JSONException {
         Map<String, Double> features = new HashMap();
         double smallNoise = shrink(noise);
         return encodeInternal(context, mContextSeed, smallNoise, features);
     }
 
-    private Map<String, Double> encodeVariant(Object variant, double noise, Map<String, Double> features) {
+    private Map<String, Double> encodeVariant(Object variant, double noise, Map<String, Double> features) throws JSONException {
         double smallNoise = shrink(noise);
         if(variant instanceof Map) {
             return encodeInternal(variant, mVariantSeed, smallNoise, features);
@@ -69,8 +69,17 @@ public class XXFeatureEncoder {
         }
     }
 
-    private Map<String, Double> encodeInternal(Object node, long seed, double noise, Map<String, Double> features) {
-        if(node instanceof Boolean) {
+    private Map<String, Double> encodeInternal(Object node, long seed, double noise, Map<String, Double> features) throws JSONException {
+        if(node instanceof Integer) {
+            double nodeValue = (Integer)node;
+            String featureName = hash_to_feature_name(seed);
+            Double curValue = features.get(featureName);
+            if(curValue != null) {
+                features.put(featureName, curValue + sprinkle(nodeValue, noise));
+            } else {
+                features.put(featureName, sprinkle(nodeValue, noise));
+            }
+        } else if(node instanceof Boolean) {
             double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
             String featureName = hash_to_feature_name(seed);
             Double curValue = features.get(featureName);
@@ -116,12 +125,27 @@ public class XXFeatureEncoder {
                 long newSeed = xxhash3(bytes, seed);
                 encodeInternal(list.get(i), newSeed, noise, features);
             }
+        } else if (node instanceof JSONObject) {
+            JSONObject root = (JSONObject) node;
+            Iterator<String> keys = root.keys();
+            while (keys.hasNext()) {
+                String key = keys.next();
+                long newSeed = xxhash3(key.getBytes(), seed);
+                encodeInternal(root.get(key), newSeed, noise, features);
+            }
+        } else if (node instanceof JSONArray) {
+            JSONArray root = (JSONArray) node;
+            for (int i = 0; i < root.length(); ++i) {
+                byte[] bytes = longToByteArray(i);
+                long newSeed = xxhash3(bytes, seed);
+                encodeInternal(root.get(i), newSeed, noise, features);
+            }
         }
         return features;
     }
 
     private String hash_to_feature_name(long hash) {
-        return String.format("%x", hash >> 32);
+        return String.format("%x", (int)(hash >> 32));
     }
 
     private double shrink(double noise) {
