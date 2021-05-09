@@ -54,13 +54,21 @@ public class ExampleInstrumentedTest {
         String content = new String(buffer);
         String[] allTestCases = content.split("\\n");
         for (int i = 0; i < allTestCases.length; ++i) {
-            if (!"noise_1_string.json".equals(allTestCases[i])) {
-                continue;
-            }
-            Log.d(Tag, "verify case " + allTestCases[i] + ", " + allTestCases[i]);
+//            if ("external_collisions_01.json".equals(allTestCases[i])) {
+//                continue;
+//            }
+//            if ("external_collisions_02.json".equals(allTestCases[i])) {
+//                continue;
+//            }
+//            if("dict_foo_bar.json".equals(allTestCases[i])) {
+//                continue;
+//            }
             if(!verify(allTestCases[i])) {
-                Log.e(Tag, "verify case " + allTestCases[i] + ", " + allTestCases[i]);
-                break;
+                // Failed
+                Log.e(Tag, "verify case " + allTestCases[i]);
+            } else {
+                // Passed
+                Log.d(Tag, "verify case " + allTestCases[i] + ", " + allTestCases[i]);
             }
         }
     }
@@ -75,7 +83,10 @@ public class ExampleInstrumentedTest {
         String content = new String(buffer);
         JSONObject root = new JSONObject(content);
         Object variant = root.getJSONObject("test_case").get("variant");
-
+        Object context = null;
+        if (root.getJSONObject("test_case").has("context")) {
+            context = root.getJSONObject("test_case").get("context");
+        }
         long modelSeed = root.getLong("model_seed");
         double noise = root.getDouble("noise");
         JSONObject expected = root.getJSONObject("test_output");
@@ -83,8 +94,8 @@ public class ExampleInstrumentedTest {
         XXFeatureEncoder featureEncoder = new XXFeatureEncoder(modelSeed);
         featureEncoder.testMode = true;
         featureEncoder.noise = noise;
-        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
-        Log.d(Tag, "model_seed=" + modelSeed + ", features=" + features);
+        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), context);
+//        Log.d(Tag, "model_seed=" + modelSeed + ", features=" + features);
         return isEqual(expected, features.get(0));
     }
 

@@ -41,7 +41,7 @@ public class XXFeatureEncoder {
         Log.d(Tag, "variantSeed="+mVariantSeed + ", valueSeed=" + mValueSeed + ", contextSeed=" + mContextSeed);
     }
 
-    public List<Map<String, Double>> encodeVariants(List<Object> variants, Map context) throws JSONException {
+    public List<Map<String, Double>> encodeVariants(List<Object> variants, Object context) throws JSONException {
         double noise = testMode ? this.noise : Math.random();
 
         Map<String, Double> contextFeature = context != null ? encodeContext(context, noise) : null;
@@ -109,9 +109,9 @@ public class XXFeatureEncoder {
             String hashedFeatureName = hash_to_feature_name(hashed);
             Double curHashedValue = features.get(hashedFeatureName);
             if(curHashedValue != null) {
-                features.put(featureName, curValue + sprinkle((hashed & 0xffff) - 0x8000, noise));
+                features.put(hashedFeatureName, curHashedValue + sprinkle((hashed & 0xffff) - 0x8000, noise));
             } else {
-                features.put(featureName, sprinkle((hashed & 0xffff) - 0x8000, noise));
+                features.put(hashedFeatureName, sprinkle((hashed & 0xffff) - 0x8000, noise));
             }
         } else if (node instanceof Map) {
             for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)node).entrySet()) {
