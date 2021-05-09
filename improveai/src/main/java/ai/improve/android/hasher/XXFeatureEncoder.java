@@ -1,5 +1,7 @@
 package ai.improve.android.hasher;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,15 +33,21 @@ public class XXFeatureEncoder {
         mVariantSeed = xxhash3("variant".getBytes(), mModelSeed);
         mValueSeed = xxhash3("$value".getBytes(), mVariantSeed);
         mContextSeed = xxhash3("context".getBytes(), mModelSeed);
+
+        byte[] xx = "$value".getBytes();
+
+        Log.d(Tag, "max long " + Long.MAX_VALUE);
+
+        Log.d(Tag, "variantSeed="+mVariantSeed + ", valueSeed=" + mValueSeed + ", contextSeed=" + mContextSeed);
     }
 
-    public List<Map> encodeVariants(List<Map> variants, Map context) {
+    public List<Map> encodeVariants(List<Object> variants, Map context){
         double noise = testMode ? this.noise : Math.random();
 
         Map<String, Double> contextFeature = context != null ? encodeContext(context, noise) : null;
 
         List<Map> result = new ArrayList(variants.size());
-        for (Map variant: variants) {
+        for (Object variant: variants) {
             Map variantFeatures = (contextFeature != null) ? contextFeature : new HashMap();
             result.add(encodeVariant(variant, noise, variantFeatures));
         }
@@ -62,7 +70,16 @@ public class XXFeatureEncoder {
     }
 
     private Map<String, Double> encodeInternal(Object node, long seed, double noise, Map<String, Double> features) {
-        if(node instanceof Number && (((Number)node).doubleValue() != Double.NaN)) {
+        if(node instanceof Boolean) {
+            double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
+            String featureName = hash_to_feature_name(seed);
+            Double curValue = features.get(featureName);
+            if(curValue != null) {
+                features.put(featureName, curValue + sprinkle(nodeValue, noise));
+            } else {
+                features.put(featureName, sprinkle(nodeValue, noise));
+            }
+        } else if(node instanceof Number && (((Number)node).doubleValue() != Double.NaN)) {
             String featureName = hash_to_feature_name(seed);
             Double curValue = features.get(featureName);
             if(curValue != null) {
