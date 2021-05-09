@@ -14,7 +14,7 @@ public class XXFeatureEncoder {
         System.loadLibrary("xxhash");
     }
 
-    public native long  xxhash3(byte[] data, double seed);
+    public native long  xxhash3(byte[] data, long seed);
 
     public boolean testMode;
 
@@ -31,7 +31,7 @@ public class XXFeatureEncoder {
     public XXFeatureEncoder(long modelSeed) {
         mModelSeed = modelSeed;
         mVariantSeed = xxhash3("variant".getBytes(), mModelSeed);
-        mValueSeed = xxhash3("$value".getBytes(), mVariantSeed);
+        mValueSeed = xxhash3("$value".getBytes(), mVariantSeed);//$value
         mContextSeed = xxhash3("context".getBytes(), mModelSeed);
 
         byte[] xx = "$value".getBytes();
