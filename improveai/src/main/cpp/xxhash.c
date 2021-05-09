@@ -36,6 +36,14 @@
 /*
  * xxhash.c instantiates functions defined in xxhash.h
  */
+#include <android/log.h>
+
+#define TAG "xxhash"
+
+#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,    TAG, __VA_ARGS__)
+#define LOGW(...) __android_log_print(ANDROID_LOG_WARN,     TAG, __VA_ARGS__)
+#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,     TAG, __VA_ARGS__)
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG,    TAG, __VA_ARGS__)
 
 #define XXH_STATIC_LINKING_ONLY   /* access advanced declarations */
 #define XXH_IMPLEMENTATION   /* access definitions */
@@ -57,6 +65,7 @@ Java_ai_improve_android_hasher_XXFeatureEncoder_xxhash3( JNIEnv* env, jobject th
     jbyte *buf = (*env)->GetByteArrayElements(env, data, NULL);
     int length = (*env)->GetArrayLength(env, data);
     uint64_t result = XXH3_64bits_withSeed(buf, length, seed);
+    LOGD("result=%ld", result);
     (*env)->ReleaseByteArrayElements(env, data, buf, 0);
     return result;
 }

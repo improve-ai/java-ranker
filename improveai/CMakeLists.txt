@@ -20,3 +20,6 @@ add_library( # Specifies the name of the library.
         src/main/cpp/xxhash.c)
 
 #include_directories(src/main/cpp/include/)
+
+find_library( log-lib log )
+target_link_libraries(xxhash ${log-lib} )
