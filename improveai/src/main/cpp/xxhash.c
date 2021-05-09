@@ -51,14 +51,6 @@
 #include <string.h>
 #include <jni.h>
 #include "includes/xxhash.h"
-//
-//JNIEXPORT jstring JNICALL
-//Java_com_panhongx_improveai_FeatureEncoder_stringFromJNI( JNIEnv* env,
-//                                                  jobject thiz ) {
-//    return (*env)->NewStringUTF(env, "Hello from JNI !  Compiled with ABI ");
-//}
-
-// ai.improve.android.hasher
 
 JNIEXPORT jlong JNICALL
 Java_ai_improve_android_hasher_XXFeatureEncoder_xxhash3( JNIEnv* env, jobject thiz, jbyteArray data, jlong seed) {
