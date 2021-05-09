@@ -62,7 +62,7 @@ public class XXFeatureEncoder {
 
     private Map<String, Double> encodeVariant(Object variant, double noise, Map<String, Double> features) throws JSONException {
         double smallNoise = shrink(noise);
-        if(variant instanceof Map) {
+        if(variant instanceof Map || variant instanceof JSONObject) {
             return encodeInternal(variant, mVariantSeed, smallNoise, features);
         } else {
             return encodeInternal(variant, mValueSeed, smallNoise, features);
@@ -72,6 +72,15 @@ public class XXFeatureEncoder {
     private Map<String, Double> encodeInternal(Object node, long seed, double noise, Map<String, Double> features) throws JSONException {
         if(node instanceof Integer) {
             double nodeValue = (Integer)node;
+            String featureName = hash_to_feature_name(seed);
+            Double curValue = features.get(featureName);
+            if(curValue != null) {
+                features.put(featureName, curValue + sprinkle(nodeValue, noise));
+            } else {
+                features.put(featureName, sprinkle(nodeValue, noise));
+            }
+        } else if(node instanceof Double) {
+            double nodeValue = (Double) node;
             String featureName = hash_to_feature_name(seed);
             Double curValue = features.get(featureName);
             if(curValue != null) {

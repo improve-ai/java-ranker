@@ -40,7 +40,6 @@ public class ExampleInstrumentedTest {
         } else {
             Log.d(Tag, "it is false");
         }
-
     }
 
     @Test
@@ -54,22 +53,12 @@ public class ExampleInstrumentedTest {
         String content = new String(buffer);
         String[] allTestCases = content.split("\\n");
         for (int i = 0; i < allTestCases.length; ++i) {
-//            if ("external_collisions_01.json".equals(allTestCases[i])) {
-//                continue;
-//            }
-//            if ("external_collisions_02.json".equals(allTestCases[i])) {
-//                continue;
-//            }
-//            if("dict_foo_bar.json".equals(allTestCases[i])) {
-//                continue;
-//            }
             if(!verify(allTestCases[i])) {
-                // Failed
                 Log.e(Tag, "verify case " + allTestCases[i]);
             } else {
-                // Passed
                 Log.d(Tag, "verify case " + allTestCases[i] + ", " + allTestCases[i]);
             }
+            assertTrue(verify(allTestCases[i]));
         }
     }
 
@@ -95,7 +84,7 @@ public class ExampleInstrumentedTest {
         featureEncoder.testMode = true;
         featureEncoder.noise = noise;
         List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), context);
-//        Log.d(Tag, "model_seed=" + modelSeed + ", features=" + features);
+        Log.d(Tag, "model_seed=" + modelSeed + ", features=" + features);
         return isEqual(expected, features.get(0));
     }
 
