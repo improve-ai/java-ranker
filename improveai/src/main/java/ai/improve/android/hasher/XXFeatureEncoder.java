@@ -110,9 +110,13 @@ public class XXFeatureEncoder {
             String featureName = hash_to_feature_name(seed);
             Double curValue = features.get(featureName);
             if(curValue != null) {
-                features.put(featureName, curValue + sprinkle(((hashed & 0xffff0000) >> 16) - 0x8000, noise));
+                // Due to "hashed & 0xffff0000", the signed bit is zeroed anyway, so '>>' or '>>>'
+                // does not really matter here.
+                // I'm putting this comment here as a reminder, as it might lead to bugs that could
+                // be really hard to discover if not covered by unit tests.
+                features.put(featureName, curValue + sprinkle(((hashed & 0xffff0000) >>> 16) - 0x8000, noise));
             } else {
-                features.put(featureName, sprinkle(((hashed & 0xffff0000) >> 16) - 0x8000, noise));
+                features.put(featureName, sprinkle(((hashed & 0xffff0000) >>> 16) - 0x8000, noise));
             }
 
             String hashedFeatureName = hash_to_feature_name(hashed);
@@ -154,7 +158,7 @@ public class XXFeatureEncoder {
     }
 
     private String hash_to_feature_name(long hash) {
-        return String.format("%x", (int)(hash >> 32));
+        return String.format("%x", (int)(hash >>> 32));
     }
 
     private double shrink(double noise) {
@@ -167,13 +171,13 @@ public class XXFeatureEncoder {
 
     private final byte[] longToByteArray(long value) {
         return new byte[] {
-                (byte)(value >>> 56),
-                (byte)(value >>> 48),
-                (byte)(value >>> 40),
-                (byte)(value >>> 32),
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
+                (byte)(value >> 56),
+                (byte)(value >> 48),
+                (byte)(value >> 40),
+                (byte)(value >> 32),
+                (byte)(value >> 24),
+                (byte)(value >> 16),
+                (byte)(value >> 8),
                 (byte)value};
     }
 }

@@ -33,13 +33,6 @@ public class ExampleInstrumentedTest {
     @Test
     public void useAppContext() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-
-        Boolean x = Boolean.FALSE;
-        if(x) {
-            Log.d(Tag, "it is true");
-        } else {
-            Log.d(Tag, "it is false");
-        }
     }
 
     @Test
@@ -56,7 +49,7 @@ public class ExampleInstrumentedTest {
             if(!verify(allTestCases[i])) {
                 Log.e(Tag, "verify case " + allTestCases[i]);
             } else {
-                Log.d(Tag, "verify case " + allTestCases[i] + ", " + allTestCases[i]);
+                Log.d(Tag, "verify case " + allTestCases[i]);
             }
             assertTrue(verify(allTestCases[i]));
         }
