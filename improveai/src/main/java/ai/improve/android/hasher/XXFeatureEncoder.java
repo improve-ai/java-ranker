@@ -38,7 +38,7 @@ public class XXFeatureEncoder {
         mVariantSeed = xxhash3("variant".getBytes(), mModelSeed);
         mValueSeed = xxhash3("$value".getBytes(), mVariantSeed);//$value
         mContextSeed = xxhash3("context".getBytes(), mModelSeed);
-        Log.d(Tag, "variantSeed="+mVariantSeed + ", valueSeed=" + mValueSeed + ", contextSeed=" + mContextSeed);
+//        Log.d(Tag, "variantSeed="+mVariantSeed + ", valueSeed=" + mValueSeed + ", contextSeed=" + mContextSeed);
     }
 
     public List<Map<String, Double>> encodeVariants(List<Object> variants, Object context) throws JSONException {
@@ -70,25 +70,7 @@ public class XXFeatureEncoder {
     }
 
     private Map<String, Double> encodeInternal(Object node, long seed, double noise, Map<String, Double> features) throws JSONException {
-        if(node instanceof Integer) {
-            double nodeValue = (Integer)node;
-            String featureName = hash_to_feature_name(seed);
-            Double curValue = features.get(featureName);
-            if(curValue != null) {
-                features.put(featureName, curValue + sprinkle(nodeValue, noise));
-            } else {
-                features.put(featureName, sprinkle(nodeValue, noise));
-            }
-        } else if(node instanceof Double) {
-            double nodeValue = (Double) node;
-            String featureName = hash_to_feature_name(seed);
-            Double curValue = features.get(featureName);
-            if(curValue != null) {
-                features.put(featureName, curValue + sprinkle(nodeValue, noise));
-            } else {
-                features.put(featureName, sprinkle(nodeValue, noise));
-            }
-        } else if(node instanceof Boolean) {
+        if(node instanceof Boolean) {
             double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
             String featureName = hash_to_feature_name(seed);
             Double curValue = features.get(featureName);
@@ -97,13 +79,14 @@ public class XXFeatureEncoder {
             } else {
                 features.put(featureName, sprinkle(nodeValue, noise));
             }
-        } else if(node instanceof Number && (((Number)node).doubleValue() != Double.NaN)) {
+        } else if(node instanceof Number && !Double.isNaN(((Number)node).doubleValue())) {
+            double nodeValue = ((Number)node).doubleValue();
             String featureName = hash_to_feature_name(seed);
             Double curValue = features.get(featureName);
             if(curValue != null) {
-                features.put(featureName, curValue + sprinkle((Double) node, noise));
+                features.put(featureName, curValue + sprinkle(nodeValue, noise));
             } else {
-                features.put(featureName, sprinkle((Double) node, noise));
+                features.put(featureName, sprinkle(nodeValue, noise));
             }
         } else if(node instanceof String) {
             long hashed = xxhash3(((String) node).getBytes(), seed);
@@ -114,17 +97,17 @@ public class XXFeatureEncoder {
                 // does not really matter here.
                 // I'm putting this comment here as a reminder, as it might lead to bugs that could
                 // be really hard to discover if not covered by unit tests.
-                features.put(featureName, curValue + sprinkle(((hashed & 0xffff0000) >>> 16) - 0x8000, noise));
+                features.put(featureName, curValue + sprinkle(((hashed & 0xffff0000L) >>> 16) - 0x8000, noise));
             } else {
-                features.put(featureName, sprinkle(((hashed & 0xffff0000) >>> 16) - 0x8000, noise));
+                features.put(featureName, sprinkle(((hashed & 0xffff0000L) >>> 16) - 0x8000, noise));
             }
 
             String hashedFeatureName = hash_to_feature_name(hashed);
             Double curHashedValue = features.get(hashedFeatureName);
             if(curHashedValue != null) {
-                features.put(hashedFeatureName, curHashedValue + sprinkle((hashed & 0xffff) - 0x8000, noise));
+                features.put(hashedFeatureName, curHashedValue + sprinkle((hashed & 0xffffL) - 0x8000, noise));
             } else {
-                features.put(hashedFeatureName, sprinkle((hashed & 0xffff) - 0x8000, noise));
+                features.put(hashedFeatureName, sprinkle((hashed & 0xffffL) - 0x8000, noise));
             }
         } else if (node instanceof Map) {
             for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)node).entrySet()) {

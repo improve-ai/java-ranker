@@ -6,6 +6,7 @@ import android.util.Log;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -77,7 +79,7 @@ public class ExampleInstrumentedTest {
         featureEncoder.testMode = true;
         featureEncoder.noise = noise;
         List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), context);
-        Log.d(Tag, "model_seed=" + modelSeed + ", features=" + features);
+        Log.d(Tag, "case " + filename + ", features=" + features);
         return isEqual(expected, features.get(0));
     }
 
@@ -103,5 +105,40 @@ public class ExampleInstrumentedTest {
             }
         }
         return true;
+    }
+
+    @Test
+    public void testNAN() throws JSONException {
+        XXFeatureEncoder featureEncoder = new XXFeatureEncoder(1);
+        featureEncoder.testMode = true;
+        featureEncoder.noise = 0.8928601514360016;
+
+        Object variant = Double.NaN;
+
+        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
+        assertEquals(features.size(), 1);
+        assertEquals(features.get(0).size(), 0);
+    }
+
+    @Test
+    public void testNullCharacter() throws JSONException {
+        XXFeatureEncoder featureEncoder = new XXFeatureEncoder(1);
+        featureEncoder.testMode = true;
+        featureEncoder.noise = 0.8928601514360016;
+
+        Map value = new HashMap();
+        value.put("\0\0\0\0\0\0\0\0", "foo");
+        value.put("\0\0\0\0\0\0\0\1", "bar");
+        Map variant = new HashMap();
+        variant.put("$value", value);
+        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
+        assertEquals(features.size(), 1);
+
+        JSONObject expected = new JSONObject();
+        expected.put("8946516b", 11509.078405916971);
+        expected.put("55ae894", 26103.177819987483);
+        expected.put("4bfbc00e", -19661.13392357309);
+        expected.put("463cc537", -13292.090538057455);
+        assertTrue(isEqual(expected, features.get(0)));
     }
 }
