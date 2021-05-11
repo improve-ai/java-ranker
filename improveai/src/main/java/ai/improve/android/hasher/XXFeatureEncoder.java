@@ -1,7 +1,5 @@
 package ai.improve.android.hasher;
 
-import android.util.Log;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -11,6 +9,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import ai.improve.android.IMPLog;
 
 public class XXFeatureEncoder {
     private static final String Tag = "XXFeatureEncoder";
@@ -111,6 +111,10 @@ public class XXFeatureEncoder {
             }
         } else if (node instanceof Map) {
             for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)node).entrySet()) {
+                if(!(entry.getKey() instanceof String)) {
+                    IMPLog.w(Tag, "Map entry ignored: map key must be of type String.");
+                    continue;
+                }
                 long newSeed = xxhash3(entry.getKey().getBytes(), seed);
                 encodeInternal(entry.getValue(), newSeed, noise, features);
             }

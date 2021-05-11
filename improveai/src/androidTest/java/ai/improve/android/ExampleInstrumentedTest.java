@@ -141,4 +141,20 @@ public class ExampleInstrumentedTest {
         expected.put("463cc537", -13292.090538057455);
         assertTrue(isEqual(expected, features.get(0)));
     }
+
+    @Test
+    public void testInvalidMapVariant() throws JSONException {
+        XXFeatureEncoder featureEncoder = new XXFeatureEncoder(1);
+        featureEncoder.testMode = true;
+        featureEncoder.noise = 0.8928601514360016;
+
+        // Map key must be string
+        // Unit test to make sure that app won't crash, and a warning message is
+        // logged when users accidentally pass invalid map data
+        Map variant = new HashMap();
+        variant.put(1, 3);
+        variant.put(4, 3);
+        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
+        Log.d(Tag, "features = " + features);
+    }
 }
