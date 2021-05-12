@@ -1,5 +1,8 @@
 package ai.improve.android.xgbpredictor;
 
+import org.json.JSONException;
+
+import ai.improve.android.IMPModelMetadata;
 import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.gbm.GradBooster;
 import biz.k11i.xgboost.learner.ObjFunction;
@@ -22,10 +25,11 @@ public class ImprovePredictor implements Serializable {
     private ObjFunction obj;
     private GradBooster gbm;
     private ModelMetadata modelMetadata;
+//    private IMPModelMetadata modelMetadata;
 
     private float base_score;
 
-    public ImprovePredictor(InputStream in) throws IOException {
+    public ImprovePredictor(InputStream in) throws IOException, JSONException {
         this(in, null);
     }
 
@@ -36,7 +40,7 @@ public class ImprovePredictor implements Serializable {
      * @param configuration configuration
      * @throws IOException If an I/O error occurs
      */
-    public ImprovePredictor(InputStream in, PredictorConfiguration configuration) throws IOException {
+    public ImprovePredictor(InputStream in, PredictorConfiguration configuration) throws IOException, JSONException {
         if (configuration == null) {
             configuration = PredictorConfiguration.DEFAULT;
         }
@@ -54,8 +58,11 @@ public class ImprovePredictor implements Serializable {
         } else {
             base_score = mparam.base_score;
         }
+//        modelMetadata = new ModelMetadata(reader);
+
         modelMetadata = new ModelMetadata(reader);
     }
+
 
     void readParam(ModelReader reader) throws IOException {
         byte[] first4Bytes = reader.readByteArray(4);

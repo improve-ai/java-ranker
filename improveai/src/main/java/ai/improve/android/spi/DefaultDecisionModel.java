@@ -25,7 +25,7 @@ public class DefaultDecisionModel implements DecisionModel {
 
     private ImproveChooser chooser;
 
-    public static DefaultDecisionModel initWithUrl(String url) throws IOException {
+    public static DefaultDecisionModel initWithUrl(String url) throws IOException, JSONException {
         ImprovePredictor model = ModelDownloader.fromUrl(url);
         return initWithModel(model);
     }

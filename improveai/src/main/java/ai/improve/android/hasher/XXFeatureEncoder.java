@@ -1,16 +1,12 @@
 package ai.improve.android.hasher;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import ai.improve.android.IMPLog;
+import biz.k11i.xgboost.util.FVec;
 
 public class XXFeatureEncoder {
     private static final String Tag = "XXFeatureEncoder";
@@ -25,89 +21,82 @@ public class XXFeatureEncoder {
 
     public double noise;
 
-    private long mModelSeed;
+    private Map<String, Integer> featureNamesMap = new HashMap<>();
 
-    private long mVariantSeed;
+    private long variantSeed;
 
-    private long mValueSeed;
+    private long valueSeed;
 
-    private long mContextSeed;
+    private long contextSeed;
 
-    public XXFeatureEncoder(long modelSeed) {
-        mModelSeed = modelSeed;
-        mVariantSeed = xxhash3("variant".getBytes(), mModelSeed);
-        mValueSeed = xxhash3("$value".getBytes(), mVariantSeed);//$value
-        mContextSeed = xxhash3("context".getBytes(), mModelSeed);
-//        Log.d(Tag, "variantSeed="+mVariantSeed + ", valueSeed=" + mValueSeed + ", contextSeed=" + mContextSeed);
+    public XXFeatureEncoder(long modelSeed, List<String> featureNames) {
+        variantSeed = xxhash3("variant".getBytes(), modelSeed);
+        valueSeed = xxhash3("$value".getBytes(), variantSeed);//$value
+        contextSeed = xxhash3("context".getBytes(), modelSeed);
+        for(int i = 0; i < featureNames.size(); ++i) {
+            featureNamesMap.put(featureNames.get(i), i);
+        }
+        if(featureNamesMap.size() != featureNames.size()) {
+            // This won't happen unless the model is nvalid.
+        }
     }
 
-    public List<Map<String, Double>> encodeVariants(List<Object> variants, Object context) throws JSONException {
+    public List<FVec> encodeVariants(List<Object> variants, Object context) {
         double noise = testMode ? this.noise : Math.random();
 
-        Map<String, Double> contextFeature = context != null ? encodeContext(context, noise) : null;
+        double[] contextFeature = context != null ? encodeContext(context, noise) : null;
 
-        List<Map<String, Double>> result = new ArrayList(variants.size());
+        List<FVec> result = new ArrayList(variants.size());
         for (Object variant: variants) {
-            Map<String, Double> variantFeatures = (contextFeature != null) ? contextFeature : new HashMap();
-            result.add(encodeVariant(variant, noise, variantFeatures));
+            double[] variantFeatures = (contextFeature != null) ? contextFeature : new double[featureNamesMap.size()];
+            encodeVariant(variant, noise, variantFeatures);
+            result.add(FVec.Transformer.fromArray(variantFeatures, true));
         }
         return result;
     }
 
-    private Map<String, Double> encodeContext(Object context, double noise) throws JSONException {
-        Map<String, Double> features = new HashMap();
+    private double[] encodeContext(Object context, double noise) {
+        double[] features = new double[featureNamesMap.size()];
         double smallNoise = shrink(noise);
-        return encodeInternal(context, mContextSeed, smallNoise, features);
+        return encodeInternal(context, contextSeed, smallNoise, features);
     }
 
-    private Map<String, Double> encodeVariant(Object variant, double noise, Map<String, Double> features) throws JSONException {
+    private double[] encodeVariant(Object variant, double noise, double[] features) {
         double smallNoise = shrink(noise);
-        if(variant instanceof Map || variant instanceof JSONObject) {
-            return encodeInternal(variant, mVariantSeed, smallNoise, features);
+        if(variant instanceof Map) {
+            return encodeInternal(variant, variantSeed, smallNoise, features);
         } else {
-            return encodeInternal(variant, mValueSeed, smallNoise, features);
+            return encodeInternal(variant, valueSeed, smallNoise, features);
         }
     }
 
-    private Map<String, Double> encodeInternal(Object node, long seed, double noise, Map<String, Double> features) throws JSONException {
+    private double[] encodeInternal(Object node, long seed, double noise, double[] features) {
         if(node instanceof Boolean) {
             double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
             String featureName = hash_to_feature_name(seed);
-            Double curValue = features.get(featureName);
-            if(curValue != null) {
-                features.put(featureName, curValue + sprinkle(nodeValue, noise));
-            } else {
-                features.put(featureName, sprinkle(nodeValue, noise));
+            if(featureNamesMap.containsKey(featureName)) {
+                int index = featureNamesMap.get(featureName);
+                features[index] += sprinkle(nodeValue, noise);
             }
         } else if(node instanceof Number && !Double.isNaN(((Number)node).doubleValue())) {
             double nodeValue = ((Number)node).doubleValue();
             String featureName = hash_to_feature_name(seed);
-            Double curValue = features.get(featureName);
-            if(curValue != null) {
-                features.put(featureName, curValue + sprinkle(nodeValue, noise));
-            } else {
-                features.put(featureName, sprinkle(nodeValue, noise));
+            if(featureNamesMap.containsKey(featureName)) {
+                int index = featureNamesMap.get(featureName);
+                features[index] += sprinkle(nodeValue, noise);
             }
         } else if(node instanceof String) {
             long hashed = xxhash3(((String) node).getBytes(), seed);
             String featureName = hash_to_feature_name(seed);
-            Double curValue = features.get(featureName);
-            if(curValue != null) {
-                // Due to "hashed & 0xffff0000", the signed bit is zeroed anyway, so '>>' or '>>>'
-                // does not really matter here.
-                // I'm putting this comment here as a reminder, as it might lead to bugs that could
-                // be really hard to discover if not covered by unit tests.
-                features.put(featureName, curValue + sprinkle(((hashed & 0xffff0000L) >>> 16) - 0x8000, noise));
-            } else {
-                features.put(featureName, sprinkle(((hashed & 0xffff0000L) >>> 16) - 0x8000, noise));
+            if(featureNamesMap.containsKey(featureName)) {
+                int index = featureNamesMap.get(featureName);
+                features[index] += sprinkle(((hashed & 0xffff0000L) >>> 16) - 0x8000, noise);
             }
 
             String hashedFeatureName = hash_to_feature_name(hashed);
-            Double curHashedValue = features.get(hashedFeatureName);
-            if(curHashedValue != null) {
-                features.put(hashedFeatureName, curHashedValue + sprinkle((hashed & 0xffffL) - 0x8000, noise));
-            } else {
-                features.put(hashedFeatureName, sprinkle((hashed & 0xffffL) - 0x8000, noise));
+            if(featureNamesMap.containsKey(hashedFeatureName)) {
+                int index = featureNamesMap.get(hashedFeatureName);
+                features[index] += sprinkle((hashed & 0xffffL) - 0x8000, noise);
             }
         } else if (node instanceof Map) {
             for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)node).entrySet()) {
@@ -124,21 +113,6 @@ public class XXFeatureEncoder {
                 byte[] bytes = longToByteArray(i);
                 long newSeed = xxhash3(bytes, seed);
                 encodeInternal(list.get(i), newSeed, noise, features);
-            }
-        } else if (node instanceof JSONObject) {
-            JSONObject root = (JSONObject) node;
-            Iterator<String> keys = root.keys();
-            while (keys.hasNext()) {
-                String key = keys.next();
-                long newSeed = xxhash3(key.getBytes(), seed);
-                encodeInternal(root.get(key), newSeed, noise, features);
-            }
-        } else if (node instanceof JSONArray) {
-            JSONArray root = (JSONArray) node;
-            for (int i = 0; i < root.length(); ++i) {
-                byte[] bytes = longToByteArray(i);
-                long newSeed = xxhash3(bytes, seed);
-                encodeInternal(root.get(i), newSeed, noise, features);
             }
         }
         return features;

@@ -29,7 +29,8 @@ public class DecisionTestWithModel {
     @Test
     public void testGenerateScores() throws Exception {
 
-        ImprovePredictor p = new ImprovePredictor(getClass().getResourceAsStream("/improve-messages-2.0.xgb"));
+        ImprovePredictor p = new ImprovePredictor(getClass().getResourceAsStream("/dummy_v6.xgb"));
+//        ImprovePredictor p = new ImprovePredictor(getClass().getResourceAsStream("/improve-messages-2.0.xgb"));
 //        ImprovePredictor p = new ImprovePredictor(getClass().getResourceAsStream("/model_w_metadata.xgb"));
         //System.out.println(p.getModelMetadata().getUserDefinedMetadata());
         DecisionModel model = DefaultDecisionModel.initWithModel(p);
