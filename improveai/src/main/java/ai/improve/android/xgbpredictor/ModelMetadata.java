@@ -77,7 +77,7 @@ public class ModelMetadata {
     }
 
     private void parseMetadata(String value) throws JSONException {
-        JSONObject root = new JSONObject(value);
+        JSONObject root = new JSONObject(value).getJSONObject("json");
         modelName = root.getString("model_name");
         modelVersion = root.getString("version");
         modelSeed = root.getLong("model_seed");

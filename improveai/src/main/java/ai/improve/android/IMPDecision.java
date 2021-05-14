@@ -8,19 +8,19 @@ public class IMPDecision {
 
     private IMPDecisionModel model;
 
-    private List variants;
+    private List<Object> variants;
 
-    private Map givens;
-
-    private Map context;
+    private Map<String, ?> givens;
 
     private boolean chosen;
+
+    private Object best;
 
     public IMPDecision(IMPDecisionModel model) {
         this.model = model;
     }
 
-    public IMPDecision chooseFrom(List variants) {
+    public IMPDecision chooseFrom(List<Object> variants) {
         if(chosen) {
             IMPLog.e(Tag, "variant already chosen, ignoring variants");
         } else {
@@ -36,5 +36,24 @@ public class IMPDecision {
             this.givens = givens;
         }
         return this;
+    }
+
+    public Object get() {
+        if(chosen) {
+            return best;
+        }
+
+        List<Double> scores = model.score(variants, givens);
+        if(variants != null && variants.size() > 0) {
+
+        } else {
+            // Unit test that "variant": null JSON is tracked on null or empty variants.
+            // "count" field should be 1
+            best = null;
+        }
+
+        chosen = true;
+
+        return best;
     }
 }

@@ -3,7 +3,12 @@ package ai.improve.android;
 import android.content.Context;
 import android.text.TextUtils;
 
+import org.apache.commons.math3.random.JDKRandomGenerator;
+import org.apache.commons.math3.random.RandomGenerator;
+
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -22,6 +27,8 @@ public class IMPDecisionModel {
     private ImprovePredictor predictor;
 
     private XXFeatureEncoder featureEncoder;
+
+    private RandomGenerator randomGenerator = new JDKRandomGenerator();
 
     public static IMPDecisionModel loadFromAsset(Context context, String filename) {
         IMPDecisionModel model = new IMPDecisionModel("");
@@ -52,6 +59,11 @@ public class IMPDecisionModel {
                 predictor.getModelMetadata().getModelFeatureNames());
     }
 
+    public IMPDecisionModel track(IMPDecisionTracker tracker) {
+        this.tracker = tracker;
+        return this;
+    }
+
     public IMPDecision chooseFrom(List<Object> variants) {
         return new IMPDecision(this).chooseFrom(variants);
     }
@@ -60,26 +72,77 @@ public class IMPDecisionModel {
         return new IMPDecision(this).given(givens);
     }
 
-    public List<Float> score(List<Object> variants) {
+    public List<Double> score(List<Object> variants) {
         return this.score(variants, null);
     }
 
-    public List<Float> score(List<Object> variants, Map<String, Object> givens) {
-        List<Float> result = new ArrayList<>();
+    public List<Double> score(List<Object> variants, Map<String, ?> givens) {
+        List<Double> result = new ArrayList<>();
 
         if(variants == null || variants.size() <= 0) {
             return result;
         }
 
+        if(predictor == null) {
+            return generateDescendingGaussians(variants.size());
+        }
+
         List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
         for (FVec fvec : encodedFeatures) {
-            result.add(predictor.predictSingle(fvec));
+            result.add((double)predictor.predictSingle(fvec));
         }
 
         return result;
     }
 
-    public static interface IMPDecisionModelLoadListener {
-        void onFinishLoadingModel(IMPDecisionModel model, int error, String errMsg);
+    public static <T> T topScoringVariant(List<T> variants, List<Number> scores) {
+        if(variants.size() != scores.size() || variants.size() <= 0) {
+            return null;
+        }
+
+        T topVariant = variants.get(0);
+        double bestScore = scores.get(0).doubleValue();
+        for(int i = 1; i < variants.size(); ++i) {
+            double score = scores.get(i).doubleValue();
+            if(score > bestScore) {
+                bestScore = score;
+                topVariant = variants.get(i);
+            }
+        }
+
+        return topVariant;
+    }
+
+    public static <T> List<T> rank(List<T> variants, List<Float> scores) {
+        if(variants.size() != scores.size()) {
+            return variants;
+        }
+
+        Integer[] indices = new Integer[variants.size()];
+        for(int i = 0; i < variants.size(); ++i) {
+            indices[i] = i;
+        }
+
+        Arrays.sort(indices, new Comparator<Integer>() {
+            public int compare(Integer obj1, Integer obj2) {
+                return scores.get(obj1) < scores.get(obj2) ? 1 : -1;
+            }
+        });
+
+        List<T> result = new ArrayList<>(variants.size());
+        for(int i = 0; i < indices.length; ++i) {
+            result.add(variants.get(indices[i]));
+        }
+
+        return result;
+    }
+
+    private List<Double> generateDescendingGaussians(int count) {
+        Double[] scores = new Double[count];
+        for (int i = 0; i < count; ++i) {
+            scores[i] = randomGenerator.nextGaussian();
+        }
+        Arrays.sort(scores);
+        return Arrays.asList(scores);
     }
 }

@@ -36,9 +36,6 @@ public class XXFeatureEncoder {
         for(int i = 0; i < featureNames.size(); ++i) {
             featureNamesMap.put(featureNames.get(i), i);
         }
-        if(featureNamesMap.size() != featureNames.size()) {
-            // This won't happen unless the model is nvalid.
-        }
     }
 
     public List<FVec> encodeVariants(List<Object> variants, Object context) {
