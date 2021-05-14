@@ -59,6 +59,14 @@ public class IMPDecisionModel {
                 predictor.getModelMetadata().getModelFeatureNames());
     }
 
+    public String getModelName() {
+        return modelName;
+    }
+
+    public IMPDecisionTracker getTracker() {
+        return tracker;
+    }
+
     public IMPDecisionModel track(IMPDecisionTracker tracker) {
         this.tracker = tracker;
         return this;
@@ -95,12 +103,12 @@ public class IMPDecisionModel {
         return result;
     }
 
-    public static <T> T topScoringVariant(List<T> variants, List<Number> scores) {
+    public static Object topScoringVariant(List<Object> variants, List<Double> scores) {
         if(variants.size() != scores.size() || variants.size() <= 0) {
             return null;
         }
 
-        T topVariant = variants.get(0);
+        Object topVariant = variants.get(0);
         double bestScore = scores.get(0).doubleValue();
         for(int i = 1; i < variants.size(); ++i) {
             double score = scores.get(i).doubleValue();
@@ -113,7 +121,7 @@ public class IMPDecisionModel {
         return topVariant;
     }
 
-    public static <T> List<T> rank(List<T> variants, List<Float> scores) {
+    public static List<Object> rank(List<Object> variants, List<Double> scores) {
         if(variants.size() != scores.size()) {
             return variants;
         }
@@ -129,7 +137,7 @@ public class IMPDecisionModel {
             }
         });
 
-        List<T> result = new ArrayList<>(variants.size());
+        List<Object> result = new ArrayList<>(variants.size());
         for(int i = 0; i < indices.length; ++i) {
             result.add(variants.get(indices[i]));
         }

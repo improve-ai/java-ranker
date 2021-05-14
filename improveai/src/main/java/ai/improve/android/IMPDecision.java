@@ -10,7 +10,7 @@ public class IMPDecision {
 
     private List<Object> variants;
 
-    private Map<String, ?> givens;
+    private Map<String, Object> givens;
 
     private boolean chosen;
 
@@ -44,12 +44,26 @@ public class IMPDecision {
         }
 
         List<Double> scores = model.score(variants, givens);
-        if(variants != null && variants.size() > 0) {
 
+        if(variants != null && variants.size() > 0) {
+            IMPDecisionTracker tracker = model.getTracker();
+            if(tracker != null) {
+                if(tracker.shouldtrackRunnersUp(variants.size())) {
+                    // the more variants there are, the less frequently this is called
+                    List<Object> rankedVariants = IMPDecisionModel.rank(variants, scores);
+                    best = rankedVariants.get(0);
+                    model.getTracker().track(best, variants, givens, model.getModelName(), true);
+                } else {
+                    // faster and more common path, avoids array sort
+                    best = IMPDecisionModel.topScoringVariant(variants, scores);
+                    model.getTracker().track(best, variants, givens, model.getModelName(), false);
+                }
+            }
         } else {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
             // "count" field should be 1
             best = null;
+            model.getTracker().track(best, variants, givens, model.getModelName(), false);
         }
 
         chosen = true;
