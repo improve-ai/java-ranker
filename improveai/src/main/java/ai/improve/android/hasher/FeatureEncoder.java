@@ -1,203 +1,152 @@
 package ai.improve.android.hasher;
 
-import org.apache.commons.codec.digest.MurmurHash3;
-import org.apache.commons.math3.util.FastMath;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-/**
- * Feature Encoder
- * <TBD> Business logic definitions are required
- */
+import ai.improve.android.IMPLog;
+import ai.improve.android.XXHashProvider;
+import biz.k11i.xgboost.util.FVec;
+
+//import static ai.improve.android.hasher.XXHashAPI.xxhash3;
+
 public class FeatureEncoder {
+    private static final String Tag = "XXFeatureEncoder";
 
-    private static final int TBL_IDX_COLUMNS = 0;
-    private static final int TBL_IDX_VALUES = 1;
+//    static {
+//        System.loadLibrary("xxhash");
+//    }
 
+//    public native long  xxhash3(byte[] data, long seed);
 
-    /**
-     * Lookup table for feature compilation
-     * Data Structure:
-     * [
-     * [0,1,2], // Values used to look up specific column in a sub-table below
-     * [ // sub-table with lookup values
-     * [
-     * [0,1], // sub-table column lookup
-     * [0,1,2,3,4] // sub-table values used in feature calculation
-     * ]
-     * ]
-     */
-    private final List<Number> table;
+    public boolean testMode;
 
-    /**
-     * Model seed value
-     */
-    private final int modelSeed;
+    public double noise;
 
+    private Map<String, Integer> featureNamesMap = new HashMap<>();
 
-    /**
-     * Constructor
-     *
-     * @param table     - List of lookup table values (refer to data structure above)
-     * @param modelSeed - model seed
-     */
-    public FeatureEncoder(List<Number> table, int modelSeed) {
-        this.table = table;
-        this.modelSeed = modelSeed;
-    }
+    private long variantSeed;
 
-    public Map<Integer, Double> encodeFeatures(String type, Object data) {
-        Map<String, Object> jsonData = Collections.singletonMap(type, data);
-        return encodeFeatures(jsonData, null);
-    }
+    private long valueSeed;
 
-    public Map<Integer, Double> encodeFeatures(String type, Object data, Map<Integer, Double> context) {
-        Map<String, Object> jsonData = Collections.singletonMap(type, data);
-        return encodeFeatures(jsonData, context);
-    }
+    private long contextSeed;
 
+    private XXHashProvider xxHashProvider;
 
-    /**
-     * Main method encoding JSON-formatted data into
-     *
-     * @param jsonData - JSON-formatted data to analyze
-     * @return - feature map in form of Integer:Double pairs
-     */
-    public Map<Integer, Double> encodeFeatures(Map<String, Object> jsonData) {
-        return encodeFeatures(jsonData, null);
-    }
+    public FeatureEncoder(long modelSeed, List<String> featureNames, XXHashProvider xxHashProvider) {
+        this.xxHashProvider = xxHashProvider;
+        variantSeed = xxHashProvider.xxhash3("variant".getBytes(), modelSeed);
+        valueSeed = xxHashProvider.xxhash3("$value".getBytes(), variantSeed);//$value
+        contextSeed = xxHashProvider.xxhash3("context".getBytes(), modelSeed);
 
-    public Map<Integer, Double> encodeFeatures(Map<String, Object> jsonData, Map<Integer, Double> initialContext) {
-        Map<String, Object> flatData = flattenJsonData(jsonData);
-        return encodeFeaturesFromFlattenedData(flatData, initialContext);
-    }
-
-    /**
-     * Encodes features from pre-flattened JSON data
-     *
-     * @param flatData       - flattened JSON data
-     * @param initialContext initial context features
-     * @return Feature map in form of Integer:Double pairs
-     */
-    private Map<Integer, Double> encodeFeaturesFromFlattenedData(Map<String, Object> flatData, Map<Integer, Double> initialContext) {
-        Map<Integer, Double> features = new HashMap<>();
-        if (initialContext != null) {
-            features.putAll(initialContext);
-        }
-
-        double noise = -3; //new JDKRandomGenerator().nextGaussian();
-        for (Map.Entry<String, Object> entry : flatData.entrySet()) {
-            int column = lookupColumn(entry.getKey(), modelSeed);
-            //System.out.println(column + " - " + entry.getKey());
-
-            Object v = entry.getValue();
-            if (v == null) {
-                continue;
+        if(featureNames != null) {
+            for (int i = 0; i < featureNames.size(); ++i) {
+                featureNamesMap.put(featureNames.get(i), i);
             }
-            if (v instanceof Boolean) {
-                double value = (((Boolean) v) ? 1.0 : 0.0);
-                features.put(column, value);
-            } else if (v instanceof Number) {
-                features.put(column, ((Number) v).doubleValue());
-            } else if (v instanceof String) {
-                features.put(column, lookupValue(column, (String) v, modelSeed, noise));
-            }
-            //System.out.println(features.get(column) + " - " + v);
+        } else {
+            IMPLog.e(Tag, "featureNames is null, is this a valid model?");
         }
-        //System.out.println("Noise: " + noise);
+    }
 
+    public List<FVec> encodeVariants(List<Object> variants, Object context) {
+        double noise = testMode ? this.noise : Math.random();
+
+        double[] contextFeature = context != null ? encodeContext(context, noise) : null;
+
+        List<FVec> result = new ArrayList(variants.size());
+        for (Object variant: variants) {
+            double[] variantFeatures = (contextFeature != null) ? contextFeature : new double[featureNamesMap.size()];
+            encodeVariant(variant, noise, variantFeatures);
+            result.add(FVec.Transformer.fromArray(variantFeatures, true));
+        }
+        return result;
+    }
+
+    private double[] encodeContext(Object context, double noise) {
+        double[] features = new double[featureNamesMap.size()];
+        double smallNoise = shrink(noise);
+        return encodeInternal(context, contextSeed, smallNoise, features);
+    }
+
+    private double[] encodeVariant(Object variant, double noise, double[] features) {
+        double smallNoise = shrink(noise);
+        if(variant instanceof Map) {
+            return encodeInternal(variant, variantSeed, smallNoise, features);
+        } else {
+            return encodeInternal(variant, valueSeed, smallNoise, features);
+        }
+    }
+
+    private double[] encodeInternal(Object node, long seed, double noise, double[] features) {
+        if(node instanceof Boolean) {
+            double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
+            String featureName = hash_to_feature_name(seed);
+            if(featureNamesMap.containsKey(featureName)) {
+                int index = featureNamesMap.get(featureName);
+                features[index] += sprinkle(nodeValue, noise);
+            }
+        } else if(node instanceof Number && !Double.isNaN(((Number)node).doubleValue())) {
+            double nodeValue = ((Number)node).doubleValue();
+            String featureName = hash_to_feature_name(seed);
+            if(featureNamesMap.containsKey(featureName)) {
+                int index = featureNamesMap.get(featureName);
+                features[index] += sprinkle(nodeValue, noise);
+            }
+        } else if(node instanceof String) {
+            long hashed = this.xxHashProvider.xxhash3(((String) node).getBytes(), seed);
+            String featureName = hash_to_feature_name(seed);
+            if(featureNamesMap.containsKey(featureName)) {
+                int index = featureNamesMap.get(featureName);
+                features[index] += sprinkle(((hashed & 0xffff0000L) >>> 16) - 0x8000, noise);
+            }
+
+            String hashedFeatureName = hash_to_feature_name(hashed);
+            if(featureNamesMap.containsKey(hashedFeatureName)) {
+                int index = featureNamesMap.get(hashedFeatureName);
+                features[index] += sprinkle((hashed & 0xffffL) - 0x8000, noise);
+            }
+        } else if (node instanceof Map) {
+            for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)node).entrySet()) {
+                if(!(entry.getKey() instanceof String)) {
+                    IMPLog.w(Tag, "Map entry ignored: map key must be of type String.");
+                    continue;
+                }
+                long newSeed = this.xxHashProvider.xxhash3(entry.getKey().getBytes(), seed);
+                encodeInternal(entry.getValue(), newSeed, noise, features);
+            }
+        } else if (node instanceof List) {
+            List list = (List)node;
+            for (int i = 0; i < list.size(); ++i) {
+                byte[] bytes = longToByteArray(i);
+                long newSeed = this.xxHashProvider.xxhash3(bytes, seed);
+                encodeInternal(list.get(i), newSeed, noise, features);
+            }
+        }
         return features;
     }
 
-    /**
-     * Simple murmurhash wrapper to return result equivalent to Python's `mmh3.hash(key, model_seed, signed=False)`
-     *
-     * @param value     Value to hash
-     * @param modelSeed model seed
-     * @return Unsigned Murmurhash32 value
-     */
-    private long unsignedMmh3Hash(String value, int modelSeed) {
-        try {
-            long hash = new GuavaMmh3Hasher(modelSeed).hashBytes(value.getBytes("UTF-8")).asInt();
-            return hash & 0x0ffffffffl; //convert to unsigned
-        } catch (UnsupportedEncodingException ex) {
-            return 0;
-        }
+    private String hash_to_feature_name(long hash) {
+        return String.format("%x", (int)(hash >>> 32));
     }
 
-    /**
-     * Convenience method with minimal / default parameters
-     *
-     * @param key       - key to look up
-     * @param modelSeed - model seed value
-     * @return - hashed column index value
-     */
-    private int lookupColumn(String key, int modelSeed) {
-        return lookupColumn(this.table, key, modelSeed, 1);
+    private double shrink(double noise) {
+        return noise * Math.pow(2, -17);
     }
 
-    /**
-     * Look up correct column in the table by applying hash calculations
-     *
-     * @param lookupTable - table to look up values in
-     * @param key         - key to look up
-     * @param modelSeed   - model seed value
-     * @param w           - arbitrary parameter
-     * @return
-     */
-    private int lookupColumn(List<Number> lookupTable, String key, int modelSeed, int w) {
-        List<Number> columns = (List<Number>) lookupTable.get(TBL_IDX_COLUMNS);
-        List<Number> values = (List<Number>) lookupTable.get(TBL_IDX_VALUES);
-        long hash = unsignedMmh3Hash(key, modelSeed);
-        int columnIndex = (int) (hash % columns.size());
-        int columnValue = columns.get(columnIndex).intValue();
-
-        int result = 0;
-        if (columnValue < 0) {
-            result = Math.abs(columnValue) - 1;
-        } else {
-            result = (int) (unsignedMmh3Hash(key, (int) (columnValue ^ modelSeed)) % (FastMath.floorDiv(values.size(), w)));
-        }
-        //System.out.println("C: " + columnIndex + " : " + columnValue + " : " + result + " : " + modelSeed + " : " + hash);
-        return result;
+    private double sprinkle(double x, double small_noise) {
+        return (x + small_noise) * (1 + small_noise);
     }
 
-    /**
-     * Look up value in subtables (refer to data structure definition)
-     *
-     * @param column    - column index in values array
-     * @param key       - key to look up
-     * @param modelSeed - model seed
-     * @param noise     - pre-defined noise value
-     * @return
-     */
-    private Double lookupValue(int column, String key, int modelSeed, double noise) {
-        List<Number> values = (List<Number>) table.get(TBL_IDX_VALUES);
-        List<Number> subtable = (List<Number>) values.get(column);
-        List<Number> subvalues = (List<Number>) subtable.get(TBL_IDX_VALUES);
-
-        int subcolumn = lookupColumn(subtable, key, modelSeed, 2) * 2;
-        double result = subvalues.get(subcolumn).doubleValue() + (subvalues.get(subcolumn + 1).doubleValue() * noise);
-
-        //System.out.println(subcolumn + " : " + subvalues.get(subcolumn) + " : " + subvalues.get(subcolumn + 1) + " : " + noise);
-        return result;
+    private final byte[] longToByteArray(long value) {
+        return new byte[] {
+                (byte)(value >> 56),
+                (byte)(value >> 48),
+                (byte)(value >> 40),
+                (byte)(value >> 32),
+                (byte)(value >> 24),
+                (byte)(value >> 16),
+                (byte)(value >> 8),
+                (byte)value};
     }
-
-    /**
-     * Returns flattened JSON object, usint \0 (null character) as a separator.
-     * Example: {"test": {"some": "value"}} => {"test\0some": "value}
-     *
-     * @param jsonData JSON string to parse / flatten
-     * @return HashMap with flattened JSON data structure
-     */
-    private Map<String, Object> flattenJsonData(Map<String, Object> jsonData) {
-        Map<String, Object> result = MapFlattener.flatten(jsonData, "\0");
-        return result;
-    }
-
-
 }

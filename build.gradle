@@ -49,13 +49,15 @@ ext {
 
     minSdkVersion = 14
     minSdkVersionWear = 23
-    targetSdkVersion = 23
-    compileSdkVersion = 23
+    targetSdkVersion = 30
+    compileSdkVersion = 30
 
     sourceCompatibilityVersion = JavaVersion.VERSION_1_8
     targetCompatibilityVersion = JavaVersion.VERSION_1_8
 
     preDexLibraries = false
+
+    multiDexEnabled = true
 }
 
 ext.deps = [

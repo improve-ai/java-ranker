@@ -6,7 +6,7 @@ import java.util.Map;
 public class IMPDecision {
     public static final String Tag = "IMPDecision";
 
-    private IMPDecisionModel model;
+    private BaseIMPDecisionModel model;
 
     private List<Object> variants;
 
@@ -16,7 +16,7 @@ public class IMPDecision {
 
     private Object best;
 
-    public IMPDecision(IMPDecisionModel model) {
+    public IMPDecision(BaseIMPDecisionModel model) {
         this.model = model;
     }
 
@@ -46,16 +46,16 @@ public class IMPDecision {
         List<Double> scores = model.score(variants, givens);
 
         if(variants != null && variants.size() > 0) {
-            IMPDecisionTracker tracker = model.getTracker();
+            BaseIMPDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
                 if(tracker.shouldtrackRunnersUp(variants.size())) {
                     // the more variants there are, the less frequently this is called
-                    List<Object> rankedVariants = IMPDecisionModel.rank(variants, scores);
+                    List<Object> rankedVariants = BaseIMPDecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
                     model.getTracker().track(best, variants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
-                    best = IMPDecisionModel.topScoringVariant(variants, scores);
+                    best = BaseIMPDecisionModel.topScoringVariant(variants, scores);
                     model.getTracker().track(best, variants, givens, model.getModelName(), false);
                 }
             }

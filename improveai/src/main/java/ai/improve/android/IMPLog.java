@@ -1,19 +1,17 @@
 package ai.improve.android;
 
-import android.util.Log;
-
 public class IMPLog {
     public static final String Prefix = "IMPROVE_AI.";
 
     public static void d(String tag, String message){
-        Log.d(Prefix+tag, message);
+//        Log.d(Prefix+tag, message);
     }
 
     public static void w(String tag, String message){
-        Log.w(Prefix+tag, message);
+//        Log.w(Prefix+tag, message);
     }
 
     public static void e(String tag, String message){
-        Log.e(Prefix+tag, message);
+//        Log.e(Prefix+tag, message);
     }
 }
