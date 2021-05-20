@@ -16,8 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.android.XXHashProviderImp;
 import ai.improve.android.hasher.FeatureEncoder;
+import ai.improve.android.hasher.XXHashAPI;
 
 import static org.junit.Assert.*;
 
@@ -75,7 +75,7 @@ public class ExampleInstrumentedTest {
         double noise = root.getDouble("noise");
         JSONObject expected = root.getJSONObject("test_output");
 
-        FeatureEncoder featureEncoder = new FeatureEncoder(modelSeed, null, new XXHashProviderImp());
+        FeatureEncoder featureEncoder = new FeatureEncoder(modelSeed, null, new XXHashAPI());
         featureEncoder.testMode = true;
         featureEncoder.noise = noise;
 //        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), context);
