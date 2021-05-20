@@ -2,12 +2,21 @@ package ai.improve.sample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mGreetingTV = findViewById(R.id.greeting_tv);
         findViewById(R.id.root_view).setOnClickListener(this);
+
+        enableHttpResponseCache();
     }
 
     @Override
@@ -34,6 +45,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(id == R.id.root_view) {
             chooseFrom();
             track();
+
+            new Thread() {
+                @Override
+                public void run() {
+                    testHttpUrlConnection();
+                }
+            }.start();
+//            testHttpUrlConnection();
         }
     }
 
@@ -68,5 +87,50 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Object variant = new IMPDecisionModel("orange").track(tracker).chooseFrom(variants).get();
         Log.d(Tag, "variant = " + variant);
+    }
+
+    private void testHttpUrlConnection() {
+        HttpURLConnection urlConnection = null;
+        try {
+            URL url = new URL("http://10.254.115.144:8080/dummy_v6.xgb");
+            urlConnection = (HttpURLConnection)url.openConnection();
+            urlConnection.setReadTimeout(15000);
+            InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+
+            int totalBytes = 0;
+            int bytesRead = 0;
+            byte[] buffer = new byte[1024];
+//            DataInputStream dis = new DataInputStream(inputStream);
+            while(-1 != (bytesRead = inputStream.read(buffer))) {
+                totalBytes += bytesRead;
+            }
+            Log.d(Tag, "totalBytesRead: " + totalBytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(urlConnection != null) {
+                urlConnection.disconnect();
+            }
+        }
+    }
+
+    private void enableHttpResponseCache() {
+        try {
+            File httpCacheDir = new File(getCacheDir(), "http");
+            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            HttpResponseCache.install(httpCacheDir, httpCacheSize);
+        } catch (IOException e) {
+            Log.i(Tag, "HTTP response cache installation failed:" + e);
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        HttpResponseCache cache = HttpResponseCache.getInstalled();
+        if (cache != null) {
+            cache.flush();
+            Log.i(Tag, "Cache flushed");
+        }
     }
 }

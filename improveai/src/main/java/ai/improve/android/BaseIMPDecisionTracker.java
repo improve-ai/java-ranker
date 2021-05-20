@@ -50,7 +50,7 @@ public abstract class BaseIMPDecisionTracker {
     private int maxRunnersUp;
 
     public BaseIMPDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
-        this(trackURL, null, null);
+        this(trackURL, null, historyIdProvider);
     }
 
     public BaseIMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
