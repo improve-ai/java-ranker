@@ -8,3 +8,5 @@ build
 *.iml
 /local.properties
 improveai/.cxx
+xxhash/src/main/libs
+xxhash/src/main/obj
