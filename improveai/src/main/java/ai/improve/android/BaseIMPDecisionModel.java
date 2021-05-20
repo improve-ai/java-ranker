@@ -1,13 +1,11 @@
 package ai.improve.android;
 
-import org.apache.commons.math3.random.JDKRandomGenerator;
-import org.apache.commons.math3.random.RandomGenerator;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import ai.improve.android.hasher.FeatureEncoder;
 import ai.improve.android.xgbpredictor.ImprovePredictor;
@@ -24,7 +22,7 @@ public abstract class BaseIMPDecisionModel {
 
     private FeatureEncoder featureEncoder;
 
-    private RandomGenerator randomGenerator = new JDKRandomGenerator();
+    private Random randomGenerator = new Random();
 
     private XXHashProvider xxHashProvider;
 
