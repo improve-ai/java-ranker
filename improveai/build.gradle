@@ -11,11 +11,9 @@ dependencies {
     api 'ai.h2o:xgboost-predictor:0.3.17'
 
     implementation('commons-codec:commons-codec:1.15');
-//    implementation('com.github.wnameless.json:json-flattener:0.9.0')
     implementation('org.apache.commons:commons-math3:3.6.1')
 
     implementation("com.google.guava:guava:30.0-android")
-//    implementation project(path: ':common')
 
 
     testImplementation 'junit:junit:4.13.1'
@@ -31,31 +29,4 @@ dependencies {
     testImplementation("org.mock-server:mockserver-client-java:5.11.1")
     testImplementation("org.mock-server:mockserver-junit-rule:5.11.1")
     testImplementation("org.slf4j:slf4j-jdk14:1.7.30")
-
-//    androidTestImplementation 'androidx.test.ext:junit:1.1.2'
-//    androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-
-//    implementation project(path: ':xxhash')
-
-//    def multidex_version = "2.0.1"
-//    implementation "androidx.multidex:multidex:$multidex_version"
 }
-
-//android {
-//    testOptions {
-//        unitTests.all {
-//            useJUnit()
-//        }
-//    }
-
-    // Encapsulates your external native build configurations.
-//    externalNativeBuild {
-//
-//        // Encapsulates your CMake build configurations.
-//        cmake {
-//
-//            // Provides a relative path to your CMake build script.
-//            path "CMakeLists.txt"
-//        }
-//    }
-//}
