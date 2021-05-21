@@ -1,4 +1,4 @@
-package com.panhongx.improveai_android;
+package ai.improve.android;
 
 import android.content.Context;
 import android.util.Log;

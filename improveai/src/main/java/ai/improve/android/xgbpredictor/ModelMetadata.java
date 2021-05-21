@@ -4,16 +4,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import ai.improve.android.IMPLog;
 import biz.k11i.xgboost.util.ModelReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nonnull;
 
@@ -36,7 +33,6 @@ public class ModelMetadata {
         for (long i = 0; i < num_attrs; ++i) {
             long strlenkey = r.readLong();
             String key = r.readString((int) strlenkey);
-            IMPLog.d(Tag, "key=" + key);
 
             long strlenval = r.readLong();
             String val = r.readString((int) strlenval);

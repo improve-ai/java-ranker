@@ -58,6 +58,8 @@ public class IMPDecision {
                     best = BaseIMPDecisionModel.topScoringVariant(variants, scores);
                     model.getTracker().track(best, variants, givens, model.getModelName(), false);
                 }
+            } else {
+                best = BaseIMPDecisionModel.topScoringVariant(variants, scores);
             }
         } else {
             // Unit test that "variant": null JSON is tracked on null or empty variants.

@@ -1,5 +1,6 @@
 package ai.improve.android;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -12,7 +13,7 @@ import ai.improve.android.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
 public abstract class BaseIMPDecisionModel {
-    public static final String Tag = "IMPDecisionModel";
+    private static final String Tag = "BaseIMPDecisionModel";
 
     private String modelName;
 
@@ -26,27 +27,20 @@ public abstract class BaseIMPDecisionModel {
 
     private XXHashProvider xxHashProvider;
 
-//    public static BaseIMPDecisionModel loadFromAsset(Context context, String filename) {
-//        BaseIMPDecisionModel model = new BaseIMPDecisionModel("");
-//        try {
-//            ImprovePredictor predictor = ModelDownloader.fromAsset(context, filename);
-//            model.setModel(predictor);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return null;
-//        }
-//        return model;
-//    }
-
     public BaseIMPDecisionModel(String modelName, XXHashProvider xxHashProvider) {
         this.modelName = modelName;
         this.xxHashProvider = xxHashProvider;
     }
 
     public void setModel(ImprovePredictor predictor) {
+        if(predictor == null) {
+            IMPLog.e(Tag, "predictor is null");
+            return ;
+        }
+
         this.predictor = predictor;
 
-        if((modelName == null || modelName.isEmpty()) && !modelName.equals(predictor.getModelMetadata().getModelName())) {
+        if((modelName != null && !modelName.isEmpty()) && !modelName.equals(predictor.getModelMetadata().getModelName())) {
             IMPLog.w(Tag, "Model names don't match: Current model name [" + modelName
                     + "], new model Name [" + predictor.getModelMetadata().getModelName() +"]");
         }

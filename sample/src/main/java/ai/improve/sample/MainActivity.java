@@ -74,6 +74,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             mGreetingTV.setText("greeting is null or empty");
             mGreetingTV.setTextColor(getColor(R.color.red));
         }
+
+//        IMPDecisionModel.load()
     }
 
     private void track() {

@@ -1,4 +1,4 @@
-package com.panhongx.improveai_android;
+package ai.improve.android;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
