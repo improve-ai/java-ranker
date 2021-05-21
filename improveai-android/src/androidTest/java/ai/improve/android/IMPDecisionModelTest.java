@@ -27,6 +27,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
 public class IMPDecisionModelTest {
@@ -176,6 +177,33 @@ public class IMPDecisionModelTest {
         IMPLog.d(Tag, "greeting=" + greeting);
         assertNull(greeting);
         assertNotNull(loadException);
+    }
+
+    @Test
+    public void testLoadFromNonMainThread() throws InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    List<Object> variants = new ArrayList<>();
+                    variants.add("Hello, World!");
+                    variants.add("hello, world!");
+                    variants.add("hello");
+                    variants.add("hi");
+
+                    URL url = new URL(ModelURL);
+                    String greeting = (String) IMPDecisionModel.load(url).chooseFrom(variants).get();
+                    IMPLog.d(Tag, "testGet, greeting=" + greeting);
+                    assertNotNull(greeting);
+
+                    semaphore.release();
+                } catch (Exception e) {
+                    fail(e.getMessage());
+                }
+            }
+        }.start();
+        semaphore.acquire();
     }
 
     private String download(String urlStr) throws IOException, SecurityException {
