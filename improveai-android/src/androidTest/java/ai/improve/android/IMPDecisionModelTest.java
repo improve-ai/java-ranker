@@ -1,16 +1,24 @@
 package ai.improve.android;
 
+import android.content.Context;
 import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
+import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 import ai.improve.android.xgbpredictor.ImprovePredictor;
@@ -105,5 +113,43 @@ public class IMPDecisionModelTest {
         String greeting = (String) decisionModel.chooseFrom(variants).get();
         IMPLog.d(Tag, "testLoadGzipModel, greeting=" + greeting);
         assertNotNull(greeting);
+    }
+
+    @Test
+    public void testLoadLocalModel() throws IOException {
+        // Download model file and save it to external cache dir
+        String localModelFilePath = download();
+        URL url = new File(localModelFilePath).toURI().toURL();
+
+        IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
+        assertNotNull(decisionModel);
+
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+        variants.add("hello, world!");
+        variants.add("hello");
+        variants.add("hi");
+        String greeting = (String) decisionModel.chooseFrom(variants).get();
+        IMPLog.d(Tag, "testLoadLocalModel, greeting=" + greeting);
+        assertNotNull(greeting);
+    }
+
+
+    private String download() throws IOException, SecurityException {
+        URL url = new URL(ModelURL);
+        InputStream is = new BufferedInputStream(url.openStream());
+        byte[] buffer = new byte[1024];
+        int length;
+
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        String absfile = appContext.getExternalCacheDir() + "/" + UUID.randomUUID().toString() + ".xgb";
+        IMPLog.d(Tag, "cache file path: " + absfile);
+
+        // write to cache
+        FileOutputStream fos = new FileOutputStream(new File(absfile));
+        while ((length = is.read(buffer)) > 0) {
+            fos.write(buffer, 0, length);
+        }
+        return absfile;
     }
 }

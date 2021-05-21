@@ -4,6 +4,8 @@ import android.os.Handler;
 import android.os.Looper;
 
 import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -49,26 +51,41 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
             @Override
             public void run() {
                 try {
-                    if(url.getPath().endsWith(".gz")) {
-
-                    }
-                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-                    urlConnection.setReadTimeout(15000);
-                    InputStream inputStream;
-                    if(url.getPath().endsWith(".gz")) {
-                        inputStream = new GZIPInputStream(urlConnection.getInputStream());
-                    } else {
-                        inputStream = new BufferedInputStream(urlConnection.getInputStream());
-                    }
-                    ImprovePredictor predictor = new ImprovePredictor(inputStream);
-
-                    // callback in main thread
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            listener.onFinish(predictor);
+                    if(url.toString().startsWith("http")) {
+                        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setReadTimeout(15000);
+                        InputStream inputStream;
+                        if (url.getPath().endsWith(".gz")) {
+                            inputStream = new GZIPInputStream(urlConnection.getInputStream());
+                        } else {
+                            inputStream = new BufferedInputStream(urlConnection.getInputStream());
                         }
-                    });
+                        ImprovePredictor predictor = new ImprovePredictor(inputStream);
+
+                        // callback in main thread
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onFinish(predictor);
+                            }
+                        });
+                    } else {
+                        // local model files
+                        // If local model files is not in the sandbox of the app,
+                        // READ_EXTERNAL_STORAGE might be required to read the file.
+                        // We are leaving any permission request stuff to sdk users.
+                        new File(url.toURI());
+                        InputStream inputStream = new FileInputStream(new File(url.toURI()));
+                        ImprovePredictor predictor = new ImprovePredictor(inputStream);
+                        // callback in main thread
+                        new Handler(Looper.getMainLooper()).post(new Runnable() {
+                            @Override
+                            public void run() {
+                                listener.onFinish(predictor);
+                            }
+                        });
+                    }
+
                     return ;
                 } catch (Exception e) {
                     e.printStackTrace();
