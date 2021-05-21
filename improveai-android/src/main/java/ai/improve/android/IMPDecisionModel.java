@@ -75,7 +75,12 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                         // READ_EXTERNAL_STORAGE might be required to read the file.
                         // We are leaving any permission request stuff to sdk users.
                         new File(url.toURI());
-                        InputStream inputStream = new FileInputStream(new File(url.toURI()));
+                        InputStream inputStream;
+                        if(url.getPath().endsWith(".gz")) {
+                            inputStream = new GZIPInputStream(new FileInputStream(new File(url.toURI())));
+                        } else {
+                            inputStream = new FileInputStream(new File(url.toURI()));
+                        }
                         ImprovePredictor predictor = new ImprovePredictor(inputStream);
                         // callback in main thread
                         new Handler(Looper.getMainLooper()).post(new Runnable() {

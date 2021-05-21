@@ -118,7 +118,7 @@ public class IMPDecisionModelTest {
     @Test
     public void testLoadLocalModel() throws IOException {
         // Download model file and save it to external cache dir
-        String localModelFilePath = download();
+        String localModelFilePath = download(ModelURL);
         URL url = new File(localModelFilePath).toURI().toURL();
 
         IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
@@ -134,15 +134,37 @@ public class IMPDecisionModelTest {
         assertNotNull(greeting);
     }
 
+    @Test
+    public void testLoadLocalCompressedModel() throws IOException {
+        // Download model file and save it to external cache dir
+        String localModelFilePath = download(CompressedModelURL);
 
-    private String download() throws IOException, SecurityException {
-        URL url = new URL(ModelURL);
+        URL url = new File(localModelFilePath).toURI().toURL();
+
+        IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
+        assertNotNull(decisionModel);
+
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+        variants.add("hello, world!");
+        variants.add("hello");
+        variants.add("hi");
+        String greeting = (String) decisionModel.chooseFrom(variants).get();
+        IMPLog.d(Tag, "testLoadLocalCompressedModel, greeting=" + greeting);
+        assertNotNull(greeting);
+    }
+
+    private String download(String urlStr) throws IOException, SecurityException {
+        URL url = new URL(urlStr);
         InputStream is = new BufferedInputStream(url.openStream());
         byte[] buffer = new byte[1024];
         int length;
 
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         String absfile = appContext.getExternalCacheDir() + "/" + UUID.randomUUID().toString() + ".xgb";
+        if(urlStr.endsWith(".gz")) {
+            absfile += ".gz";
+        }
         IMPLog.d(Tag, "cache file path: " + absfile);
 
         // write to cache
@@ -150,6 +172,7 @@ public class IMPDecisionModelTest {
         while ((length = is.read(buffer)) > 0) {
             fos.write(buffer, 0, length);
         }
+
         return absfile;
     }
 }
