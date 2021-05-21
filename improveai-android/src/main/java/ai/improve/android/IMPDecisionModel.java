@@ -7,6 +7,7 @@ import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.zip.GZIPInputStream;
 
 import ai.improve.android.hasher.XXHashAPI;
 import ai.improve.android.xgbpredictor.ImprovePredictor;
@@ -48,9 +49,17 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
             @Override
             public void run() {
                 try {
+                    if(url.getPath().endsWith(".gz")) {
+
+                    }
                     HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setReadTimeout(15000);
-                    InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+                    InputStream inputStream;
+                    if(url.getPath().endsWith(".gz")) {
+                        inputStream = new GZIPInputStream(urlConnection.getInputStream());
+                    } else {
+                        inputStream = new BufferedInputStream(urlConnection.getInputStream());
+                    }
                     ImprovePredictor predictor = new ImprovePredictor(inputStream);
 
                     // callback in main thread

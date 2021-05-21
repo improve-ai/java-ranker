@@ -25,6 +25,8 @@ public class IMPDecisionModelTest {
 
     private static final String ModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
 
+    private static final String CompressedModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb.gz";
+
     static {
         IMPLog.setLogger(new IMPLoggerImp());
         IMPLog.enableLogging(true);
@@ -87,5 +89,21 @@ public class IMPDecisionModelTest {
             }
         });
         semaphore.acquire();
+    }
+
+    @Test
+    public void testLoadGzipModel() throws MalformedURLException {
+        URL url = new URL(CompressedModelURL);
+        IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
+        assertNotNull(decisionModel);
+
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+        variants.add("hello, world!");
+        variants.add("hello");
+        variants.add("hi");
+        String greeting = (String) decisionModel.chooseFrom(variants).get();
+        IMPLog.d(Tag, "testLoadGzipModel, greeting=" + greeting);
+        assertNotNull(greeting);
     }
 }
