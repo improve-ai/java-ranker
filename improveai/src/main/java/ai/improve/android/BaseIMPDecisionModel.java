@@ -95,10 +95,6 @@ public abstract class BaseIMPDecisionModel {
     }
 
     public static Object topScoringVariant(List<Object> variants, List<Double> scores) {
-        if(variants.size() != scores.size() || variants.size() <= 0) {
-            return null;
-        }
-
         Object topVariant = variants.get(0);
         double bestScore = scores.get(0).doubleValue();
         for(int i = 1; i < variants.size(); ++i) {
@@ -108,15 +104,10 @@ public abstract class BaseIMPDecisionModel {
                 topVariant = variants.get(i);
             }
         }
-
         return topVariant;
     }
 
     public static List<Object> rank(List<Object> variants, List<Double> scores) {
-        if(variants.size() != scores.size()) {
-            return variants;
-        }
-
         Integer[] indices = new Integer[variants.size()];
         for(int i = 0; i < variants.size(); ++i) {
             indices[i] = i;

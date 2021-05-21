@@ -85,6 +85,7 @@ public class BaseIMPDecisionModelTest {
         assertEquals(topVariant.intValue(), count+1000);
     }
 
+    @Test
     public void testTopVariantEmpty() {
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
@@ -93,6 +94,7 @@ public class BaseIMPDecisionModelTest {
         assertNull(topVariant);
     }
 
+    @Test
     public void testTopVariantInvalid() {
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
