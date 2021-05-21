@@ -1,5 +1,8 @@
 package ai.improve.android;
 
+import android.os.Handler;
+import android.os.Looper;
+
 import java.io.BufferedInputStream;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
@@ -40,7 +43,7 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
         super(modelName, new XXHashAPI());
     }
 
-    private void loadAsync(URL url, IMPDecisionModelLoadListener listener) {
+    public void loadAsync(URL url, IMPDecisionModelLoadListener listener) {
         new Thread() {
             @Override
             public void run() {
@@ -49,14 +52,27 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                     urlConnection.setReadTimeout(15000);
                     InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
                     ImprovePredictor predictor = new ImprovePredictor(inputStream);
-                    listener.onFinish(predictor);
+
+                    // callback in main thread
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onFinish(predictor);
+                        }
+                    });
                     return ;
                 } catch (Exception e) {
                     e.printStackTrace();
                     IMPLog.e(Tag, "loadAsync exception: " + e.getLocalizedMessage());
                 }
 
-                listener.onFinish(null);
+                // callback in main thread
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        listener.onFinish(null);
+                    }
+                });
             }
         }.start();
     }
