@@ -19,11 +19,13 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
 
     private final Object lock = new Object();
 
-    public static IMPDecisionModel load(URL url) {
+    public static IMPDecisionModel load(URL url) throws Exception {
+        final Exception[] loadException = {null};
         IMPDecisionModel decisionModel = new IMPDecisionModel("");
         decisionModel.loadAsync(url, new IMPDecisionModelLoadListener(){
             @Override
-            public void onFinish(ImprovePredictor predictor) {
+            public void onFinish(ImprovePredictor predictor, Exception e) {
+                loadException[0] = e;
                 decisionModel.setModel(predictor);
                 synchronized (decisionModel.lock) {
                     decisionModel.lock.notifyAll();
@@ -37,6 +39,10 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                 e.printStackTrace();
                 IMPLog.e(Tag, e.getLocalizedMessage());
             }
+        }
+
+        if(loadException[0] != null) {
+            throw loadException[0];
         }
 
         return decisionModel;
@@ -66,7 +72,7 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                listener.onFinish(predictor);
+                                listener.onFinish(predictor, null);
                             }
                         });
                     } else {
@@ -86,24 +92,22 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                         new Handler(Looper.getMainLooper()).post(new Runnable() {
                             @Override
                             public void run() {
-                                listener.onFinish(predictor);
+                                listener.onFinish(predictor, null);
                             }
                         });
                     }
-
-                    return ;
                 } catch (Exception e) {
                     e.printStackTrace();
                     IMPLog.e(Tag, "loadAsync exception: " + e.getLocalizedMessage());
-                }
 
-                // callback in main thread
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        listener.onFinish(null);
-                    }
-                });
+                    // callback in main thread
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            listener.onFinish(null, e);
+                        }
+                    });
+                }
             }
         }.start();
     }
@@ -112,6 +116,6 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
         /**
          * @param predictor null when error occurred while loading the model
          * */
-        void onFinish(ImprovePredictor predictor);
+        void onFinish(ImprovePredictor predictor, Exception e);
     }
 }

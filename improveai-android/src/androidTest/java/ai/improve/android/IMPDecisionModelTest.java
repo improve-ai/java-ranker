@@ -25,6 +25,7 @@ import ai.improve.android.xgbpredictor.ImprovePredictor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(AndroidJUnit4.class)
@@ -47,7 +48,7 @@ public class IMPDecisionModelTest {
     }
 
     @Test
-    public void testModelName() throws MalformedURLException {
+    public void testModelName() throws Exception {
         URL url = new URL(ModelURL);
         IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
         IMPLog.d(Tag, "modelName=" + decisionModel.getModelName());
@@ -55,7 +56,7 @@ public class IMPDecisionModelTest {
     }
 
     @Test
-    public void testGet() throws MalformedURLException {
+    public void testGet() throws Exception {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
@@ -89,7 +90,7 @@ public class IMPDecisionModelTest {
         IMPDecisionModel decisionModel = new IMPDecisionModel("music");
         decisionModel.loadAsync(url, new IMPDecisionModel.IMPDecisionModelLoadListener() {
             @Override
-            public void onFinish(ImprovePredictor predictor) {
+            public void onFinish(ImprovePredictor predictor, Exception e) {
                 assertTrue(Looper.myLooper() == Looper.getMainLooper());
                 assertNotNull(predictor);
                 IMPLog.d(Tag, "testLoadAsync, OK");
@@ -100,7 +101,7 @@ public class IMPDecisionModelTest {
     }
 
     @Test
-    public void testLoadGzipModel() throws MalformedURLException {
+    public void testLoadGzipModel() throws Exception {
         URL url = new URL(CompressedModelURL);
         IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
         assertNotNull(decisionModel);
@@ -116,7 +117,7 @@ public class IMPDecisionModelTest {
     }
 
     @Test
-    public void testLoadLocalModel() throws IOException {
+    public void testLoadLocalModel() throws Exception {
         // Download model file and save it to external cache dir
         String localModelFilePath = download(ModelURL);
         URL url = new File(localModelFilePath).toURI().toURL();
@@ -135,7 +136,7 @@ public class IMPDecisionModelTest {
     }
 
     @Test
-    public void testLoadLocalCompressedModel() throws IOException {
+    public void testLoadLocalCompressedModel() throws Exception {
         // Download model file and save it to external cache dir
         String localModelFilePath = download(CompressedModelURL);
 
@@ -152,6 +153,29 @@ public class IMPDecisionModelTest {
         String greeting = (String) decisionModel.chooseFrom(variants).get();
         IMPLog.d(Tag, "testLoadLocalCompressedModel, greeting=" + greeting);
         assertNotNull(greeting);
+    }
+
+    @Test
+    public void testLoadNotExistModel() throws MalformedURLException {
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+        variants.add("hello, world!");
+        variants.add("hello");
+        variants.add("hi");
+
+        // Don't load model
+        URL url = new URL(ModelURL + "/not/exist");
+        String greeting = null;
+        Exception loadException = null;
+        try {
+            greeting = (String) IMPDecisionModel.load(url).chooseFrom(variants).get();
+        } catch (Exception e) {
+            loadException = e;
+            e.printStackTrace();
+        }
+        IMPLog.d(Tag, "greeting=" + greeting);
+        assertNull(greeting);
+        assertNotNull(loadException);
     }
 
     private String download(String urlStr) throws IOException, SecurityException {
