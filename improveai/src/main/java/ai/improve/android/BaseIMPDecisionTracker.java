@@ -53,6 +53,10 @@ public abstract class BaseIMPDecisionTracker {
         this(trackURL, null, historyIdProvider);
     }
 
+    public String getHistoryId() {
+        return historyId;
+    }
+
     public BaseIMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
         this.maxRunnersUp = 50;
         this.trackURL = trackURL;

@@ -16,19 +16,19 @@ public class IMPLog {
     }
 
     public static void d(String tag, String message){
-        if(sLogger != null) {
+        if(sLogger != null && sLogEnabled) {
             sLogger.d(Prefix+tag, message);
         }
     }
 
     public static void w(String tag, String message){
-        if(sLogger != null) {
+        if(sLogger != null && sLogEnabled) {
             sLogger.w(Prefix+tag, message);
         }
     }
 
     public static void e(String tag, String message){
-        if(sLogger != null) {
+        if(sLogger != null && sLogEnabled) {
             sLogger.e(Prefix+tag, message);
         }
     }
