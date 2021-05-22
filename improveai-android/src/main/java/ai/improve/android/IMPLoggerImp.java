@@ -3,6 +3,12 @@ package ai.improve.android;
 import android.util.Log;
 
 public class IMPLoggerImp implements IMPLog.Logger {
+
+    public static void enableLogging() {
+        IMPLog.setLogger(new IMPLoggerImp());
+        IMPLog.enableLogging(true);
+    }
+
     @Override
     public void d(String tag, String message) {
         Log.d(tag, message);

@@ -16,12 +16,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import ai.improve.android.IMPDecisionModel;
 import ai.improve.android.IMPDecisionTracker;
+import ai.improve.android.IMPLog;
+import ai.improve.android.IMPLoggerImp;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String Tag = "MainActivity";
@@ -37,13 +40,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.root_view).setOnClickListener(this);
 
         enableHttpResponseCache();
+
+        IMPLoggerImp.enableLogging();
     }
 
     @Override
     public void onClick(View v) {
         int id = v.getId();
         if(id == R.id.root_view) {
-            chooseFrom();
+            try {
+                chooseFrom();
+            } catch (Exception e){
+                e.printStackTrace();
+            }
             track();
 
             new Thread() {
@@ -52,30 +61,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     testHttpUrlConnection();
                 }
             }.start();
-//            testHttpUrlConnection();
         }
     }
 
-    private void chooseFrom() {
+    private void chooseFrom() throws Exception {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
         variants.add("hello");
         variants.add("hi");
 
-        IMPDecisionModel model = new IMPDecisionModel("orange");
+        URL url = new URL("https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb");
+        IMPDecisionModel model = IMPDecisionModel.load(url);
         String greeting = (String) model.chooseFrom(variants).get();
         Log.d(Tag, "greeting=" + greeting);
 
-        if(!TextUtils.isEmpty(greeting)) {
-            mGreetingTV.setText(greeting);
-            mGreetingTV.setTextColor(getColor(R.color.black));
-        } else {
-            mGreetingTV.setText("greeting is null or empty");
-            mGreetingTV.setTextColor(getColor(R.color.red));
-        }
-
-//        IMPDecisionModel.load()
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(!TextUtils.isEmpty(greeting)) {
+                    mGreetingTV.setText(greeting);
+                    mGreetingTV.setTextColor(getColor(R.color.black));
+                } else {
+                    mGreetingTV.setText("greeting is null or empty");
+                    mGreetingTV.setTextColor(getColor(R.color.red));
+                }
+            }
+        });
     }
 
     private void track() {
