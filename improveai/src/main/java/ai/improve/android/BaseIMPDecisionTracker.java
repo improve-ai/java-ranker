@@ -57,6 +57,14 @@ public abstract class BaseIMPDecisionTracker {
         return historyId;
     }
 
+    public int getMaxRunnersUp() {
+        return maxRunnersUp;
+    }
+
+    public void setMaxRunnersUp(int maxRunnersUp) {
+        this.maxRunnersUp = maxRunnersUp;
+    }
+
     public BaseIMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
         this.maxRunnersUp = 50;
         this.trackURL = trackURL;
@@ -77,7 +85,7 @@ public abstract class BaseIMPDecisionTracker {
     }
 
     public <T> List<T> topRunnersUp(List<T> ranked) {
-        return ranked.subList(1, Math.min(this.maxRunnersUp, ranked.size()-1));
+        return ranked.subList(1, 1+Math.min(this.maxRunnersUp, ranked.size()-1));
     }
 
     public void track(Object bestVariant, List<Object> variants, Map<String, Object> givens,
