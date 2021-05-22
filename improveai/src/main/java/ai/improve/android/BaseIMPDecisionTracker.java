@@ -53,10 +53,6 @@ public abstract class BaseIMPDecisionTracker {
         this(trackURL, null, historyIdProvider);
     }
 
-    public String getHistoryId() {
-        return historyId;
-    }
-
     public int getMaxRunnersUp() {
         return maxRunnersUp;
     }
