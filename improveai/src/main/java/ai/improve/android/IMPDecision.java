@@ -29,7 +29,7 @@ public class IMPDecision {
         return this;
     }
 
-    public IMPDecision given(Map givens) {
+    public IMPDecision given(Map<String, Object> givens) {
         if(chosen) {
             IMPLog.e(Tag, "variant already chosen, ignoring givens");
         } else {
@@ -38,7 +38,7 @@ public class IMPDecision {
         return this;
     }
 
-    public Object get() {
+    public synchronized Object get() {
         if(chosen) {
             return best;
         }
@@ -52,11 +52,11 @@ public class IMPDecision {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = BaseIMPDecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    model.getTracker().track(best, variants, givens, model.getModelName(), true);
+                    tracker.track(best, variants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
                     best = BaseIMPDecisionModel.topScoringVariant(variants, scores);
-                    model.getTracker().track(best, variants, givens, model.getModelName(), false);
+                    tracker.track(best, variants, givens, model.getModelName(), false);
                 }
             } else {
                 best = BaseIMPDecisionModel.topScoringVariant(variants, scores);
@@ -65,7 +65,10 @@ public class IMPDecision {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
             // "count" field should be 1
             best = null;
-            model.getTracker().track(best, variants, givens, model.getModelName(), false);
+            BaseIMPDecisionTracker tracker = model.getTracker();
+            if(tracker != null) {
+                tracker.track(best, variants, givens, model.getModelName(), false);
+            }
         }
 
         chosen = true;

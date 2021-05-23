@@ -2,6 +2,7 @@ package ai.improve.android;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -131,7 +132,7 @@ public abstract class BaseIMPDecisionModel {
         for (int i = 0; i < count; ++i) {
             scores[i] = randomGenerator.nextGaussian();
         }
-        Arrays.sort(scores);
+        Arrays.sort(scores, Collections.reverseOrder());
         return Arrays.asList(scores);
     }
 }
