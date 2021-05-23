@@ -94,14 +94,28 @@ public abstract class BaseIMPDecisionModel {
         return result;
     }
 
+    /**
+     * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
+     * */
     public static Object topScoringVariant(List<Object> variants, List<Double> scores) {
+        // check the size of variants and scores, and use the bigger one so that
+        // an IndexOutOfBoundOfException would be thrown later
+        int size = variants.size();
+        if(scores.size() > variants.size()) {
+            size = scores.size();
+        }
+
         Object topVariant = variants.get(0);
         double bestScore = scores.get(0).doubleValue();
-        for(int i = 1; i < variants.size(); ++i) {
+        for(int i = 1; i < size; ++i) {
+            // scores.get(i) and variants.get(i) must be called for each loop.
+            // We are relying on this to trigger an IndexOutOfBoundExeception
+            // when variants.size() != scores.size()
             double score = scores.get(i).doubleValue();
+            Object variant = variants.get(i);
             if(score > bestScore) {
                 bestScore = score;
-                topVariant = variants.get(i);
+                topVariant = variant;
             }
         }
         return topVariant;

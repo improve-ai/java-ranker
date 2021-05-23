@@ -11,6 +11,7 @@ import java.util.Random;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -61,7 +62,7 @@ public class BaseIMPDecisionModelTest {
     }
 
     @Test
-    public void testTopVariant() {
+    public void testTopScoringVariant() {
         int count = 100;
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
@@ -85,7 +86,7 @@ public class BaseIMPDecisionModelTest {
     }
 
     @Test
-    public void testTopVariantEmpty() {
+    public void testTopScoringVariantEmpty() {
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
 
@@ -93,8 +94,9 @@ public class BaseIMPDecisionModelTest {
         assertNull(topVariant);
     }
 
+    // variants.lenth != scores.length
     @Test
-    public void testTopVariantInvalid() {
+    public void testTopScoringVariantInvalid() {
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
 
@@ -104,10 +106,16 @@ public class BaseIMPDecisionModelTest {
             variants.add(i);
             scores.add(random.nextDouble());
         }
-        variants.add(count);
+        // Add one more variant, so that variants.lenght != scores.length
+        scores.add(0.1);
 
-        Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
-        assertNull(topVariant);
+        try {
+            Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
     }
 
     @Test
@@ -133,7 +141,6 @@ public class BaseIMPDecisionModelTest {
 
         // Test that it is descending
         for(int i = 0; i < size-1; ++i) {
-            System.out.println("number=" + numbers.get(i) + ", " + numbers.get(i+1));
             assertTrue(numbers.get(i) > numbers.get(i+1));
         }
     }
