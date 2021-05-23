@@ -295,6 +295,68 @@ public class BaseIMPDecisionTrackerTest {
     }
 
     @Test
+    public void testTopRunnersUp_1_variant() throws Exception {
+        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        tracker.setMaxRunnersUp(50);
+
+        int numOfVariants = 1;
+
+        List<Object> variants = new ArrayList<>();
+        for(int i = 0; i < numOfVariants; i++) {
+            variants.add(i);
+        }
+
+        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
+        topRunnersUpMethod.setAccessible(true);
+        List<Object> topRunnersUp = ((List)topRunnersUpMethod.invoke(tracker, variants));
+        assertEquals(topRunnersUp.size(), 0);
+    }
+
+    @Test
+    public void testTopRunnersUp_10_variants() throws Exception {
+        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        tracker.setMaxRunnersUp(50);
+
+        int numOfVariants = 10;
+
+        List<Object> variants = new ArrayList<>();
+        for(int i = 0; i < numOfVariants; i++) {
+            variants.add(i);
+        }
+
+        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
+        topRunnersUpMethod.setAccessible(true);
+        List<Object> topRunnersUp = ((List)topRunnersUpMethod.invoke(tracker, variants));
+        assertEquals(topRunnersUp.size(), 9);
+
+        for(int i = 0; i < topRunnersUp.size(); i++) {
+            assertEquals(topRunnersUp.get(i), i+1);
+        }
+    }
+
+    @Test
+    public void testTopRunnersUp_100_variants() throws Exception {
+        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        tracker.setMaxRunnersUp(50);
+
+        int numOfVariants = 100;
+
+        List<Object> variants = new ArrayList<>();
+        for(int i = 0; i < numOfVariants; i++) {
+            variants.add(i);
+        }
+
+        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
+        topRunnersUpMethod.setAccessible(true);
+        List<Object> topRunnersUp = ((List)topRunnersUpMethod.invoke(tracker, variants));
+        assertEquals(topRunnersUp.size(), 50);
+
+        for(int i = 0; i < topRunnersUp.size(); i++) {
+            assertEquals(topRunnersUp.get(i), i+1);
+        }
+    }
+
+    @Test
     public void testSetBestVariantNonNil() throws Exception {
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);

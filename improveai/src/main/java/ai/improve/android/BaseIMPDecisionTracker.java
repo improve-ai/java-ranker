@@ -53,14 +53,6 @@ public abstract class BaseIMPDecisionTracker {
         this(trackURL, null, historyIdProvider);
     }
 
-    public int getMaxRunnersUp() {
-        return maxRunnersUp;
-    }
-
-    public void setMaxRunnersUp(int maxRunnersUp) {
-        this.maxRunnersUp = maxRunnersUp;
-    }
-
     public BaseIMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
         this.maxRunnersUp = 50;
         this.trackURL = trackURL;
@@ -73,6 +65,14 @@ public abstract class BaseIMPDecisionTracker {
         this.historyId = historyIdProvider.getHistoryId();
     }
 
+    public int getMaxRunnersUp() {
+        return maxRunnersUp;
+    }
+
+    public void setMaxRunnersUp(int maxRunnersUp) {
+        this.maxRunnersUp = maxRunnersUp;
+    }
+
     public boolean shouldtrackRunnersUp(int variantsCount) {
         if(variantsCount <= 1 || this.maxRunnersUp == 0) {
             return false;
@@ -80,19 +80,19 @@ public abstract class BaseIMPDecisionTracker {
         return Math.random() < 1.0 / Math.min(variantsCount - 1, this.maxRunnersUp);
     }
 
-    public <T> List<T> topRunnersUp(List<T> ranked) {
+    private  List<Object> topRunnersUp(List<Object> ranked) {
         return ranked.subList(1, 1+Math.min(this.maxRunnersUp, ranked.size()-1));
     }
 
     public void track(Object bestVariant, List<Object> variants, Map<String, Object> givens,
                       String modelName, boolean variantsRankedAndTrackRunnersUp) {
         if(modelName == null || modelName.isEmpty()) {
-            IMPLog.e(Tag, "Improve.track error: modelName is empty or nil");
+            IMPLog.e(Tag, "Improve.track error: modelName is empty or null");
             return ;
         }
 
         if(trackURL == null || trackURL.isEmpty()) {
-            IMPLog.e(Tag, "Improve.track error: trackURL is empty or nil");
+            IMPLog.e(Tag, "Improve.track error: trackURL is empty or null");
             return ;
         }
 
