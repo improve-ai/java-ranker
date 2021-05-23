@@ -62,6 +62,48 @@ public class BaseIMPDecisionModelTest {
     }
 
     @Test
+    public void testRankInvalid_largerVariants() {
+        int count = 100;
+        List<Object> variants = new ArrayList();
+        List<Double> scores = new ArrayList<>();
+
+        for(int i = 0; i < count; ++i) {
+            variants.add(i);
+            scores.add((double)i);
+        }
+        variants.add(1);
+
+        try {
+            BaseIMPDecisionModel.rank(variants, scores);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
+    }
+
+    @Test
+    public void testRankInvalid_largerScores() {
+        int count = 100;
+        List<Object> variants = new ArrayList();
+        List<Double> scores = new ArrayList<>();
+
+        for(int i = 0; i < count; ++i) {
+            variants.add(i);
+            scores.add((double)i);
+        }
+        scores.add(0.1);
+
+        try {
+            BaseIMPDecisionModel.rank(variants, scores);
+        } catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
+    }
+
+    @Test
     public void testTopScoringVariant() {
         int count = 100;
         List<Object> variants = new ArrayList<>();
@@ -94,9 +136,33 @@ public class BaseIMPDecisionModelTest {
         assertNull(topVariant);
     }
 
-    // variants.lenth != scores.length
+    // variants.lenth > scores.length
     @Test
-    public void testTopScoringVariantInvalid() {
+    public void testTopScoringVariantInvalid_largerVariants() {
+        List<Object> variants = new ArrayList<>();
+        List<Double> scores = new ArrayList<>();
+
+        int count = 10;
+        Random random = new Random();
+        for (int i = 0; i < count; ++i) {
+            variants.add(i);
+            scores.add(random.nextDouble());
+        }
+        // Add one more variant, so that variants.lenght != scores.length
+        variants.add(1);
+
+        try {
+            Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
+    }
+
+    // variants.lenth < scores.length
+    @Test
+    public void testTopScoringVariantInvalid_largerScores() {
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
 

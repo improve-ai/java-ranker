@@ -121,9 +121,19 @@ public abstract class BaseIMPDecisionModel {
         return topVariant;
     }
 
+    /**
+     * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
+     * */
     public static List<Object> rank(List<Object> variants, List<Double> scores) {
+        // check the size of variants and scores, and use the bigger one so that
+        // an IndexOutOfBoundOfException would be thrown later
+        int size = variants.size();
+        if(scores.size() > variants.size()) {
+            size = scores.size();
+        }
+
         Integer[] indices = new Integer[variants.size()];
-        for(int i = 0; i < variants.size(); ++i) {
+        for(int i = 0; i < size; ++i) {
             indices[i] = i;
         }
 
