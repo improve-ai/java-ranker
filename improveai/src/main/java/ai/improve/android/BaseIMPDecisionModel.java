@@ -23,7 +23,7 @@ public abstract class BaseIMPDecisionModel {
 
     private FeatureEncoder featureEncoder;
 
-    private Random randomGenerator = new Random();
+    private static Random randomGenerator = new Random();
 
     private XXHashProvider xxHashProvider;
 
@@ -127,7 +127,10 @@ public abstract class BaseIMPDecisionModel {
         return result;
     }
 
-    private List<Double> generateDescendingGaussians(int count) {
+    // Generate n = variants.count random (double) gaussian numbers
+    // Sort the numbers descending and return the sorted list
+    // The median value of the list is expected to have a score near zero
+    private static List<Double> generateDescendingGaussians(int count) {
         Double[] scores = new Double[count];
         for (int i = 0; i < count; ++i) {
             scores[i] = randomGenerator.nextGaussian();

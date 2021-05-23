@@ -1,8 +1,8 @@
 package ai.improve.android;
 
-
 import org.junit.Test;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -108,5 +108,33 @@ public class BaseIMPDecisionModelTest {
 
         Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
         assertNull(topVariant);
+    }
+
+    @Test
+    public void testDescendingGaussians() throws Exception {
+        Class<?> clz = Class.forName("ai.improve.android.BaseIMPDecisionModel");
+        Method method = clz.getDeclaredMethod("generateDescendingGaussians", int.class);
+        method.setAccessible(true);
+
+        int size = 100000;
+        List<Double> numbers = (List<Double>)method.invoke(null, size);
+        assertEquals(numbers.size(), size);
+
+        double total = 0.0;
+        for(int i = 0; i < size; i++) {
+            total += numbers.get(i);
+        }
+
+        System.out.println("median=" + numbers.get(size/2));
+        System.out.println("averate=" + total/size);
+
+        assertTrue(Math.abs(numbers.get(size/2)) < 0.01);
+        assertTrue(Math.abs(total/size) < 0.01);
+
+        // Test that it is descending
+        for(int i = 0; i < size-1; ++i) {
+            System.out.println("number=" + numbers.get(i) + ", " + numbers.get(i+1));
+            assertTrue(numbers.get(i) > numbers.get(i+1));
+        }
     }
 }
