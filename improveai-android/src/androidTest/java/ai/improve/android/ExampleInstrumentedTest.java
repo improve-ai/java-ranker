@@ -31,13 +31,6 @@ public class ExampleInstrumentedTest {
     public static final String Tag = "ExampleInstrumentedTest";
 
     @Test
-    public void useAppContext() {
-        // Context of the app under test.
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        assertEquals("com.panhongx.improveai_android.test", appContext.getPackageName());
-    }
-
-    @Test
     public void testFeatureEncoder() throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         InputStream inputStream = appContext.getAssets().open("feature_encoder_test_suite.txt");

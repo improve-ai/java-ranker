@@ -69,6 +69,11 @@ public abstract class BaseIMPDecisionTracker {
         return maxRunnersUp;
     }
 
+    /**
+     * @param maxRunnersUp  Hyperparameter that affects training speed and model performance.
+     *                      Values from 10-100 are probably reasonable.
+     *                      0 disables runners up tracking
+     * */
     public void setMaxRunnersUp(int maxRunnersUp) {
         this.maxRunnersUp = maxRunnersUp;
     }
@@ -84,6 +89,9 @@ public abstract class BaseIMPDecisionTracker {
         return ranked.subList(1, 1+Math.min(this.maxRunnersUp, ranked.size()-1));
     }
 
+    /**
+     * @param bestVariant
+     * */
     public void track(Object bestVariant, List<Object> variants, Map<String, Object> givens,
                       String modelName, boolean variantsRankedAndTrackRunnersUp) {
         if(modelName == null || modelName.isEmpty()) {

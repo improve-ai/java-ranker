@@ -1,7 +1,5 @@
 package ai.improve.android;
 
-import android.os.Environment;
-import android.util.Log;
 import org.json.JSONObject;
 
 import java.io.*;
@@ -71,25 +69,6 @@ public class HttpUtil {
         }
     }
 
-    /**
-     * Downloads the file to specified filename/path
-     * @param filename
-     * @return absolute file path
-     */
-    public String download(String filename) throws IOException, SecurityException {
-            URL u = url;
-            InputStream is = u.openStream();
-            GZIPInputStream dis = new GZIPInputStream(is);
-
-            byte[] buffer = new byte[1024];
-            int length;
-            String absfile = Environment.getDownloadCacheDirectory() + "/ai.improve." + filename;
-            FileOutputStream fos = new FileOutputStream(new File(absfile));
-            while ((length = dis.read(buffer)) > 0) {
-                fos.write(buffer, 0, length);
-            }
-            return absfile;
-    }
 
     /**
      * Streams the file as an InputStream, handles gzip compression on the fly
