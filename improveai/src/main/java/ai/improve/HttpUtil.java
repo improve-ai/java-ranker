@@ -1,4 +1,4 @@
-package ai.improve.android;
+package ai.improve;
 
 import org.json.JSONObject;
 

@@ -1,8 +1,7 @@
-package ai.improve.android.xgbpredictor;
+package ai.improve.xgbpredictor;
 
 import org.json.JSONException;
 
-import ai.improve.android.IMPModelMetadata;
 import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.gbm.GradBooster;
 import biz.k11i.xgboost.learner.ObjFunction;

@@ -1,4 +1,4 @@
-package ai.improve.android;
+package ai.improve;
 
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;

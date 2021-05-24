@@ -1,12 +1,12 @@
-package ai.improve.android.hasher;
+package ai.improve.hasher;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.android.IMPLog;
-import ai.improve.android.XXHashProvider;
+import ai.improve.IMPLog;
+import ai.improve.XXHashProvider;
 import biz.k11i.xgboost.util.FVec;
 
 public class FeatureEncoder {

@@ -1,4 +1,4 @@
-package ai.improve.android.xgbpredictor;
+package ai.improve.xgbpredictor;
 
 import org.json.JSONArray;
 import org.json.JSONException;

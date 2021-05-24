@@ -8,10 +8,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.BaseIMPDecisionModel;
+import ai.improve.IMPDecision;
+import ai.improve.XXHashProvider;
+
 import static org.junit.Assert.*;
 
 public class IMPDecisionTest {
-    public class IMPDecisionModel extends BaseIMPDecisionModel{
+    public class IMPDecisionModel extends BaseIMPDecisionModel {
         public IMPDecisionModel(String modelName, XXHashProvider xxHashProvider) {
             super(modelName, xxHashProvider);
         }

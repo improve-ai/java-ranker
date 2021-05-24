@@ -2,6 +2,8 @@ package ai.improve.android;
 
 import android.util.Log;
 
+import ai.improve.IMPLog;
+
 public class IMPLoggerImp implements IMPLog.Logger {
 
     public static void enableLogging() {

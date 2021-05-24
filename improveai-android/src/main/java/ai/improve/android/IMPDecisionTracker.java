@@ -2,6 +2,8 @@ package ai.improve.android;
 
 import android.content.Context;
 
+import ai.improve.BaseIMPDecisionTracker;
+
 public class IMPDecisionTracker extends BaseIMPDecisionTracker {
     public IMPDecisionTracker(Context context, String trackURL) {
         this(context, trackURL, null);

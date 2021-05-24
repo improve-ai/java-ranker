@@ -10,6 +10,8 @@ import org.junit.runner.RunWith;
 
 import java.lang.reflect.Field;
 
+import ai.improve.IMPLog;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 

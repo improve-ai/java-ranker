@@ -13,8 +13,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
-import ai.improve.android.hasher.XXHashAPI;
-import ai.improve.android.xgbpredictor.ImprovePredictor;
+import ai.improve.BaseIMPDecisionModel;
+import ai.improve.IMPLog;
+import ai.improve.hasher.XXHashAPI;
+import ai.improve.xgbpredictor.ImprovePredictor;
 
 public class IMPDecisionModel extends BaseIMPDecisionModel {
     public static final String Tag = "IMPDecisionModel";
@@ -27,11 +29,13 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
         decisionModel.loadFromAssetAsync(context, filename, new IMPDecisionModelLoadListener(){
             @Override
             public void onFinish(ImprovePredictor predictor, Exception e) {
+                IMPLog.d(Tag, "loadFromAsset, onFinish");
                 loadException[0] = e;
                 decisionModel.setModel(predictor);
                 synchronized (decisionModel.lock) {
                     decisionModel.lock.notifyAll();
                 }
+                IMPLog.d(Tag, "loadFromAsset, notifyAll");
             }
         });
         synchronized (decisionModel.lock) {
@@ -58,10 +62,12 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
             @Override
             public void run() {
                 try {
+                    IMPLog.d(Tag, "loadFromAssetAsync, start...");
                     InputStream inputStream = context.getAssets().open(filename);
                     ImprovePredictor predictor = new ImprovePredictor(inputStream);
                     listener.onFinish(predictor, null);
                 } catch (IOException | JSONException e) {
+                    IMPLog.d(Tag, "loadFromAssetAsync, " + e.getLocalizedMessage());
                     e.printStackTrace();
                     listener.onFinish(null, e);
                 }

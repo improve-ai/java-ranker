@@ -1,7 +1,6 @@
 package ai.improve.android;
 
 import android.content.Context;
-import android.os.Looper;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -21,12 +20,12 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-import ai.improve.android.xgbpredictor.ImprovePredictor;
+import ai.improve.IMPLog;
+import ai.improve.xgbpredictor.ImprovePredictor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
@@ -44,6 +43,7 @@ public class IMPDecisionModelTest {
 
     @Test
     public void testLoadFromAsset() throws Exception {
+        IMPLog.d(Tag, "testLoadFromAsset...");
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         IMPDecisionModel decisionModel = IMPDecisionModel.loadFromAsset(appContext, "dummy_v6.xgb");
         assertNotNull(decisionModel);
@@ -115,7 +115,6 @@ public class IMPDecisionModelTest {
         decisionModel.loadAsync(url, new IMPDecisionModel.IMPDecisionModelLoadListener() {
             @Override
             public void onFinish(ImprovePredictor predictor, Exception e) {
-                assertTrue(Looper.myLooper() == Looper.getMainLooper());
                 assertNotNull(predictor);
                 IMPLog.d(Tag, "testLoadAsync, OK");
                 semaphore.release();

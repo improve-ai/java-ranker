@@ -1,4 +1,4 @@
-package ai.improve.android;
+package ai.improve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,8 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import ai.improve.android.hasher.FeatureEncoder;
-import ai.improve.android.xgbpredictor.ImprovePredictor;
+import ai.improve.hasher.FeatureEncoder;
+import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
 public abstract class BaseIMPDecisionModel {
@@ -110,9 +110,12 @@ public abstract class BaseIMPDecisionModel {
 
     /**
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
-     * @return the variant with the best score
+     * @return the variant with the best score. Null is returned if variants is empty.
      * */
     public static Object topScoringVariant(List<Object> variants, List<Double> scores) {
+        if(variants == null || variants.size() <= 0) {
+            return null;
+        }
         // check the size of variants and scores, and use the bigger one so that
         // an IndexOutOfBoundOfException would be thrown later
         int size = variants.size();

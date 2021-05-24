@@ -10,6 +10,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import ai.improve.BaseIMPDecisionModel;
+import ai.improve.IMPLog;
+import ai.improve.XXHashProvider;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -194,7 +198,7 @@ public class BaseIMPDecisionModelTest {
 
     @Test
     public void testDescendingGaussians() throws Exception {
-        Class<?> clz = Class.forName("ai.improve.android.BaseIMPDecisionModel");
+        Class<?> clz = Class.forName("ai.improve.BaseIMPDecisionModel");
         Method method = clz.getDeclaredMethod("generateDescendingGaussians", int.class);
         method.setAccessible(true);
 

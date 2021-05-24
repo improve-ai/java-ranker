@@ -6,6 +6,8 @@ import android.util.Base64;
 
 import java.util.UUID;
 
+import ai.improve.HistoryIdProvider;
+
 public class HistoryIdProviderImp implements HistoryIdProvider {
 
     private Context appContext;

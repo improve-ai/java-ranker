@@ -10,20 +10,16 @@ import android.view.View;
 import android.widget.TextView;
 
 import java.io.BufferedInputStream;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import ai.improve.android.IMPDecisionModel;
 import ai.improve.android.IMPDecisionTracker;
-import ai.improve.android.IMPLog;
 import ai.improve.android.IMPLoggerImp;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {

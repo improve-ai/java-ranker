@@ -1,6 +1,6 @@
-package ai.improve.android.hasher;
+package ai.improve.hasher;
 
-import ai.improve.android.XXHashProvider;
+import ai.improve.XXHashProvider;
 
 public class XXHashAPI implements XXHashProvider {
     static {
