@@ -63,18 +63,31 @@ public abstract class BaseIMPDecisionModel {
         return this;
     }
 
+    /**
+     * @return an IMPDecision object
+     * */
     public IMPDecision chooseFrom(List<Object> variants) {
         return new IMPDecision(this).chooseFrom(variants);
     }
 
+    /**
+     * @return an IMPDecision object
+     * */
     public IMPDecision given(Map<String, Object> givens) {
         return new IMPDecision(this).given(givens);
     }
 
-    public List<Double> score(List<Object> variants) {
-        return this.score(variants, null);
-    }
-
+    /**
+     * Returns a list of double scores. If variants is null or empty, an empty
+     * list is returned.
+     *
+     * If this method is called before the model is loaded, or errors occurred
+     * while loading the model file, a randomly generated list of descending
+     * Gaussian scores is returned.
+     *
+     * @return a list of double scores.
+     *
+     * */
     public List<Double> score(List<Object> variants, Map<String, ?> givens) {
         List<Double> result = new ArrayList<>();
 
@@ -83,6 +96,7 @@ public abstract class BaseIMPDecisionModel {
         }
 
         if(predictor == null) {
+            IMPLog.e(Tag, "model is not loaded, a randomly generated list of Gaussian numbers is returned");
             return generateDescendingGaussians(variants.size());
         }
 
@@ -96,6 +110,7 @@ public abstract class BaseIMPDecisionModel {
 
     /**
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
+     * @return the variant with the best score
      * */
     public static Object topScoringVariant(List<Object> variants, List<Double> scores) {
         // check the size of variants and scores, and use the bigger one so that
@@ -123,6 +138,7 @@ public abstract class BaseIMPDecisionModel {
 
     /**
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
+     * @return a list of the variants ranked from best to worst by scores
      * */
     public static List<Object> rank(List<Object> variants, List<Double> scores) {
         // check the size of variants and scores, and use the bigger one so that

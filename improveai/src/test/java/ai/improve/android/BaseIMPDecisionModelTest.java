@@ -5,7 +5,9 @@ import org.junit.Test;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
 import static org.junit.Assert.assertEquals;
@@ -20,6 +22,12 @@ import static org.junit.Assert.fail;
  */
 public class BaseIMPDecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
+
+    public class IMPDecisionModel extends BaseIMPDecisionModel {
+        public IMPDecisionModel(String modelName, XXHashProvider xxHashProvider) {
+            super(modelName, xxHashProvider);
+        }
+    }
 
     @Test
     public void testLoad() {
@@ -209,5 +217,31 @@ public class BaseIMPDecisionModelTest {
         for(int i = 0; i < size-1; ++i) {
             assertTrue(numbers.get(i) > numbers.get(i+1));
         }
+    }
+
+    @Test
+    public void testGiven() {
+        Map<String, Object> given = new HashMap<>();
+        List<Object> variants = new ArrayList<>();
+        IMPDecisionModel decisionModel = new IMPDecisionModel("music", new XXHashProvider() {
+            @Override
+            public long xxhash(byte[] data, long seed) {
+                return 0;
+            }
+        });
+        decisionModel.given(given).chooseFrom(variants);
+    }
+
+    @Test
+    public void testChooseFrom() {
+        Map<String, Object> given = new HashMap<>();
+        List<Object> variants = new ArrayList<>();
+        IMPDecisionModel decisionModel = new IMPDecisionModel("music", new XXHashProvider() {
+            @Override
+            public long xxhash(byte[] data, long seed) {
+                return 0;
+            }
+        });
+        decisionModel.chooseFrom(variants).given(given);
     }
 }
