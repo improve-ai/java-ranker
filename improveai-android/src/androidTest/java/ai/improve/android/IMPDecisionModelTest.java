@@ -43,6 +43,29 @@ public class IMPDecisionModelTest {
     }
 
     @Test
+    public void testLoadFromAsset() throws Exception {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        IMPDecisionModel decisionModel = IMPDecisionModel.loadFromAsset(appContext, "dummy_v6.xgb");
+        assertNotNull(decisionModel);
+    }
+
+    @Test
+    public void testLoadFromAssetAsync() throws InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
+        decisionModel.loadFromAssetAsync(appContext, "dummy_v6.xgb", new IMPDecisionModel.IMPDecisionModelLoadListener() {
+            @Override
+            public void onFinish(ImprovePredictor predictor, Exception e) {
+                assertNotNull(predictor);
+                assertNull(e);
+                semaphore.release();
+            }
+        });
+        semaphore.acquire();
+    }
+
+    @Test
     public void testModelNameWithoutLoadingModel() {
         IMPDecisionModel decisionModel = new IMPDecisionModel("music");
         assertEquals("music", decisionModel.getModelName());
