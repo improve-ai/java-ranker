@@ -78,13 +78,6 @@ public abstract class BaseIMPDecisionTracker {
         this.maxRunnersUp = maxRunnersUp;
     }
 
-    public boolean shouldtrackRunnersUp(int variantsCount) {
-        if(variantsCount <= 1 || this.maxRunnersUp == 0) {
-            return false;
-        }
-        return Math.random() < 1.0 / Math.min(variantsCount - 1, this.maxRunnersUp);
-    }
-
     private  List<Object> topRunnersUp(List<Object> ranked) {
         return ranked.subList(1, 1+Math.min(this.maxRunnersUp, ranked.size()-1));
     }

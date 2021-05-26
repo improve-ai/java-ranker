@@ -10,6 +10,7 @@ import java.util.Map;
 
 import ai.improve.BaseIMPDecisionTracker;
 import ai.improve.HistoryIdProvider;
+import ai.improve.IMPUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -53,10 +54,10 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        tracker.shouldtrackRunnersUp(variantCount);
+        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(tracker.shouldtrackRunnersUp(variantCount)) {
+            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -71,10 +72,10 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        tracker.shouldtrackRunnersUp(variantCount);
+        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(tracker.shouldtrackRunnersUp(variantCount)) {
+            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -89,10 +90,10 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        tracker.shouldtrackRunnersUp(variantCount);
+        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(tracker.shouldtrackRunnersUp(variantCount)) {
+            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -112,10 +113,10 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        tracker.shouldtrackRunnersUp(variantCount);
+        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(tracker.shouldtrackRunnersUp(variantCount)) {
+            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -135,10 +136,10 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(0);
-        tracker.shouldtrackRunnersUp(variantCount);
+        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(tracker.shouldtrackRunnersUp(variantCount)) {
+            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }

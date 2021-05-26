@@ -12,6 +12,7 @@ import java.util.Random;
 
 import ai.improve.BaseIMPDecisionModel;
 import ai.improve.IMPLog;
+import ai.improve.IMPUtils;
 import ai.improve.XXHashProvider;
 
 import static org.junit.Assert.assertEquals;
@@ -134,7 +135,7 @@ public class BaseIMPDecisionModelTest {
         Collections.swap(variants, m, count);
         Collections.swap(scores, m, count);
 
-        Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
+        Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
         IMPLog.d(Tag, "topVariant=" + topVariant.intValue());
         assertEquals(topVariant.intValue(), count+1000);
     }
@@ -144,7 +145,7 @@ public class BaseIMPDecisionModelTest {
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
 
-        Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
+        Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
         assertNull(topVariant);
     }
 
@@ -164,7 +165,7 @@ public class BaseIMPDecisionModelTest {
         variants.add(1);
 
         try {
-            Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
+            Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
             e.printStackTrace();
             return ;
@@ -188,7 +189,7 @@ public class BaseIMPDecisionModelTest {
         scores.add(0.1);
 
         try {
-            Integer topVariant = (Integer) BaseIMPDecisionModel.topScoringVariant(variants, scores);
+            Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
             e.printStackTrace();
             return ;

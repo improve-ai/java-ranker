@@ -48,18 +48,18 @@ public class IMPDecision {
         if(variants != null && variants.size() > 0) {
             BaseIMPDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                if(tracker.shouldtrackRunnersUp(variants.size())) {
+                if(IMPUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = BaseIMPDecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
                     tracker.track(best, variants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
-                    best = BaseIMPDecisionModel.topScoringVariant(variants, scores);
+                    best = IMPUtils.topScoringVariant(variants, scores);
                     tracker.track(best, variants, givens, model.getModelName(), false);
                 }
             } else {
-                best = BaseIMPDecisionModel.topScoringVariant(variants, scores);
+                best = IMPUtils.topScoringVariant(variants, scores);
             }
         } else {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
