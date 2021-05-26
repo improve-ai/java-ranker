@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 
 import ai.improve.BaseIMPDecisionModel;
+import ai.improve.BaseIMPDecisionTracker;
+import ai.improve.HistoryIdProvider;
 import ai.improve.IMPDecision;
 import ai.improve.XXHashProvider;
 
@@ -26,6 +28,16 @@ public class IMPDecisionTest {
         @Override
         public long xxhash(byte[] data, long seed) {
             return 0;
+        }
+    }
+
+    private class IMPDecisionTracker extends BaseIMPDecisionTracker {
+        public IMPDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
+            super(trackURL, historyIdProvider);
+        }
+
+        public IMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
+            super(trackURL, apiKey, historyIdProvider);
         }
     }
 
@@ -89,6 +101,23 @@ public class IMPDecisionTest {
         IMPDecision decision = new IMPDecision(decisionModel);
         decision.chooseFrom(variants).given(given);
         assertEquals(given, getFieldValue(decision, "givens"));
+    }
+
+    @Test
+    public void testTrack() {
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+
+        IMPDecisionModel decisionModel = new IMPDecisionModel("", new XXHashProviderImp());
+        decisionModel.track(new IMPDecisionTracker("http://trakcer.url", new HistoryIdProvider() {
+            @Override
+            public String getHistoryId() {
+                return "test-history-id";
+            }
+        }));
+
+        IMPDecision decision = new IMPDecision(decisionModel);
+        decision.chooseFrom(variants).get();
     }
 
     private Object getFieldValue(Object object, String fieldName){

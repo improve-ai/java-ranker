@@ -13,29 +13,29 @@ import java.util.UUID;
 public abstract class BaseIMPDecisionTracker {
     public static final String Tag = "IMPDecisionTracker";
 
-    static final String TYPE_KEY = "type";
+    private static final String TYPE_KEY = "type";
 
-    String DECISION_TYPE = "decision";
-    String MODEL_KEY = "model";
-    String DECISION_BEST_KEY = "variant";
-    String COUNT_KEY = "count";
-    String GIVEN_KEY = "given";
-    String RUNNERS_UP_KEY = "runners_up";
-    String SAMPLE_VARIANT_KEY = "sample";
-    String TIMESTAMP_KEY = "timestamp";
-    String MESSAGE_ID_KEY = "message_id";
-    String PROPERTIES_KEY = "properties";
-    String EVENT_KEY = "event";
+    private static final String DECISION_TYPE = "decision";
+    private static final String MODEL_KEY = "model";
+    private static final String DECISION_BEST_KEY = "variant";
+    private static final String COUNT_KEY = "count";
+    private static final String GIVEN_KEY = "given";
+    private static final String RUNNERS_UP_KEY = "runners_up";
+    private static final String SAMPLE_VARIANT_KEY = "sample";
+    private static final String TIMESTAMP_KEY = "timestamp";
+    private static final String MESSAGE_ID_KEY = "message_id";
+    private static final String PROPERTIES_KEY = "properties";
+    private static final String EVENT_KEY = "event";
 
 
-    String CONTENT_TYPE_HEADER = "Content-Type";
-    String APPLICATION_JSON = "application/json";
-    String API_KEY_HEADER = "x-api-key";
+    private static final String CONTENT_TYPE_HEADER = "Content-Type";
+    private static final String APPLICATION_JSON = "application/json";
+    private static final String API_KEY_HEADER = "x-api-key";
 
     private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
 
 
-    static final String HISTORY_ID_KEY = "history_id";
+    private static final String HISTORY_ID_KEY = "history_id";
 
     private String trackURL;
 
@@ -85,7 +85,7 @@ public abstract class BaseIMPDecisionTracker {
     /**
      * @param bestVariant
      * */
-    public void track(Object bestVariant, List<Object> variants, Map<String, Object> givens,
+    private void track(Object bestVariant, List<Object> variants, Map<String, Object> givens,
                       String modelName, boolean variantsRankedAndTrackRunnersUp) {
         if(modelName == null || modelName.isEmpty()) {
             IMPLog.e(Tag, "Improve.track error: modelName is empty or null");

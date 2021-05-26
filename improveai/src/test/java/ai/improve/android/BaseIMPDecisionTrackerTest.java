@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
 public class BaseIMPDecisionTrackerTest {
     public static final String Tag = "IMPDecisionModelTest";
 
-    public class IMPDecisionTracker extends BaseIMPDecisionTracker {
+    private class IMPDecisionTracker extends BaseIMPDecisionTracker {
 
         public IMPDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
             super(trackURL, historyIdProvider);
