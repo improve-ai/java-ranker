@@ -47,7 +47,7 @@ public class IMPTrackerHandler {
         IMPTrackerHandler.historyId = historyId;
     }
 
-    public static void track(BaseIMPDecisionTracker tracker, Object bestVariant, List<Object> variants, Map<String, Object> givens,
+    public static <T> void track(BaseIMPDecisionTracker tracker, Object bestVariant, List<T> variants, Map<String, Object> givens,
                        String modelName, boolean variantsRankedAndTrackRunnersUp) {
         if(modelName == null || modelName.isEmpty()) {
             IMPLog.e(Tag, "Improve.track error: modelName is empty or null");
@@ -70,7 +70,7 @@ public class IMPTrackerHandler {
             body.put(GIVEN_KEY, givens);
         }
 
-        List<Object> runnersUp = null;
+        List<T> runnersUp = null;
         if(variantsRankedAndTrackRunnersUp) {
             runnersUp = topRunnersUp(variants, tracker.getMaxRunnersUp());
             body.put(RUNNERS_UP_KEY, runnersUp);
@@ -94,14 +94,14 @@ public class IMPTrackerHandler {
     //
     // If there are no remaining variants after best and runners up, then
     // there is no sample.
-    public static Object sampleVariant(List<Object> variants, int runnersUpCount) {
+    public static <T> T sampleVariant(List<T> variants, int runnersUpCount) {
         if(variants == null) {
             return null;
         }
 
         // Sample variant is selected from variants excluding runners-up and the
         // best variant
-        Object variant = null;
+        T variant = null;
         int samplesCount = variants.size() - runnersUpCount - 1;
         if (samplesCount > 0) {
             int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
@@ -110,7 +110,7 @@ public class IMPTrackerHandler {
         return variant;
     }
 
-    public static List<Object> topRunnersUp(List<Object> ranked, int maxRunnersUp) {
+    public static <T> List<T> topRunnersUp(List<T> ranked, int maxRunnersUp) {
         return ranked.subList(1, 1+Math.min(maxRunnersUp, ranked.size()-1));
     }
 

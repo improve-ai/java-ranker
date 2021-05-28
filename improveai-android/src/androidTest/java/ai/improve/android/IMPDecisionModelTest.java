@@ -1,6 +1,7 @@
 package ai.improve.android;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -16,7 +17,10 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
@@ -35,6 +39,8 @@ public class IMPDecisionModelTest {
     private static final String ModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
 
     private static final String CompressedModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb.gz";
+
+    private static final String AssetModelFileName = "dummy_v6.xgb";
 
     static {
         IMPLog.setLogger(new IMPLoggerImp());
@@ -56,8 +62,8 @@ public class IMPDecisionModelTest {
         IMPDecisionModel decisionModel = new IMPDecisionModel("music");
         decisionModel.loadFromAssetAsync(appContext, "dummy_v6.xgb", new IMPDecisionModel.IMPDecisionModelLoadListener() {
             @Override
-            public void onFinish(ImprovePredictor predictor, Exception e) {
-                assertNotNull(predictor);
+            public void onFinish(IMPDecisionModel model, Exception e) {
+                assertNotNull(model);
                 assertNull(e);
                 semaphore.release();
             }
@@ -114,8 +120,8 @@ public class IMPDecisionModelTest {
         IMPDecisionModel decisionModel = new IMPDecisionModel("music");
         decisionModel.loadAsync(url, new IMPDecisionModel.IMPDecisionModelLoadListener() {
             @Override
-            public void onFinish(ImprovePredictor predictor, Exception e) {
-                assertNotNull(predictor);
+            public void onFinish(IMPDecisionModel model, Exception e) {
+                assertNotNull(model);
                 IMPLog.d(Tag, "testLoadAsync, OK");
                 semaphore.release();
             }
@@ -248,5 +254,41 @@ public class IMPDecisionModelTest {
         }
 
         return absfile;
+    }
+
+    @Test
+    public void testChooseFrom() throws  Exception {
+        URL modelUrl = new URL(ModelURL);
+        Map<String, Object> given = new HashMap<>();
+        given.put("language", "cowboy");
+
+        // Choose from null
+        IMPDecisionModel.load(modelUrl).chooseFrom(null).get();
+
+
+        // Choose from string
+        IMPDecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
+
+        // Choose from boolean
+        IMPDecisionModel.load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
+
+        // loadFromAsset
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        IMPDecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
+
+        IMPDecisionTracker tracker = new IMPDecisionTracker(appContext, "trackUrl");
+        IMPDecisionModel model = new IMPDecisionModel("greetings");
+        model.setTracker(tracker);
+        model.loadAsync(modelUrl, new IMPDecisionModel.IMPDecisionModelLoadListener() {
+            @Override
+            public void onFinish(IMPDecisionModel model, Exception e) {
+                if(e != null) {
+                    Log.d("Tag", "Error loading model: " + e.getLocalizedMessage());
+                } else {
+                    // the model is ready to go
+                    model.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
+                }
+            }
+        });
     }
 }

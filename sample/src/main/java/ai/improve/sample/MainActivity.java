@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
+import android.os.strictmode.NonSdkApiUsedViolation;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -14,10 +15,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import ai.improve.IMPDecision;
 import ai.improve.android.IMPDecisionModel;
 import ai.improve.android.IMPDecisionTracker;
 import ai.improve.android.IMPLoggerImp;

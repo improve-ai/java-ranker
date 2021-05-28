@@ -28,10 +28,9 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
         IMPDecisionModel decisionModel = new IMPDecisionModel("");
         decisionModel.loadFromAssetAsync(context, filename, new IMPDecisionModelLoadListener(){
             @Override
-            public void onFinish(ImprovePredictor predictor, Exception e) {
+            public void onFinish(IMPDecisionModel model, Exception e) {
                 IMPLog.d(Tag, "loadFromAsset, onFinish");
                 loadException[0] = e;
-                decisionModel.setModel(predictor);
                 synchronized (decisionModel.lock) {
                     decisionModel.lock.notifyAll();
                 }
@@ -65,7 +64,9 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                     IMPLog.d(Tag, "loadFromAssetAsync, start...");
                     InputStream inputStream = context.getAssets().open(filename);
                     ImprovePredictor predictor = new ImprovePredictor(inputStream);
-                    listener.onFinish(predictor, null);
+                    IMPDecisionModel.this.setModel(predictor);
+
+                    listener.onFinish(IMPDecisionModel.this, null);
                 } catch (IOException | JSONException e) {
                     IMPLog.d(Tag, "loadFromAssetAsync, " + e.getLocalizedMessage());
                     e.printStackTrace();
@@ -80,9 +81,8 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
         IMPDecisionModel decisionModel = new IMPDecisionModel("");
         decisionModel.loadAsync(url, new IMPDecisionModelLoadListener(){
             @Override
-            public void onFinish(ImprovePredictor predictor, Exception e) {
+            public void onFinish(IMPDecisionModel model, Exception e) {
                 loadException[0] = e;
-                decisionModel.setModel(predictor);
                 synchronized (decisionModel.lock) {
                     decisionModel.lock.notifyAll();
                 }
@@ -123,9 +123,10 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                             inputStream = new BufferedInputStream(urlConnection.getInputStream());
                         }
                         ImprovePredictor predictor = new ImprovePredictor(inputStream);
+                        IMPDecisionModel.this.setModel(predictor);
                         IMPLog.d(Tag, "loadAsync, model loaded, " + url.toString());
                         // callback in main thread
-                        listener.onFinish(predictor, null);
+                        listener.onFinish(IMPDecisionModel.this, null);
                     } else {
                         // local model files
                         // If local model files is not in the sandbox of the app,
@@ -139,8 +140,10 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
                             inputStream = new FileInputStream(new File(url.toURI()));
                         }
                         ImprovePredictor predictor = new ImprovePredictor(inputStream);
+                        IMPDecisionModel.this.setModel(predictor);
+
                         IMPLog.d(Tag, "loadAsync, model loaded");
-                        listener.onFinish(predictor, null);
+                        listener.onFinish(IMPDecisionModel.this, null);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -157,8 +160,8 @@ public class IMPDecisionModel extends BaseIMPDecisionModel {
 
     public interface IMPDecisionModelLoadListener {
         /**
-         * @param predictor null when error occurred while loading the model
+         * @param decisionModel null when error occurred while loading the model
          * */
-        void onFinish(ImprovePredictor predictor, Exception e);
+        void onFinish(IMPDecisionModel decisionModel, Exception e);
     }
 }

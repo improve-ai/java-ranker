@@ -1,8 +1,11 @@
 package ai.improve.android;
 
+import com.google.errorprone.annotations.Var;
+
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -30,6 +33,13 @@ public class BaseIMPDecisionModelTest {
     public class IMPDecisionModel extends BaseIMPDecisionModel {
         public IMPDecisionModel(String modelName, XXHashProvider xxHashProvider) {
             super(modelName, xxHashProvider);
+        }
+    }
+
+    public class XXHashProviderImp implements XXHashProvider {
+        @Override
+        public long xxhash(byte[] data, long seed) {
+            return 0;
         }
     }
 
@@ -234,14 +244,42 @@ public class BaseIMPDecisionModelTest {
 
     @Test
     public void testChooseFrom() {
-        Map<String, Object> given = new HashMap<>();
-        List<Object> variants = new ArrayList<>();
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music", new XXHashProvider() {
-            @Override
-            public long xxhash(byte[] data, long seed) {
-                return 0;
-            }
-        });
-        decisionModel.chooseFrom(variants).given(given);
+        IMPDecisionModel decisionModel = new IMPDecisionModel("music", new XXHashProviderImp());
+
+        // choose from double variants array
+        decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
+
+        // choose from string variants array
+        decisionModel.chooseFrom(Arrays.asList("hello", "hi")).get();
+
+        // choose from int variants list
+        List<Integer> intVariants = new ArrayList<>();
+        intVariants.add(1);
+        intVariants.add(2);
+        decisionModel.chooseFrom(intVariants).get();
+
+        // choose from string variants list
+        List<String> stringVariants = new ArrayList<>();
+        stringVariants.add("hello");
+        stringVariants.add("hi");
+        decisionModel.chooseFrom(stringVariants).get();
+
+        // Choose from complex objects
+        // themeVariants = [ { "textColor": "#000000", "backgroundColor": "#ffffff" },
+        // { "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" } ]
+        List variants = Arrays.asList(
+                new HashMap<String, String>(){{
+                    put("textColor", "#000000");
+                    put("backgroundColor", "#ffffff");
+                }},
+                new HashMap<String, String>() {{
+                    put("textColor", "#F0F0F0");
+                    put("backgroundColor", "#aaaaaa");
+                }});
+        decisionModel.chooseFrom(variants).get();
+
+
+        // product = try DecisionModel.load(modelUrl).chooseFrom(["clutch", "dress", "jacket"]).get()
+//        product = IMPDecisionModel.lo(modelUrl).chooseFrom(["clutch", "dress", "jacket"]).get()
     }
 }

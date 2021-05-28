@@ -58,6 +58,10 @@ public abstract class BaseIMPDecisionModel {
         return tracker;
     }
 
+    public void setTracker(BaseIMPDecisionTracker tracker) {
+        this.tracker = tracker;
+    }
+
     public BaseIMPDecisionModel track(BaseIMPDecisionTracker tracker) {
         this.tracker = tracker;
         return this;
@@ -66,7 +70,7 @@ public abstract class BaseIMPDecisionModel {
     /**
      * @return an IMPDecision object
      * */
-    public IMPDecision chooseFrom(List<Object> variants) {
+    public <T> IMPDecision chooseFrom(List<T> variants) {
         return new IMPDecision(this).chooseFrom(variants);
     }
 
@@ -88,7 +92,7 @@ public abstract class BaseIMPDecisionModel {
      * @return a list of double scores.
      *
      * */
-    public List<Double> score(List<Object> variants, Map<String, ?> givens) {
+    public <T> List<Double> score(List<T> variants, Map<String, ?> givens) {
         List<Double> result = new ArrayList<>();
 
         if(variants == null || variants.size() <= 0) {
@@ -112,7 +116,7 @@ public abstract class BaseIMPDecisionModel {
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
      * @return a list of the variants ranked from best to worst by scores
      * */
-    public static List<Object> rank(List<Object> variants, List<Double> scores) {
+    public static <T> List<Object> rank(List<T> variants, List<Double> scores) {
         // check the size of variants and scores, and use the bigger one so that
         // an IndexOutOfBoundOfException would be thrown later
         int size = variants.size();

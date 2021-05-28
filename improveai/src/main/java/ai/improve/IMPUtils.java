@@ -13,7 +13,7 @@ public class IMPUtils {
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
      * @return the variant with the best score. Null is returned if variants is empty.
      * */
-    public static Object topScoringVariant(List<Object> variants, List<Double> scores) {
+    public static <T> T topScoringVariant(List<T> variants, List<Double> scores) {
         if(variants == null || variants.size() <= 0) {
             return null;
         }
@@ -24,14 +24,14 @@ public class IMPUtils {
             size = scores.size();
         }
 
-        Object topVariant = variants.get(0);
+        T topVariant = variants.get(0);
         double bestScore = scores.get(0).doubleValue();
         for(int i = 1; i < size; ++i) {
             // scores.get(i) and variants.get(i) must be called for each loop.
             // We are relying on this to trigger an IndexOutOfBoundExeception
             // when variants.size() != scores.size()
             double score = scores.get(i).doubleValue();
-            Object variant = variants.get(i);
+            T variant = variants.get(i);
             if(score > bestScore) {
                 bestScore = score;
                 topVariant = variant;

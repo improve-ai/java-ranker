@@ -41,7 +41,7 @@ public class FeatureEncoder {
         }
     }
 
-    public List<FVec> encodeVariants(List<Object> variants, Object context) {
+    public <T> List<FVec> encodeVariants(List<T> variants, Object context) {
         double noise = testMode ? this.noise : Math.random();
 
         double[] contextFeature = context != null ? encodeContext(context, noise) : null;

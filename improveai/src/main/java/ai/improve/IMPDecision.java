@@ -1,5 +1,6 @@
 package ai.improve;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -8,7 +9,7 @@ public class IMPDecision {
 
     private BaseIMPDecisionModel model;
 
-    private List<Object> variants;
+    private List<?> variants;
 
     private Map<String, Object> givens;
 
@@ -20,7 +21,11 @@ public class IMPDecision {
         this.model = model;
     }
 
-    public IMPDecision chooseFrom(List<Object> variants) {
+//    public <T> IMPDecision chooseFrom(T[] variants) {
+//        return chooseFrom(Arrays.asList(variants));
+//    }
+
+    public <T> IMPDecision chooseFrom(List<T> variants) {
         if(chosen) {
             IMPLog.e(Tag, "variant already chosen, ignoring variants");
         } else {
