@@ -2,7 +2,6 @@ package ai.improve.android;
 
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -199,12 +198,8 @@ public class BaseIMPDecisionModelTest {
 
     @Test
     public void testDescendingGaussians() throws Exception {
-        Class<?> clz = Class.forName("ai.improve.BaseIMPDecisionModel");
-        Method method = clz.getDeclaredMethod("generateDescendingGaussians", int.class);
-        method.setAccessible(true);
-
         int size = 100000;
-        List<Double> numbers = (List<Double>)method.invoke(null, size);
+        List<Double> numbers = IMPUtils.generateDescendingGaussians(size);
         assertEquals(numbers.size(), size);
 
         double total = 0.0;

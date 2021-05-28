@@ -1,8 +1,14 @@
 package ai.improve;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Random;
 
 public class IMPUtils {
+
+    private static Random randomGenerator = new Random();
+
     /**
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
      * @return the variant with the best score. Null is returned if variants is empty.
@@ -39,5 +45,17 @@ public class IMPUtils {
             return false;
         }
         return Math.random() < 1.0 / Math.min(variantsCount - 1, maxRunnersUp);
+    }
+
+    // Generate n = variants.count random (double) gaussian numbers
+    // Sort the numbers descending and return the sorted list
+    // The median value of the list is expected to have a score near zero
+    public static List<Double> generateDescendingGaussians(int count) {
+        Double[] scores = new Double[count];
+        for (int i = 0; i < count; ++i) {
+            scores[i] = randomGenerator.nextGaussian();
+        }
+        Arrays.sort(scores, Collections.reverseOrder());
+        return Arrays.asList(scores);
     }
 }

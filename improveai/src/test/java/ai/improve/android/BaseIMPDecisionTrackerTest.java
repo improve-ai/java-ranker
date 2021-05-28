@@ -2,7 +2,6 @@ package ai.improve.android;
 
 import org.junit.Test;
 
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -10,6 +9,7 @@ import java.util.Map;
 
 import ai.improve.BaseIMPDecisionTracker;
 import ai.improve.HistoryIdProvider;
+import ai.improve.IMPTrackerHandler;
 import ai.improve.IMPUtils;
 
 import static org.junit.Assert.assertEquals;
@@ -27,15 +27,11 @@ public class BaseIMPDecisionTrackerTest {
     private class IMPDecisionTracker extends BaseIMPDecisionTracker {
 
         public IMPDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
-            super(trackURL, historyIdProvider);
+            this(trackURL, "", historyIdProvider);
         }
 
         public IMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
             super(trackURL, apiKey, historyIdProvider);
-        }
-
-        private void test() {
-            System.out.println("xxxx");
         }
     }
 
@@ -149,7 +145,7 @@ public class BaseIMPDecisionTrackerTest {
     // If there are no runners up, then sample is a random sample from
     // variants with just best excluded.
     @Test
-    public void testSampleVariant_0_RunnersUp() throws Exception {
+    public void testSampleVariant_0_RunnersUp() {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
@@ -159,18 +155,14 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(0);
-        Method method = getDeclaredMethod(tracker, "sampleVariant", List.class, int.class);
-        method.setAccessible(true);
 
-        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
-        topRunnersUpMethod.setAccessible(true);
-        int runnersUpCount = ((List)topRunnersUpMethod.invoke(tracker, variants)).size();
+        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) method.invoke(tracker, variants, runnersUpCount);
+            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
             if(countMap.containsKey(variant)) {
                 countMap.put(variant, countMap.get(variant) + 1);
             } else {
@@ -191,7 +183,7 @@ public class BaseIMPDecisionTrackerTest {
     // If there are runners up, then sample is a random sample from
     // variants with best and runners up excluded.
     @Test
-    public void testSampleVariant_2_RunnersUp() throws Exception {
+    public void testSampleVariant_2_RunnersUp() {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
@@ -201,18 +193,14 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(2);
-        Method method = getDeclaredMethod(tracker, "sampleVariant", List.class, int.class);
-        method.setAccessible(true);
 
-        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
-        topRunnersUpMethod.setAccessible(true);
-        int runnersUpCount = ((List)topRunnersUpMethod.invoke(tracker, variants)).size();
+        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) method.invoke(tracker, variants, runnersUpCount);
+            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
             if(countMap.containsKey(variant)) {
                 countMap.put(variant, countMap.get(variant) + 1);
             } else {
@@ -232,23 +220,19 @@ public class BaseIMPDecisionTrackerTest {
 
     // If there is only one variant, which is the best, then there is no sample.
     @Test
-    public void testSampleVariant_1_variant() throws Exception {
+    public void testSampleVariant_1_variant() {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        Method method = getDeclaredMethod(tracker, "sampleVariant", List.class, int.class);
-        method.setAccessible(true);
 
-        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
-        topRunnersUpMethod.setAccessible(true);
-        int runnersUpCount = ((List)topRunnersUpMethod.invoke(tracker, variants)).size();
+        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) method.invoke(tracker, variants, runnersUpCount);
+            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
             assertNull(variant);
         }
     }
@@ -265,30 +249,24 @@ public class BaseIMPDecisionTrackerTest {
 
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        Method method = getDeclaredMethod(tracker, "sampleVariant", List.class, int.class);
-        method.setAccessible(true);
 
-        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
-        topRunnersUpMethod.setAccessible(true);
-        int runnersUpCount = ((List)topRunnersUpMethod.invoke(tracker, variants)).size();
+        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) method.invoke(tracker, variants, runnersUpCount);
+            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
             assertNull(variant);
         }
     }
 
     @Test
-    public void testSetBestVariantNil() throws Exception {
+    public void testSetBestVariantNil() {
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        Method method = getDeclaredMethod(tracker, "setBestVariant", Object.class, Map.class);
-        method.setAccessible(true);
 
         Map<String, Object> body = new HashMap();
-        method.invoke(tracker, null, body);
+        IMPTrackerHandler.setBestVariant(null, body);
         // body looks like this
         // {
         //     "count" : 1,
@@ -299,38 +277,32 @@ public class BaseIMPDecisionTrackerTest {
     }
 
     @Test
-    public void testTopRunnersUp_1_variant() throws Exception {
+    public void testTopRunnersUp_1_variant() {
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 1;
-
         List<Object> variants = new ArrayList<>();
         for(int i = 0; i < numOfVariants; i++) {
             variants.add(i);
         }
 
-        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
-        topRunnersUpMethod.setAccessible(true);
-        List<Object> topRunnersUp = ((List)topRunnersUpMethod.invoke(tracker, variants));
+        List<Object> topRunnersUp = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 0);
     }
 
     @Test
-    public void testTopRunnersUp_10_variants() throws Exception {
+    public void testTopRunnersUp_10_variants() {
         IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 10;
-
         List<Object> variants = new ArrayList<>();
         for(int i = 0; i < numOfVariants; i++) {
             variants.add(i);
         }
 
-        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
-        topRunnersUpMethod.setAccessible(true);
-        List<Object> topRunnersUp = ((List)topRunnersUpMethod.invoke(tracker, variants));
+        List<Object> topRunnersUp = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 9);
 
         for(int i = 0; i < topRunnersUp.size(); i++) {
@@ -344,15 +316,12 @@ public class BaseIMPDecisionTrackerTest {
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 100;
-
         List<Object> variants = new ArrayList<>();
         for(int i = 0; i < numOfVariants; i++) {
             variants.add(i);
         }
 
-        Method topRunnersUpMethod = getDeclaredMethod(tracker, "topRunnersUp", List.class);
-        topRunnersUpMethod.setAccessible(true);
-        List<Object> topRunnersUp = ((List)topRunnersUpMethod.invoke(tracker, variants));
+        List<Object> topRunnersUp = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 50);
 
         for(int i = 0; i < topRunnersUp.size(); i++) {
@@ -362,26 +331,9 @@ public class BaseIMPDecisionTrackerTest {
 
     @Test
     public void testSetBestVariantNonNil() throws Exception {
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
-        tracker.setMaxRunnersUp(50);
-        Method method = getDeclaredMethod(tracker, "setBestVariant", Object.class, Map.class);
-        method.setAccessible(true);
-
         Map<String, Object> body = new HashMap();
-        method.invoke(tracker, "hello", body);
+        IMPTrackerHandler.setBestVariant("hello", body);
 
         assertEquals("hello", body.get("variant"));
-    }
-
-    private Method getDeclaredMethod(Object object, String methodName, Class<?> ... parameterTypes){
-        Method method;
-        for(Class<?> clazz = object.getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
-            try {
-                method = clazz.getDeclaredMethod(methodName, parameterTypes) ;
-                return method ;
-            } catch (Exception e) {
-            }
-        }
-        return null;
     }
 }

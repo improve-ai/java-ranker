@@ -97,7 +97,7 @@ public abstract class BaseIMPDecisionModel {
 
         if(predictor == null) {
             IMPLog.e(Tag, "model is not loaded, a randomly generated list of Gaussian numbers is returned");
-            return generateDescendingGaussians(variants.size());
+            return IMPUtils.generateDescendingGaussians(variants.size());
         }
 
         List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
@@ -137,17 +137,5 @@ public abstract class BaseIMPDecisionModel {
         }
 
         return result;
-    }
-
-    // Generate n = variants.count random (double) gaussian numbers
-    // Sort the numbers descending and return the sorted list
-    // The median value of the list is expected to have a score near zero
-    private static List<Double> generateDescendingGaussians(int count) {
-        Double[] scores = new Double[count];
-        for (int i = 0; i < count; ++i) {
-            scores[i] = randomGenerator.nextGaussian();
-        }
-        Arrays.sort(scores, Collections.reverseOrder());
-        return Arrays.asList(scores);
     }
 }

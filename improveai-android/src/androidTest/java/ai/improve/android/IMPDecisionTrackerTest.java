@@ -8,9 +8,8 @@ import androidx.test.platform.app.InstrumentationRegistry;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.lang.reflect.Field;
-
 import ai.improve.IMPLog;
+import ai.improve.IMPTrackerHandler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,40 +24,16 @@ public class IMPDecisionTrackerTest {
     }
 
     @Test
-    public void testHistoryId() throws Exception {
+    public void testHistoryId() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         IMPDecisionTracker tracker_0 = new IMPDecisionTracker(appContext, "");
 
-        String historyId_0 = (String) getFieldValue(tracker_0, "historyId");
+        String historyId_0 = IMPTrackerHandler.getHistoryId();
         IMPLog.d(Tag, "testHistoryId, historyId=" + historyId_0);
         assertNotNull(historyId_0);
 
         IMPDecisionTracker tracker_1 = new IMPDecisionTracker(appContext, "");
-        String historyId_1 = (String) getFieldValue(tracker_1, "historyId");
+        String historyId_1 = (String) IMPTrackerHandler.getHistoryId();
         assertEquals(historyId_0, historyId_1);
-    }
-
-    private Object getFieldValue(Object object, String fieldName){
-        Field field = getDeclaredField(object, fieldName) ;
-        field.setAccessible(true) ;
-        try {
-            return field.get(object) ;
-        } catch(Exception e) {
-            e.printStackTrace() ;
-        }
-        return null;
-    }
-
-    private Field getDeclaredField(Object object, String fieldName){
-        Field field = null ;
-        Class<?> clazz = object.getClass() ;
-        for(; clazz != Object.class ; clazz = clazz.getSuperclass()) {
-            try {
-                field = clazz.getDeclaredField(fieldName) ;
-                return field ;
-            } catch (Exception e) {
-            }
-        }
-        return null;
     }
 }

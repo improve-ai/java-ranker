@@ -1,7 +1,5 @@
 package ai.improve;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
@@ -54,11 +52,11 @@ public class IMPDecision {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = BaseIMPDecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    track(tracker, best, variants, givens, model.getModelName(), true);
+                    IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
                     best = IMPUtils.topScoringVariant(variants, scores);
-                    track(tracker, best, variants, givens, model.getModelName(), false);
+                    IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
                 }
             } else {
                 best = IMPUtils.topScoringVariant(variants, scores);
@@ -69,39 +67,12 @@ public class IMPDecision {
             best = null;
             BaseIMPDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                track(tracker, best, variants, givens, model.getModelName(), false);
+                IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
             }
         }
 
         chosen = true;
 
         return best;
-    }
-
-    private void track(BaseIMPDecisionTracker tracker, Object bestVariant, List<Object> variants,
-                       Map<String, Object> givens, String modelName,
-                       boolean variantsRankedAndTrackRunnersUp) {
-        Method method = getDeclaredMethod(tracker, "track", Object.class, List.class,
-                Map.class, String.class, boolean.class);
-        method.setAccessible(true);
-        try {
-            method.invoke(tracker, bestVariant, variants, givens, modelName, variantsRankedAndTrackRunnersUp);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Method getDeclaredMethod(Object object, String methodName, Class<?> ... parameterTypes){
-        Method method;
-        for(Class<?> clazz = object.getClass(); clazz != Object.class; clazz = clazz.getSuperclass()) {
-            try {
-                method = clazz.getDeclaredMethod(methodName, parameterTypes) ;
-                return method ;
-            } catch (Exception e) {
-            }
-        }
-        return null;
     }
 }

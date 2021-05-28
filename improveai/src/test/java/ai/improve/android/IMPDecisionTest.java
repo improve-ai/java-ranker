@@ -2,11 +2,8 @@ package ai.improve.android;
 
 import org.junit.Test;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import ai.improve.BaseIMPDecisionModel;
 import ai.improve.BaseIMPDecisionTracker;
@@ -90,20 +87,6 @@ public class IMPDecisionTest {
     }
 
     @Test
-    public void testGiven() {
-        List<Object> variants = new ArrayList<>();
-        variants.add("Hello, World!");
-
-        Map<String, Object> given = new HashMap<>();
-        given.put("size", 0);
-
-        IMPDecisionModel decisionModel = new IMPDecisionModel("", new XXHashProviderImp());
-        IMPDecision decision = new IMPDecision(decisionModel);
-        decision.chooseFrom(variants).given(given);
-        assertEquals(given, getFieldValue(decision, "givens"));
-    }
-
-    @Test
     public void testTrack() {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
@@ -118,29 +101,5 @@ public class IMPDecisionTest {
 
         IMPDecision decision = new IMPDecision(decisionModel);
         decision.chooseFrom(variants).get();
-    }
-
-    private Object getFieldValue(Object object, String fieldName){
-        Field field = getDeclaredField(object, fieldName) ;
-        field.setAccessible(true) ;
-        try {
-            return field.get(object) ;
-        } catch(Exception e) {
-            e.printStackTrace() ;
-        }
-        return null;
-    }
-
-    private Field getDeclaredField(Object object, String fieldName){
-        Field field ;
-        Class<?> clazz = object.getClass() ;
-        for(; clazz != Object.class ; clazz = clazz.getSuperclass()) {
-            try {
-                field = clazz.getDeclaredField(fieldName) ;
-                return field ;
-            } catch (Exception e) {
-            }
-        }
-        return null;
     }
 }
