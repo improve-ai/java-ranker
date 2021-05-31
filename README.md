@@ -18,9 +18,7 @@ pod "Improve"
 What is the best greeting?
 
 ```Java
-Map<String, Object> given = new HashMap<>();
-given.put("language", "cowboy");
-IMPDecisionModel.load(modelUrl).chooseFrom(new String[]{"Hello World", "Howdy World", "Yo World"}).given(given).get();
+IMPDecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(Map.of("language", "cowboy")).get();
 ```
 
 *greeting* should result in *Howdy World* assuming it performs best when *language* is *cowboy*.
@@ -45,17 +43,9 @@ featureFlag = decisionModel.given(deviceAttributes).chooseFrom(Arrays.asList(tru
 ### Complex Objects
 
 ```Java
-List variants = Arrays.asList(
-        new HashMap<String, String>(){{
-            put("textColor", "#000000");
-            put("backgroundColor", "#ffffff");
-        }},
-        new HashMap<String, String>() {{
-            put("textColor", "#F0F0F0");
-            put("backgroundColor", "#aaaaaa");
-        }});
-theme = themeModel.chooseFrom(variants).get();
-
+themeVariants = Arrays.asList(Map.of("textColor", "#000000", "backgroundColor", "#ffffff"),
+                Map.of("textColor", "#F0F0F0", "backgroundColor", "#aaaaaa"));
+theme = themeModel.chooseFrom(themeVariants).get();
 ```
 
 Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.
@@ -95,14 +85,14 @@ model.loadAsync(modelUrl, new IMPDecisionModel.IMPDecisionModelLoadListener() {
             Log.d("Tag", "Error loading model: " + e.getLocalizedMessage());
         } else {
             // the model is ready to go
-            model.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
+            model.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
         }
     }
 });
 
 // It is very unlikely that the model will be loaded by the time this is called,
 // so "Hello World" would be returned and tracked as the decision
-greeting = model.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World"])).get()
+greeting = model.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get()
 ```
 
 ## Tracking & Training Models
@@ -127,12 +117,7 @@ For this reason, wait to call *get()* until the decision will actually be used.
 Events are the mechanism by which decisions are rewarded or penalized.  In most cases these will mirror the normal analytics events that your app tracks and can be integrated with any event tracking singletons in your app.
 
 ```Java
-tracker.trackEvent("Purchased", new HashMap<String, Object>(){
-    {
-        put("product_id", 8);
-        put("value", 19.99);
-    }
-});
+tracker.trackEvent("Purchased", Map.of("product_id", 8, "value", 19.99));
 ```
 
 Like most analytics packages, *track* takes an *event* name and an optional *properties* dictionary.  The only property with special significance is *value*, which indicates a reward value for decisions that lead to that event.  
