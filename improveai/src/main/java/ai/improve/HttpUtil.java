@@ -8,15 +8,13 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
 
 /**
  * Basic wrapper for HttpURLConnection
  */
 public class HttpUtil {
-
-    private Logger logger = Logger.getLogger(HttpUtil.class.getName());
+    private static final String Tag = "HttpUtil";
 
     private Map<String, String> headers;
     private Map<String, Object> body;
@@ -54,18 +52,27 @@ public class HttpUtil {
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
                 String jsonBody = new JSONObject(body).toString();
+                IMPLog.d(Tag, "tracker request body, " + jsonBody);
                 connection.getOutputStream().write(jsonBody.getBytes());
                 connection.getOutputStream().flush();
                 int code = connection.getResponseCode();
-                if(code >= 400) {
-                    logger.severe("Error posting HTTP Data to " + url.toString() + ": status code " + code);
+                if(code == 200) {
+                    BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                    String body = "";
+                    String line;
+                    while ((line = br.readLine()) != null) {
+                        body += line;
+                    }
+                    IMPLog.d(Tag, "tracker response 200, " + body);
                 }
-
+                if(code >= 400) {
+                    IMPLog.e(Tag, "Error posting HTTP Data to " + url.toString() + ": status code " + code);
+                }
             } finally {
                 connection.disconnect();
             }
         } catch (Exception e) {
-            logger.severe("Error posting HTTP data");
+            IMPLog.e(Tag, "Error posting HTTP data");
         }
     }
 

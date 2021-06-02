@@ -22,6 +22,8 @@ import static org.junit.Assert.assertNotNull;
 public class IMPDecisionTrackerTest {
     private static final String Tag = "IMPDecisionTrackerTest";
 
+    private static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
+
     static {
         IMPLog.setLogger(new IMPLoggerImp());
         IMPLog.enableLogging(true);
@@ -55,5 +57,55 @@ public class IMPDecisionTrackerTest {
                 put("value", 19.99);
             }
         });
+    }
+
+    /**
+     * The tracking happens kind of like a side effect of get(), I'm not sure how
+     * to unit test this.
+     *
+     * Currently, I'm just observing the log output of these never-would-fail
+     * test case here.
+     * */
+    @Test
+    public void testTrackerRequest() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
+        decisionModel.track(new IMPDecisionTracker(appContext, Tracker_Url));
+        decisionModel.chooseFrom(Arrays.asList("Hello", "Hi", "Hey")).get();
+    }
+
+    /**
+     * The tracking happens kind of like a side effect of get(), I'm not sure how
+     * to unit test this.
+     *
+     * Currently, I'm just observing the log output of these never-would-fail
+     * test case here.
+     * */
+    @Test
+    public void testTrackEvent() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        IMPDecisionTracker tracker = new IMPDecisionTracker(appContext, Tracker_Url);
+        tracker.trackEvent("hello");
+        tracker.trackEvent("hello", new HashMap<String, Object>(){
+            {
+                put("price", 0.9);
+                put("quantity", 10);
+            }
+        });
+    }
+
+    /**
+     * The tracking happens kind of like a side effect of get(), I'm not sure how
+     * to unit test this.
+     *
+     * Currently, I'm just observing the log output of these never-would-fail
+     * test case here.
+     * */
+    @Test
+    public void testTrackerNullVariants() {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
+        decisionModel.track(new IMPDecisionTracker(appContext, Tracker_Url));
+        decisionModel.chooseFrom(null).get();
     }
 }
