@@ -34,6 +34,6 @@ public class HistoryIdProviderImp implements HistoryIdProvider {
 
     private String generateHistoryId() {
         byte[] data = UUID.randomUUID().toString().getBytes();
-        return Base64.encodeToString(data, Base64.DEFAULT);
+        return Base64.encodeToString(data, Base64.NO_WRAP);
     }
 }
