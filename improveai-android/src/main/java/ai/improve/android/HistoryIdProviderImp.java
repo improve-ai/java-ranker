@@ -2,6 +2,7 @@ package ai.improve.android;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.text.TextUtils;
 import android.util.Base64;
 
 import java.util.UUID;
@@ -9,10 +10,7 @@ import java.util.UUID;
 import ai.improve.HistoryIdProvider;
 
 public class HistoryIdProviderImp implements HistoryIdProvider {
-
     private Context appContext;
-
-    private String historyId;
 
     public HistoryIdProviderImp(Context appContext) {
         this.appContext = appContext;
@@ -20,16 +18,13 @@ public class HistoryIdProviderImp implements HistoryIdProvider {
 
     @Override
     public String getHistoryId() {
-        SharedPreferences preferences = appContext.getSharedPreferences("ai.improve", Context.MODE_PRIVATE);
-        if (preferences.contains(HISTORY_ID_KEY)) {
-            this.historyId = preferences.getString(HISTORY_ID_KEY, "");
-        } else {
-            this.historyId = generateHistoryId();
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString(HISTORY_ID_KEY, this.historyId);
-            editor.commit();
+        SharedPreferences sp = appContext.getSharedPreferences("ai.improve", Context.MODE_PRIVATE);
+        String historyId = sp.getString(HISTORY_ID_KEY, "");
+        if(TextUtils.isEmpty(historyId)) {
+            historyId = generateHistoryId();
+            sp.edit().putString(HISTORY_ID_KEY, historyId).commit();
         }
-        return this.historyId;
+        return historyId;
     }
 
     private String generateHistoryId() {
