@@ -16,8 +16,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.hasher.FeatureEncoder;
-import ai.improve.hasher.XXHashAPI;
+import ai.improve.encoder.FeatureEncoder;
+import ai.improve.encoder.XXHashAPI;
 
 import static org.junit.Assert.*;
 

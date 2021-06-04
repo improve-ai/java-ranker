@@ -1,4 +1,4 @@
-package ai.improve.hasher;
+package ai.improve.encoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;

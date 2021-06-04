@@ -15,7 +15,7 @@ import java.util.zip.GZIPInputStream;
 
 import ai.improve.BaseDecisionModel;
 import ai.improve.IMPLog;
-import ai.improve.hasher.XXHashAPI;
+import ai.improve.encoder.XXHashAPI;
 import ai.improve.xgbpredictor.ImprovePredictor;
 
 public class DecisionModel extends BaseDecisionModel {

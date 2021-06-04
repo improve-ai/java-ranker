@@ -45,7 +45,7 @@
 #include "xxhash.h"
 
 JNIEXPORT jlong JNICALL
-Java_ai_improve_hasher_XXHashAPI_xxhash3( JNIEnv* env, jobject thiz, jbyteArray data, jlong seed) {
+Java_ai_improve_encoder_XXHashAPI_xxhash3( JNIEnv* env, jobject thiz, jbyteArray data, jlong seed) {
     jbyte *buf = (*env)->GetByteArrayElements(env, data, NULL);
     int length = (*env)->GetArrayLength(env, data);
     uint64_t result = XXH3_64bits_withSeed(buf, length, seed);

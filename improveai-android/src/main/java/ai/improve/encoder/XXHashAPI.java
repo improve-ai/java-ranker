@@ -1,4 +1,4 @@
-package ai.improve.hasher;
+package ai.improve.encoder;
 
 import ai.improve.XXHashProvider;
 
