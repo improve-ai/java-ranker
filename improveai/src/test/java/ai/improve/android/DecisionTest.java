@@ -71,6 +71,7 @@ public class DecisionTest {
         assertEquals(variants.get(0), variant);
     }
 
+    // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromNullVariants() {
         List<Object> variants = new ArrayList<>();
@@ -79,6 +80,7 @@ public class DecisionTest {
         assertNull(decision.chooseFrom(variants).get());
     }
 
+    // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromEmptyVariants() {
         DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
