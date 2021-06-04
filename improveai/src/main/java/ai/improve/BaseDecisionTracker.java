@@ -2,8 +2,8 @@ package ai.improve;
 
 import java.util.Map;
 
-public abstract class BaseIMPDecisionTracker {
-    public static final String Tag = "IMPDecisionTracker";
+public abstract class BaseDecisionTracker {
+    public static final String Tag = "BaseDecisionTracker";
 
     private String trackURL;
 
@@ -15,11 +15,11 @@ public abstract class BaseIMPDecisionTracker {
      * */
     private int maxRunnersUp;
 
-    public BaseIMPDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
+    public BaseDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
         this(trackURL, null, historyIdProvider);
     }
 
-    public BaseIMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
+    public BaseDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
         this.maxRunnersUp = 50;
         this.trackURL = trackURL;
         this.apiKey = apiKey;

@@ -1,7 +1,5 @@
 package ai.improve.android;
 
-import com.google.errorprone.annotations.Var;
-
 import org.junit.Test;
 
 import java.util.ArrayList;
@@ -12,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import ai.improve.BaseIMPDecisionModel;
+import ai.improve.BaseDecisionModel;
 import ai.improve.IMPLog;
 import ai.improve.IMPUtils;
 import ai.improve.XXHashProvider;
@@ -27,11 +25,11 @@ import static org.junit.Assert.fail;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class BaseIMPDecisionModelTest {
+public class BaseDecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
-    public class IMPDecisionModel extends BaseIMPDecisionModel {
-        public IMPDecisionModel(String modelName, XXHashProvider xxHashProvider) {
+    public class DecisionModel extends BaseDecisionModel {
+        public DecisionModel(String modelName, XXHashProvider xxHashProvider) {
             super(modelName, xxHashProvider);
         }
     }
@@ -72,7 +70,7 @@ public class BaseIMPDecisionModelTest {
         }
 
         IMPLog.d(Tag, "Sorted.....");
-        List<Object> sorted = BaseIMPDecisionModel.rank(variants, scores);
+        List<Object> sorted = BaseDecisionModel.rank(variants, scores);
         assertEquals(sorted.size(), variants.size());
 
         for(int i = 0; i < sorted.size(); ++i) {
@@ -96,7 +94,7 @@ public class BaseIMPDecisionModelTest {
         variants.add(1);
 
         try {
-            BaseIMPDecisionModel.rank(variants, scores);
+            BaseDecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return ;
@@ -117,7 +115,7 @@ public class BaseIMPDecisionModelTest {
         scores.add(0.1);
 
         try {
-            BaseIMPDecisionModel.rank(variants, scores);
+            BaseDecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return ;
@@ -233,7 +231,7 @@ public class BaseIMPDecisionModelTest {
     public void testGiven() {
         Map<String, Object> given = new HashMap<>();
         List<Object> variants = new ArrayList<>();
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music", new XXHashProvider() {
+        DecisionModel decisionModel = new DecisionModel("music", new XXHashProvider() {
             @Override
             public long xxhash(byte[] data, long seed) {
                 return 0;
@@ -244,7 +242,7 @@ public class BaseIMPDecisionModelTest {
 
     @Test
     public void testChooseFrom() {
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("music", new XXHashProviderImp());
 
         // choose from double variants array
         decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();

@@ -5,17 +5,17 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import ai.improve.BaseIMPDecisionModel;
-import ai.improve.BaseIMPDecisionTracker;
+import ai.improve.BaseDecisionModel;
+import ai.improve.BaseDecisionTracker;
 import ai.improve.HistoryIdProvider;
-import ai.improve.IMPDecision;
+import ai.improve.Decision;
 import ai.improve.XXHashProvider;
 
 import static org.junit.Assert.*;
 
-public class IMPDecisionTest {
-    public class IMPDecisionModel extends BaseIMPDecisionModel {
-        public IMPDecisionModel(String modelName, XXHashProvider xxHashProvider) {
+public class DecisionTest {
+    public class DecisionModel extends BaseDecisionModel {
+        public DecisionModel(String modelName, XXHashProvider xxHashProvider) {
             super(modelName, xxHashProvider);
         }
     }
@@ -28,18 +28,18 @@ public class IMPDecisionTest {
         }
     }
 
-    private class IMPDecisionTracker extends BaseIMPDecisionTracker {
-        public IMPDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
+    private class DecisionTracker extends BaseDecisionTracker {
+        public DecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
             super(trackURL, historyIdProvider);
         }
 
-        public IMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
+        public DecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
             super(trackURL, apiKey, historyIdProvider);
         }
     }
 
     @Test
-    public void testGetWithoutVariants() {
+    public void testGetWithoutModel() {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
@@ -48,9 +48,9 @@ public class IMPDecisionTest {
         variants.add("Hello World!");
 
         int loop = 10000;
-        IMPDecisionModel decisionModel = new IMPDecisionModel("", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
         for(int i = 0; i < loop; i++) {
-            IMPDecision decision = new IMPDecision(decisionModel);
+            Decision decision = new Decision(decisionModel);
             String greeting = (String) decision.chooseFrom(variants).get();
             assertEquals(greeting, variants.get(0));
         }
@@ -61,8 +61,8 @@ public class IMPDecisionTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        IMPDecisionModel decisionModel = new IMPDecisionModel("", new XXHashProviderImp());
-        IMPDecision decision = new IMPDecision(decisionModel);
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();
 
         List<Object> newVariants = new ArrayList<>();
@@ -74,15 +74,15 @@ public class IMPDecisionTest {
     @Test
     public void testChooseFromNullVariants() {
         List<Object> variants = new ArrayList<>();
-        IMPDecisionModel decisionModel = new IMPDecisionModel("", new XXHashProviderImp());
-        IMPDecision decision = new IMPDecision(decisionModel);
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        Decision decision = new Decision(decisionModel);
         assertNull(decision.chooseFrom(variants).get());
     }
 
     @Test
     public void testChooseFromEmptyVariants() {
-        IMPDecisionModel decisionModel = new IMPDecisionModel("", new XXHashProviderImp());
-        IMPDecision decision = new IMPDecision(decisionModel);
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        Decision decision = new Decision(decisionModel);
         assertNull(decision.chooseFrom(null).get());
     }
 
@@ -91,15 +91,15 @@ public class IMPDecisionTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        IMPDecisionModel decisionModel = new IMPDecisionModel("", new XXHashProviderImp());
-        decisionModel.track(new IMPDecisionTracker("http://trakcer.url", new HistoryIdProvider() {
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        decisionModel.track(new DecisionTracker("http://trakcer.url", new HistoryIdProvider() {
             @Override
             public String getHistoryId() {
                 return "test-history-id";
             }
         }));
 
-        IMPDecision decision = new IMPDecision(decisionModel);
+        Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();
     }
 }

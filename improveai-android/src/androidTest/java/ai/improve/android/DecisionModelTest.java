@@ -25,7 +25,6 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 import ai.improve.IMPLog;
-import ai.improve.xgbpredictor.ImprovePredictor;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -33,7 +32,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.fail;
 
 @RunWith(AndroidJUnit4.class)
-public class IMPDecisionModelTest {
+public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
     private static final String ModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
@@ -51,7 +50,7 @@ public class IMPDecisionModelTest {
     public void testLoadFromAsset() throws Exception {
         IMPLog.d(Tag, "testLoadFromAsset...");
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionModel decisionModel = IMPDecisionModel.loadFromAsset(appContext, "dummy_v6.xgb");
+        DecisionModel decisionModel = DecisionModel.loadFromAsset(appContext, "dummy_v6.xgb");
         assertNotNull(decisionModel);
     }
 
@@ -59,10 +58,10 @@ public class IMPDecisionModelTest {
     public void testLoadFromAssetAsync() throws InterruptedException {
         Semaphore semaphore = new Semaphore(0);
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
-        decisionModel.loadFromAssetAsync(appContext, "dummy_v6.xgb", new IMPDecisionModel.IMPDecisionModelLoadListener() {
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.loadFromAssetAsync(appContext, "dummy_v6.xgb", new DecisionModel.IMPDecisionModelLoadListener() {
             @Override
-            public void onFinish(IMPDecisionModel model, Exception e) {
+            public void onFinish(DecisionModel model, Exception e) {
                 assertNotNull(model);
                 assertNull(e);
                 semaphore.release();
@@ -73,14 +72,14 @@ public class IMPDecisionModelTest {
 
     @Test
     public void testModelNameWithoutLoadingModel() {
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
+        DecisionModel decisionModel = new DecisionModel("music");
         assertEquals("music", decisionModel.getModelName());
     }
 
     @Test
     public void testModelName() throws Exception {
         URL url = new URL(ModelURL);
-        IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
+        DecisionModel decisionModel = DecisionModel.load(url);
         IMPLog.d(Tag, "modelName=" + decisionModel.getModelName());
         assertEquals("dummy-model-0", decisionModel.getModelName());
     }
@@ -94,7 +93,7 @@ public class IMPDecisionModelTest {
         variants.add("hi");
 
         URL url = new URL(ModelURL);
-        String greeting = (String) IMPDecisionModel.load(url).chooseFrom(variants).get();
+        String greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
         IMPLog.d(Tag, "testGet, greeting=" + greeting);
         assertNotNull(greeting);
     }
@@ -108,7 +107,7 @@ public class IMPDecisionModelTest {
         variants.add("hi");
 
         // Don't load model
-        String greeting = (String) new IMPDecisionModel("").chooseFrom(variants).get();
+        String greeting = (String) new DecisionModel("").chooseFrom(variants).get();
         IMPLog.d(Tag, "greeting=" + greeting);
         assertNotNull(greeting);
     }
@@ -117,10 +116,10 @@ public class IMPDecisionModelTest {
     public void testLoadAsync() throws MalformedURLException, InterruptedException {
         Semaphore semaphore = new Semaphore(0);
         URL url = new URL(ModelURL);
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
-        decisionModel.loadAsync(url, new IMPDecisionModel.IMPDecisionModelLoadListener() {
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.loadAsync(url, new DecisionModel.IMPDecisionModelLoadListener() {
             @Override
-            public void onFinish(IMPDecisionModel model, Exception e) {
+            public void onFinish(DecisionModel model, Exception e) {
                 assertNotNull(model);
                 IMPLog.d(Tag, "testLoadAsync, OK");
                 semaphore.release();
@@ -132,7 +131,7 @@ public class IMPDecisionModelTest {
     @Test
     public void testLoadGzipModel() throws Exception {
         URL url = new URL(CompressedModelURL);
-        IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
+        DecisionModel decisionModel = DecisionModel.load(url);
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -151,7 +150,7 @@ public class IMPDecisionModelTest {
         String localModelFilePath = download(ModelURL);
         URL url = new File(localModelFilePath).toURI().toURL();
 
-        IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
+        DecisionModel decisionModel = DecisionModel.load(url);
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -171,7 +170,7 @@ public class IMPDecisionModelTest {
 
         URL url = new File(localModelFilePath).toURI().toURL();
 
-        IMPDecisionModel decisionModel = IMPDecisionModel.load(url);
+        DecisionModel decisionModel = DecisionModel.load(url);
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -197,7 +196,7 @@ public class IMPDecisionModelTest {
         String greeting = null;
         Exception loadException = null;
         try {
-            greeting = (String) IMPDecisionModel.load(url).chooseFrom(variants).get();
+            greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
         } catch (Exception e) {
             loadException = e;
             e.printStackTrace();
@@ -221,7 +220,7 @@ public class IMPDecisionModelTest {
                     variants.add("hi");
 
                     URL url = new URL(ModelURL);
-                    String greeting = (String) IMPDecisionModel.load(url).chooseFrom(variants).get();
+                    String greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
                     IMPLog.d(Tag, "testGet, greeting=" + greeting);
                     assertNotNull(greeting);
 
@@ -263,25 +262,25 @@ public class IMPDecisionModelTest {
         given.put("language", "cowboy");
 
         // Choose from null
-        IMPDecisionModel.load(modelUrl).chooseFrom(null).get();
+        DecisionModel.load(modelUrl).chooseFrom(null).get();
 
 
         // Choose from string
-        IMPDecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
+        DecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
 
         // Choose from boolean
-        IMPDecisionModel.load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
+        DecisionModel.load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
 
         // loadFromAsset
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
+        DecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker(appContext, "trackUrl");
-        IMPDecisionModel model = new IMPDecisionModel("greetings");
+        DecisionTracker tracker = new DecisionTracker(appContext, "trackUrl");
+        DecisionModel model = new DecisionModel("greetings");
         model.setTracker(tracker);
-        model.loadAsync(modelUrl, new IMPDecisionModel.IMPDecisionModelLoadListener() {
+        model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
             @Override
-            public void onFinish(IMPDecisionModel model, Exception e) {
+            public void onFinish(DecisionModel model, Exception e) {
                 if(e != null) {
                     Log.d("Tag", "Error loading model: " + e.getLocalizedMessage());
                 } else {

@@ -19,7 +19,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
 @RunWith(AndroidJUnit4.class)
-public class IMPDecisionTrackerTest {
+public class DecisionTrackerTest {
     private static final String Tag = "IMPDecisionTrackerTest";
 
     private static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
@@ -32,13 +32,13 @@ public class IMPDecisionTrackerTest {
     @Test
     public void testHistoryId() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionTracker tracker_0 = new IMPDecisionTracker(appContext, "");
+        DecisionTracker tracker_0 = new DecisionTracker(appContext, "");
 
         String historyId_0 = IMPTrackerHandler.getHistoryId();
         IMPLog.d(Tag, "testHistoryId, historyId=" + historyId_0);
         assertNotNull(historyId_0);
 
-        IMPDecisionTracker tracker_1 = new IMPDecisionTracker(appContext, "");
+        DecisionTracker tracker_1 = new DecisionTracker(appContext, "");
         String historyId_1 = (String) IMPTrackerHandler.getHistoryId();
         assertEquals(historyId_0, historyId_1);
     }
@@ -46,10 +46,10 @@ public class IMPDecisionTrackerTest {
     @Test
     public void testTracker() throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionTracker tracker = new IMPDecisionTracker(appContext, "trackerUrl"); // trackUrl is obtained from your Gym configuration
+        DecisionTracker tracker = new DecisionTracker(appContext, "trackerUrl"); // trackUrl is obtained from your Gym configuration
 
         URL modelUrl = new URL("ModelURL");
-        int fontSize = (Integer)IMPDecisionModel.load(modelUrl).track(tracker).chooseFrom(Arrays.asList(12, 16, 20)).get();
+        int fontSize = (Integer) DecisionModel.load(modelUrl).track(tracker).chooseFrom(Arrays.asList(12, 16, 20)).get();
 
         tracker.trackEvent("Purchased", new HashMap<String, Object>(){
             {
@@ -69,8 +69,8 @@ public class IMPDecisionTrackerTest {
     @Test
     public void testTrackerRequest() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
-        decisionModel.track(new IMPDecisionTracker(appContext, Tracker_Url));
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.track(new DecisionTracker(appContext, Tracker_Url));
         decisionModel.chooseFrom(Arrays.asList("Hello", "Hi", "Hey")).get();
     }
 
@@ -84,7 +84,7 @@ public class IMPDecisionTrackerTest {
     @Test
     public void testTrackEvent() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionTracker tracker = new IMPDecisionTracker(appContext, Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(appContext, Tracker_Url);
         tracker.trackEvent("hello");
         tracker.trackEvent("hello", new HashMap<String, Object>(){
             {
@@ -104,8 +104,8 @@ public class IMPDecisionTrackerTest {
     @Test
     public void testTrackerNullVariants() {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        IMPDecisionModel decisionModel = new IMPDecisionModel("music");
-        decisionModel.track(new IMPDecisionTracker(appContext, Tracker_Url));
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.track(new DecisionTracker(appContext, Tracker_Url));
         decisionModel.chooseFrom(null).get();
     }
 }

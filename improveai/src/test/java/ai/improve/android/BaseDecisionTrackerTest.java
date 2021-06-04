@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.BaseIMPDecisionTracker;
+import ai.improve.BaseDecisionTracker;
 import ai.improve.HistoryIdProvider;
 import ai.improve.IMPTrackerHandler;
 import ai.improve.IMPUtils;
@@ -21,16 +21,16 @@ import static org.junit.Assert.assertTrue;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class BaseIMPDecisionTrackerTest {
+public class BaseDecisionTrackerTest {
     public static final String Tag = "IMPDecisionModelTest";
 
-    private class IMPDecisionTracker extends BaseIMPDecisionTracker {
+    private class DecisionTracker extends BaseDecisionTracker {
 
-        public IMPDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
+        public DecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
             this(trackURL, "", historyIdProvider);
         }
 
-        public IMPDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
+        public DecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
             super(trackURL, apiKey, historyIdProvider);
         }
     }
@@ -48,7 +48,7 @@ public class BaseIMPDecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
         IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -66,7 +66,7 @@ public class BaseIMPDecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
         IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -84,7 +84,7 @@ public class BaseIMPDecisionTrackerTest {
         int loop = 10000000;
         int shouldTrackCount = 0;
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
         IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -107,7 +107,7 @@ public class BaseIMPDecisionTrackerTest {
         int loop = 10000000;
         int shouldTrackCount = 0;
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
         IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -130,7 +130,7 @@ public class BaseIMPDecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(0);
         IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -153,7 +153,7 @@ public class BaseIMPDecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(0);
 
         int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -191,7 +191,7 @@ public class BaseIMPDecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(2);
 
         int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -224,7 +224,7 @@ public class BaseIMPDecisionTrackerTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -247,7 +247,7 @@ public class BaseIMPDecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -262,7 +262,7 @@ public class BaseIMPDecisionTrackerTest {
 
     @Test
     public void testSetBestVariantNil() {
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         Map<String, Object> body = new HashMap();
@@ -278,7 +278,7 @@ public class BaseIMPDecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_1_variant() {
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 1;
@@ -293,7 +293,7 @@ public class BaseIMPDecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_10_variants() {
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 10;
@@ -312,7 +312,7 @@ public class BaseIMPDecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_100_variants() throws Exception {
-        IMPDecisionTracker tracker = new IMPDecisionTracker("", new HistoryIdProviderImp());
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 100;

@@ -2,7 +2,6 @@ package ai.improve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -12,12 +11,12 @@ import ai.improve.hasher.FeatureEncoder;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
-public abstract class BaseIMPDecisionModel {
-    private static final String Tag = "BaseIMPDecisionModel";
+public abstract class BaseDecisionModel {
+    private static final String Tag = "BaseDecisionModel";
 
     private String modelName;
 
-    private BaseIMPDecisionTracker tracker;
+    private BaseDecisionTracker tracker;
 
     private ImprovePredictor predictor;
 
@@ -27,7 +26,7 @@ public abstract class BaseIMPDecisionModel {
 
     private XXHashProvider xxHashProvider;
 
-    public BaseIMPDecisionModel(String modelName, XXHashProvider xxHashProvider) {
+    public BaseDecisionModel(String modelName, XXHashProvider xxHashProvider) {
         this.modelName = modelName;
         this.xxHashProvider = xxHashProvider;
     }
@@ -54,15 +53,15 @@ public abstract class BaseIMPDecisionModel {
         return modelName;
     }
 
-    public BaseIMPDecisionTracker getTracker() {
+    public BaseDecisionTracker getTracker() {
         return tracker;
     }
 
-    public void setTracker(BaseIMPDecisionTracker tracker) {
+    public void setTracker(BaseDecisionTracker tracker) {
         this.tracker = tracker;
     }
 
-    public BaseIMPDecisionModel track(BaseIMPDecisionTracker tracker) {
+    public BaseDecisionModel track(BaseDecisionTracker tracker) {
         this.tracker = tracker;
         return this;
     }
@@ -70,15 +69,15 @@ public abstract class BaseIMPDecisionModel {
     /**
      * @return an IMPDecision object
      * */
-    public <T> IMPDecision chooseFrom(List<T> variants) {
-        return new IMPDecision(this).chooseFrom(variants);
+    public <T> Decision chooseFrom(List<T> variants) {
+        return new Decision(this).chooseFrom(variants);
     }
 
     /**
      * @return an IMPDecision object
      * */
-    public IMPDecision given(Map<String, Object> givens) {
-        return new IMPDecision(this).given(givens);
+    public Decision given(Map<String, Object> givens) {
+        return new Decision(this).given(givens);
     }
 
     /**

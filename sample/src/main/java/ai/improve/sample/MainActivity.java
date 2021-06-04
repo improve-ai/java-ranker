@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
-import android.os.strictmode.NonSdkApiUsedViolation;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -15,17 +14,12 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import ai.improve.IMPDecision;
-import ai.improve.android.IMPDecisionModel;
-import ai.improve.android.IMPDecisionTracker;
+import ai.improve.android.DecisionModel;
+import ai.improve.android.DecisionTracker;
 import ai.improve.android.IMPLoggerImp;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -74,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         variants.add("hi");
 
         URL url = new URL("https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb");
-        IMPDecisionModel model = IMPDecisionModel.load(url);
+        DecisionModel model = DecisionModel.load(url);
         String greeting = (String) model.chooseFrom(variants).get();
         Log.d(Tag, "greeting=" + greeting);
 
@@ -99,9 +93,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         variants.add("hello");
         variants.add("hi");
 
-        IMPDecisionTracker tracker = new IMPDecisionTracker(getApplicationContext(), "");
+        DecisionTracker tracker = new DecisionTracker(getApplicationContext(), "");
 
-        Object variant = new IMPDecisionModel("orange").track(tracker).chooseFrom(variants).get();
+        Object variant = new DecisionModel("orange").track(tracker).chooseFrom(variants).get();
         Log.d(Tag, "variant = " + variant);
     }
 

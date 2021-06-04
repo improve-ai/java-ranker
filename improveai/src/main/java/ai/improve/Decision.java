@@ -1,13 +1,12 @@
 package ai.improve;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class IMPDecision {
-    public static final String Tag = "IMPDecision";
+public class Decision {
+    public static final String Tag = "Decision";
 
-    private BaseIMPDecisionModel model;
+    private BaseDecisionModel model;
 
     private List<?> variants;
 
@@ -17,7 +16,7 @@ public class IMPDecision {
 
     private Object best;
 
-    public IMPDecision(BaseIMPDecisionModel model) {
+    public Decision(BaseDecisionModel model) {
         this.model = model;
     }
 
@@ -25,7 +24,7 @@ public class IMPDecision {
 //        return chooseFrom(Arrays.asList(variants));
 //    }
 
-    public <T> IMPDecision chooseFrom(List<T> variants) {
+    public <T> Decision chooseFrom(List<T> variants) {
         if(chosen) {
             IMPLog.e(Tag, "variant already chosen, ignoring variants");
         } else {
@@ -34,7 +33,7 @@ public class IMPDecision {
         return this;
     }
 
-    public IMPDecision given(Map<String, Object> givens) {
+    public Decision given(Map<String, Object> givens) {
         if(chosen) {
             IMPLog.e(Tag, "variant already chosen, ignoring givens");
         } else {
@@ -51,11 +50,11 @@ public class IMPDecision {
         List<Double> scores = model.score(variants, givens);
 
         if(variants != null && variants.size() > 0) {
-            BaseIMPDecisionTracker tracker = model.getTracker();
+            BaseDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
                 if(IMPUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
                     // the more variants there are, the less frequently this is called
-                    List<Object> rankedVariants = BaseIMPDecisionModel.rank(variants, scores);
+                    List<Object> rankedVariants = BaseDecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
                     IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), true);
                 } else {
@@ -70,7 +69,7 @@ public class IMPDecision {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
             // "count" field should be 1
             best = null;
-            BaseIMPDecisionTracker tracker = model.getTracker();
+            BaseDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
                 IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
             }
