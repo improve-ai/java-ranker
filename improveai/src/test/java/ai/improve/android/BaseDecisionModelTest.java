@@ -12,7 +12,7 @@ import java.util.Random;
 
 import ai.improve.BaseDecisionModel;
 import ai.improve.IMPLog;
-import ai.improve.IMPUtils;
+import ai.improve.ModelUtils;
 import ai.improve.XXHashProvider;
 
 import static org.junit.Assert.assertEquals;
@@ -142,7 +142,7 @@ public class BaseDecisionModelTest {
         Collections.swap(variants, m, count);
         Collections.swap(scores, m, count);
 
-        Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
+        Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         IMPLog.d(Tag, "topVariant=" + topVariant.intValue());
         assertEquals(topVariant.intValue(), count+1000);
     }
@@ -152,7 +152,7 @@ public class BaseDecisionModelTest {
         List<Object> variants = new ArrayList<>();
         List<Double> scores = new ArrayList<>();
 
-        Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
+        Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         assertNull(topVariant);
     }
 
@@ -172,7 +172,7 @@ public class BaseDecisionModelTest {
         variants.add(1);
 
         try {
-            Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
+            Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
             e.printStackTrace();
             return ;
@@ -196,7 +196,7 @@ public class BaseDecisionModelTest {
         scores.add(0.1);
 
         try {
-            Integer topVariant = (Integer) IMPUtils.topScoringVariant(variants, scores);
+            Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
             e.printStackTrace();
             return ;
@@ -207,7 +207,7 @@ public class BaseDecisionModelTest {
     @Test
     public void testDescendingGaussians() throws Exception {
         int size = 100000;
-        List<Double> numbers = IMPUtils.generateDescendingGaussians(size);
+        List<Double> numbers = ModelUtils.generateDescendingGaussians(size);
         assertEquals(numbers.size(), size);
 
         double total = 0.0;

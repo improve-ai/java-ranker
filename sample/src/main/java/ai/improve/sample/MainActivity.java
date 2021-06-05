@@ -18,9 +18,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import ai.improve.IMPLog;
 import ai.improve.android.DecisionModel;
 import ai.improve.android.DecisionTracker;
-import ai.improve.android.IMPLoggerImp;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String Tag = "MainActivity";
@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         enableHttpResponseCache();
 
-        IMPLoggerImp.enableLogging();
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ERROR);
     }
 
     @Override

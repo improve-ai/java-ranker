@@ -52,18 +52,18 @@ public class Decision {
         if(variants != null && variants.size() > 0) {
             BaseDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                if(IMPUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
+                if(ModelUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = BaseDecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), true);
+                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
-                    best = IMPUtils.topScoringVariant(variants, scores);
-                    IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
+                    best = ModelUtils.topScoringVariant(variants, scores);
+                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
                 }
             } else {
-                best = IMPUtils.topScoringVariant(variants, scores);
+                best = ModelUtils.topScoringVariant(variants, scores);
             }
         } else {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
@@ -71,7 +71,7 @@ public class Decision {
             best = null;
             BaseDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                IMPTrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
+                TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
             }
         }
 

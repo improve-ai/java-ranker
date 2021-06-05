@@ -42,8 +42,7 @@ public class DecisionModelTest {
     private static final String AssetModelFileName = "dummy_v6.xgb";
 
     static {
-        IMPLog.setLogger(new IMPLoggerImp());
-        IMPLog.enableLogging(true);
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
     }
 
     @Test

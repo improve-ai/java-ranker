@@ -9,8 +9,8 @@ import java.util.Map;
 
 import ai.improve.BaseDecisionTracker;
 import ai.improve.HistoryIdProvider;
-import ai.improve.IMPTrackerHandler;
-import ai.improve.IMPUtils;
+import ai.improve.TrackerHandler;
+import ai.improve.ModelUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -50,10 +50,10 @@ public class BaseDecisionTrackerTest {
 
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
+        ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
+            if(ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -68,10 +68,10 @@ public class BaseDecisionTrackerTest {
 
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
+        ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
+            if(ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -86,10 +86,10 @@ public class BaseDecisionTrackerTest {
 
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
+        ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
+            if(ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -109,10 +109,10 @@ public class BaseDecisionTrackerTest {
 
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
-        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
+        ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
+            if(ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -132,10 +132,10 @@ public class BaseDecisionTrackerTest {
 
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(0);
-        IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
+        ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
         for(int i = 0; i < loop; ++i) {
-            if(IMPUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
+            if(ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp())) {
                 shouldTrackCount++;
             }
         }
@@ -156,13 +156,13 @@ public class BaseDecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(0);
 
-        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
+            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
             if(countMap.containsKey(variant)) {
                 countMap.put(variant, countMap.get(variant) + 1);
             } else {
@@ -194,13 +194,13 @@ public class BaseDecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(2);
 
-        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
+            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
             if(countMap.containsKey(variant)) {
                 countMap.put(variant, countMap.get(variant) + 1);
             } else {
@@ -227,12 +227,12 @@ public class BaseDecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
-        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
+            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
             assertNull(variant);
         }
     }
@@ -250,12 +250,12 @@ public class BaseDecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
-        int runnersUpCount = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) IMPTrackerHandler.sampleVariant(variants, runnersUpCount);
+            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
             assertNull(variant);
         }
     }
@@ -266,7 +266,7 @@ public class BaseDecisionTrackerTest {
         tracker.setMaxRunnersUp(50);
 
         Map<String, Object> body = new HashMap();
-        IMPTrackerHandler.setBestVariant(null, body);
+        TrackerHandler.setBestVariant(null, body);
         // body looks like this
         // {
         //     "count" : 1,
@@ -287,7 +287,7 @@ public class BaseDecisionTrackerTest {
             variants.add(i);
         }
 
-        List<Object> topRunnersUp = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 0);
     }
 
@@ -302,7 +302,7 @@ public class BaseDecisionTrackerTest {
             variants.add(i);
         }
 
-        List<Object> topRunnersUp = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 9);
 
         for(int i = 0; i < topRunnersUp.size(); i++) {
@@ -321,7 +321,7 @@ public class BaseDecisionTrackerTest {
             variants.add(i);
         }
 
-        List<Object> topRunnersUp = IMPTrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 50);
 
         for(int i = 0; i < topRunnersUp.size(); i++) {
@@ -332,7 +332,7 @@ public class BaseDecisionTrackerTest {
     @Test
     public void testSetBestVariantNonNil() throws Exception {
         Map<String, Object> body = new HashMap();
-        IMPTrackerHandler.setBestVariant("hello", body);
+        TrackerHandler.setBestVariant("hello", body);
 
         assertEquals("hello", body.get("variant"));
     }

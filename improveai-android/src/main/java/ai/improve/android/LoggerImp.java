@@ -4,12 +4,7 @@ import android.util.Log;
 
 import ai.improve.IMPLog;
 
-public class IMPLoggerImp implements IMPLog.Logger {
-
-    public static void enableLogging() {
-        IMPLog.setLogger(new IMPLoggerImp());
-        IMPLog.enableLogging(true);
-    }
+public class LoggerImp implements IMPLog.Logger {
 
     @Override
     public void d(String tag, String message) {

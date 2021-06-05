@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 
 import ai.improve.IMPLog;
-import ai.improve.IMPTrackerHandler;
+import ai.improve.TrackerHandler;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -25,8 +25,7 @@ public class DecisionTrackerTest {
     private static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
 
     static {
-        IMPLog.setLogger(new IMPLoggerImp());
-        IMPLog.enableLogging(true);
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
     }
 
     @Test
@@ -34,12 +33,12 @@ public class DecisionTrackerTest {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         DecisionTracker tracker_0 = new DecisionTracker(appContext, "");
 
-        String historyId_0 = IMPTrackerHandler.getHistoryId();
+        String historyId_0 = TrackerHandler.getHistoryId();
         IMPLog.d(Tag, "testHistoryId, historyId=" + historyId_0);
         assertNotNull(historyId_0);
 
         DecisionTracker tracker_1 = new DecisionTracker(appContext, "");
-        String historyId_1 = (String) IMPTrackerHandler.getHistoryId();
+        String historyId_1 = (String) TrackerHandler.getHistoryId();
         assertEquals(historyId_0, historyId_1);
     }
 

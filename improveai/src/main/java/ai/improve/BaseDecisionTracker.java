@@ -31,7 +31,7 @@ public abstract class BaseDecisionTracker {
         String historyId = historyIdProvider.getHistoryId();
         IMPLog.d(Tag, "historyId=" + historyId);
 
-        IMPTrackerHandler.setHistoryId(historyId);
+        TrackerHandler.setHistoryId(historyId);
     }
 
     public String getTrackURL() {
@@ -61,6 +61,6 @@ public abstract class BaseDecisionTracker {
     }
 
     public void trackEvent(String eventName, Map<String, Object> properties) {
-        IMPTrackerHandler.trackEvent(this, eventName, properties);
+        TrackerHandler.trackEvent(this, eventName, properties);
     }
 }

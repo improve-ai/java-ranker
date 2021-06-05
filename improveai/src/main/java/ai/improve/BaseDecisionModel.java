@@ -100,7 +100,7 @@ public abstract class BaseDecisionModel {
 
         if(predictor == null) {
             IMPLog.e(Tag, "model is not loaded, a randomly generated list of Gaussian numbers is returned");
-            return IMPUtils.generateDescendingGaussians(variants.size());
+            return ModelUtils.generateDescendingGaussians(variants.size());
         }
 
         List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);

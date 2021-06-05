@@ -10,7 +10,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.UUID;
 
-public class IMPTrackerHandler {
+public class TrackerHandler {
     public static final String Tag = "IMPTrackerHandler";
 
     private static final String TYPE_KEY = "type";
@@ -44,7 +44,7 @@ public class IMPTrackerHandler {
     }
 
     public static void setHistoryId(String historyId) {
-        IMPTrackerHandler.historyId = historyId;
+        TrackerHandler.historyId = historyId;
     }
 
     public static <T> void track(BaseDecisionTracker tracker, Object bestVariant, List<T> variants, Map<String, Object> givens,

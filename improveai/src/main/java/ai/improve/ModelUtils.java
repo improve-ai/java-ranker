@@ -5,7 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
-public class IMPUtils {
+public class ModelUtils {
 
     private static Random randomGenerator = new Random();
 

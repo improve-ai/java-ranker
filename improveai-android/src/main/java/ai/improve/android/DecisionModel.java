@@ -164,4 +164,12 @@ public class DecisionModel extends BaseDecisionModel {
          * */
         void onFinish(DecisionModel decisionModel, Exception e);
     }
+
+    /**
+     * The sdk does not have any init method, yet I have to setup the logger somewhere...
+     * So here it goes.
+     * */
+    static {
+        IMPLog.setLogger(new LoggerImp());
+    }
 }
