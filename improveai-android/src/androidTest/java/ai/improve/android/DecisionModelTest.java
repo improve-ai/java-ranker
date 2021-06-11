@@ -1,6 +1,7 @@
 package ai.improve.android;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -35,13 +36,14 @@ import static org.junit.Assert.fail;
 public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
-    private static final String ModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
+    public static final String ModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
 
     private static final String CompressedModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb.gz";
 
     private static final String AssetModelFileName = "dummy_v6.xgb";
 
     static {
+        IMPLog.setLogger(new LoggerImp());
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
     }
 
@@ -281,7 +283,7 @@ public class DecisionModelTest {
             @Override
             public void onFinish(DecisionModel model, Exception e) {
                 if(e != null) {
-                    Log.d("Tag", "Error loading model: " + e.getLocalizedMessage());
+                    Log.d(Tag, "Error loading model: " + e.getLocalizedMessage());
                 } else {
                     // the model is ready to go
                     model.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();

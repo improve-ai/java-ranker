@@ -1,5 +1,6 @@
 package ai.improve;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,12 @@ public class Decision {
             return best;
         }
 
-        List<Double> scores = model.score(variants, givens);
+        Map<String, Object> allGivens = model.collectAllGivens();
+        if(givens != null) {
+            allGivens.putAll(givens);
+        }
+
+        List<Double> scores = model.score(variants, allGivens);
 
         if(variants != null && variants.size() > 0) {
             BaseDecisionTracker tracker = model.getTracker();
@@ -56,11 +62,11 @@ public class Decision {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = BaseDecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), true);
+                    TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
                     best = ModelUtils.topScoringVariant(variants, scores);
-                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
+                    TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), false);
                 }
             } else {
                 best = ModelUtils.topScoringVariant(variants, scores);
@@ -71,7 +77,7 @@ public class Decision {
             best = null;
             BaseDecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
+                TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), false);
             }
         }
 

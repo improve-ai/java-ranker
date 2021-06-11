@@ -3,6 +3,7 @@ package ai.improve;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -25,6 +26,8 @@ public abstract class BaseDecisionModel {
     private static Random randomGenerator = new Random();
 
     private XXHashProvider xxHashProvider;
+
+    private List<GivensProvider> givensProviders = new ArrayList<>();
 
     public BaseDecisionModel(String modelName, XXHashProvider xxHashProvider) {
         this.modelName = modelName;
@@ -71,6 +74,22 @@ public abstract class BaseDecisionModel {
      * */
     public <T> Decision chooseFrom(List<T> variants) {
         return new Decision(this).chooseFrom(variants);
+    }
+
+    public BaseDecisionModel addGivensProvider(GivensProvider provider) {
+        givensProviders.add(provider);
+        return this;
+    }
+
+    protected Map<String, Object> collectAllGivens() {
+        Map<String, Object> allGivens = new HashMap<>();
+        for (GivensProvider provider: givensProviders) {
+            Map<String, ?> givens = provider.getGivens();
+            if(givens != null) {
+                allGivens.putAll(givens);
+            }
+        }
+        return allGivens;
     }
 
     /**

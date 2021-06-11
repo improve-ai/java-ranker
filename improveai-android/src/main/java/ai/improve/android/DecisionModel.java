@@ -21,6 +21,8 @@ import ai.improve.xgbpredictor.ImprovePredictor;
 public class DecisionModel extends BaseDecisionModel {
     public static final String Tag = "DecisionModel";
 
+    public static final String Version = "6.0.0";
+
     private final Object lock = new Object();
 
     public static DecisionModel loadFromAsset(Context context, String filename) throws Exception {

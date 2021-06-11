@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import ai.improve.GivensProvider;
 import ai.improve.BaseDecisionModel;
 import ai.improve.IMPLog;
 import ai.improve.ModelUtils;
@@ -231,12 +232,7 @@ public class BaseDecisionModelTest {
     public void testGiven() {
         Map<String, Object> given = new HashMap<>();
         List<Object> variants = new ArrayList<>();
-        DecisionModel decisionModel = new DecisionModel("music", new XXHashProvider() {
-            @Override
-            public long xxhash(byte[] data, long seed) {
-                return 0;
-            }
-        });
+        DecisionModel decisionModel = new DecisionModel("music", new XXHashProviderImp());
         decisionModel.given(given).chooseFrom(variants);
     }
 

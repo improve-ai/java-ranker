@@ -17,10 +17,13 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import ai.improve.IMPLog;
+import ai.improve.android.AppGivensProviderImp;
 import ai.improve.android.DecisionModel;
 import ai.improve.android.DecisionTracker;
+import ai.improve.android.LoggerImp;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String Tag = "MainActivity";
@@ -37,7 +40,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         enableHttpResponseCache();
 
-        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ERROR);
+        IMPLog.setLogger(new LoggerImp());
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+
+        AppGivensProviderImp provider = new AppGivensProviderImp(this);
+        Map givens = provider.getGivens();
+        IMPLog.d(Tag, "givens = " + givens);
+
+        DecisionModel model = new DecisionModel("");
     }
 
     @Override

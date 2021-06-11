@@ -4,7 +4,9 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
+import ai.improve.GivensProvider;
 import ai.improve.BaseDecisionModel;
 import ai.improve.BaseDecisionTracker;
 import ai.improve.HistoryIdProvider;
@@ -17,6 +19,13 @@ public class DecisionTest {
     public class DecisionModel extends BaseDecisionModel {
         public DecisionModel(String modelName, XXHashProvider xxHashProvider) {
             super(modelName, xxHashProvider);
+        }
+    }
+
+    public class AppGivensProviderImp implements GivensProvider {
+        @Override
+        public Map<String, ?> getGivens() {
+            return null;
         }
     }
 
@@ -48,7 +57,7 @@ public class DecisionTest {
         variants.add("Hello World!");
 
         int loop = 10000;
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(), new AppGivensProviderImp());
         for(int i = 0; i < loop; i++) {
             Decision decision = new Decision(decisionModel);
             String greeting = (String) decision.chooseFrom(variants).get();
@@ -61,7 +70,8 @@ public class DecisionTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
+                new AppGivensProviderImp());
         Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();
 
@@ -75,7 +85,8 @@ public class DecisionTest {
     @Test
     public void testChooseFromNullVariants() {
         List<Object> variants = new ArrayList<>();
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
+                new AppGivensProviderImp());
         Decision decision = new Decision(decisionModel);
         assertNull(decision.chooseFrom(variants).get());
     }
@@ -83,7 +94,8 @@ public class DecisionTest {
     // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromEmptyVariants() {
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
+                new AppGivensProviderImp());
         Decision decision = new Decision(decisionModel);
         assertNull(decision.chooseFrom(null).get());
     }
@@ -93,7 +105,8 @@ public class DecisionTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
+                new AppGivensProviderImp());
         decisionModel.track(new DecisionTracker("http://trakcer.url", new HistoryIdProvider() {
             @Override
             public String getHistoryId() {
