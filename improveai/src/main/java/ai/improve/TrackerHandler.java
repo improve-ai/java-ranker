@@ -148,11 +148,19 @@ public class TrackerHandler {
         body.put(HISTORY_ID_KEY, historyId);
         body.put(MESSAGE_ID_KEY, UUID.randomUUID());
 
-        try {
-            HttpUtil.withUrl(tracker.getTrackURL()).withHeaders(headers).withBody(body).post();
-        } catch (MalformedURLException e) {
-            IMPLog.e(Tag, e.getLocalizedMessage());
-        }
+        Map<String, Object> finalBody = body;
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    // android.os.NetworkOnMainThreadException will be thrown if post() is called
+                    // in main thread
+                    HttpUtil.withUrl(tracker.getTrackURL()).withHeaders(headers).withBody(finalBody).post();
+                } catch (MalformedURLException e) {
+                    IMPLog.e(Tag, e.getLocalizedMessage());
+                }
+            }
+        }.start();
     }
 
     public static void trackEvent(BaseDecisionTracker tracker, String eventName) {
