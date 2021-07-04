@@ -95,10 +95,8 @@ public class BaseDecisionTrackerTest {
         }
 
         int expectedCount = (int)(1.0/Math.min(variantCount-1, tracker.getMaxRunnersUp()) * loop);
-        double diff = Math.abs((expectedCount-shouldTrackCount)/(double)expectedCount);
-        assertTrue(diff < 0.01);
-        System.out.println("expected=" + expectedCount + ", real=" + shouldTrackCount
-                + ", diff=" + (expectedCount-shouldTrackCount)/(double)expectedCount);
+        System.out.println("expected=" + expectedCount + ", shouldTrackCount=" + shouldTrackCount);
+        assertEquals(shouldTrackCount, expectedCount, 0.01 * expectedCount);
     }
 
     @Test
@@ -118,10 +116,8 @@ public class BaseDecisionTrackerTest {
         }
 
         int expectedCount = (int)(1.0/Math.min(variantCount-1, tracker.getMaxRunnersUp()) * loop);
-        double diff = Math.abs((expectedCount-shouldTrackCount)/(double)expectedCount);
-        System.out.println("expected=" + expectedCount + ", real=" + shouldTrackCount
-                + ", diff=" + (expectedCount-shouldTrackCount)/(double)expectedCount);
-        assertTrue(diff < 0.01);
+        System.out.println("expected=" + expectedCount + ", shouldTrackCount=" + shouldTrackCount);
+        assertEquals(shouldTrackCount, expectedCount, 0.01 * expectedCount);
     }
 
     @Test
@@ -172,11 +168,7 @@ public class BaseDecisionTrackerTest {
 
         int expectedCount = loop / (variants.size()-1-runnersUpCount);
         for(int i = 1+runnersUpCount; i < variants.size(); ++i){
-            assertTrue(countMap.containsKey(variants.get(i)));
-            int diff = Math.abs(countMap.get(variants.get(i)) - expectedCount);
-            System.out.println("expected=" + expectedCount + ", real=" + countMap.get(variants.get(i))
-                    + ", diff=" + diff);
-            assertTrue(diff < (expectedCount * 0.01));
+            assertEquals(countMap.get(variants.get(i)), expectedCount, 0.01 * expectedCount);
         }
     }
 
@@ -210,11 +202,7 @@ public class BaseDecisionTrackerTest {
 
         int expectedCount = loop / (variants.size()-1-runnersUpCount);
         for(int i = 1+runnersUpCount; i < variants.size(); ++i){
-            assertTrue(countMap.containsKey(variants.get(i)));
-            int diff = Math.abs(countMap.get(variants.get(i)) - expectedCount);
-            System.out.println("expected=" + expectedCount + ", real=" + countMap.get(variants.get(i))
-                    + ", diff=" + diff);
-            assertTrue(diff < (expectedCount * 0.01));
+            assertEquals(countMap.get(variants.get(i)), expectedCount, 0.01 * expectedCount);
         }
     }
 

@@ -57,7 +57,7 @@ public class DecisionTest {
         variants.add("Hello World!");
 
         int loop = 10000;
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(), new AppGivensProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
         for(int i = 0; i < loop; i++) {
             Decision decision = new Decision(decisionModel);
             String greeting = (String) decision.chooseFrom(variants).get();
@@ -70,8 +70,7 @@ public class DecisionTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
-                new AppGivensProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
         Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();
 
@@ -85,8 +84,7 @@ public class DecisionTest {
     @Test
     public void testChooseFromNullVariants() {
         List<Object> variants = new ArrayList<>();
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
-                new AppGivensProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
         Decision decision = new Decision(decisionModel);
         assertNull(decision.chooseFrom(variants).get());
     }
@@ -94,8 +92,7 @@ public class DecisionTest {
     // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromEmptyVariants() {
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
-                new AppGivensProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
         Decision decision = new Decision(decisionModel);
         assertNull(decision.chooseFrom(null).get());
     }
@@ -105,8 +102,7 @@ public class DecisionTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp(),
-                new AppGivensProviderImp());
+        DecisionModel decisionModel = new DecisionModel("", new XXHashProviderImp());
         decisionModel.track(new DecisionTracker("http://trakcer.url", new HistoryIdProvider() {
             @Override
             public String getHistoryId() {
