@@ -27,6 +27,7 @@ import java.util.concurrent.Semaphore;
 
 import ai.improve.IMPLog;
 
+import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -290,5 +291,27 @@ public class DecisionModelTest {
                 }
             }
         });
+    }
+
+    @Test
+    public void testChooseFromVariantsWithNull() throws Exception {
+        URL modelUrl = new URL(ModelURL);
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+
+        DecisionTracker tracker = new DecisionTracker(appContext, Tracker_Url);
+        DecisionModel model = new DecisionModel("greetings");
+        model.setTracker(tracker);
+        model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
+            @Override
+            public void onFinish(DecisionModel model, Exception e) {
+                if(e != null) {
+                    Log.d(Tag, "Error loading model: " + e.getLocalizedMessage());
+                } else {
+                    // the model is ready to go
+                    model.chooseFrom(Arrays.asList(null, 0.1, 0.2, 0.3)).get();
+                }
+            }
+        });
+        Thread.sleep(10 * 1000);
     }
 }

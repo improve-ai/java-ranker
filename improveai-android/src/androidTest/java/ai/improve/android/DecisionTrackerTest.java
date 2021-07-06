@@ -22,7 +22,7 @@ import static org.junit.Assert.assertNotNull;
 public class DecisionTrackerTest {
     private static final String Tag = "IMPDecisionTrackerTest";
 
-    private static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
+    public static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);

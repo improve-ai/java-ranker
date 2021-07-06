@@ -17,8 +17,8 @@ public class TrackerHandler {
 
     private static final String DECISION_TYPE = "decision";
     private static final String MODEL_KEY = "model";
-    private static final String DECISION_BEST_KEY = "variant";
-    private static final String COUNT_KEY = "count";
+    public static final String DECISION_BEST_KEY = "variant";
+    public static final String COUNT_KEY = "count";
     private static final String GIVEN_KEY = "given";
     private static final String RUNNERS_UP_KEY = "runners_up";
     private static final String SAMPLE_VARIANT_KEY = "sample";
@@ -62,7 +62,8 @@ public class TrackerHandler {
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, DECISION_TYPE);
         body.put(MODEL_KEY, modelName);
-        body.put(COUNT_KEY, variants == null ? 0 : variants.size());
+
+        setCount(variants, body);
 
         setBestVariant(bestVariant, body);
 
@@ -120,13 +121,21 @@ public class TrackerHandler {
     public static void setBestVariant(Object variant, Map<String, Object> body) {
         if(variant != null) {
             body.put(DECISION_BEST_KEY, variant);
-            // case 1: variants is empty
         } else {
             // This happens only in two cases
             // case 1: variants is empty
             // case 2: variants is nil
-            body.put(COUNT_KEY, 1);
             body.put(DECISION_BEST_KEY, null);
+        }
+    }
+
+    // Move to separate method for unit test
+    // "count" field should be 1 in case of null or empty variants
+    public static <T> void setCount(List<T> variants, Map<String, Object> body) {
+        if(variants == null || variants.size() <= 0) {
+            body.put(COUNT_KEY, 1);
+        } else {
+            body.put(COUNT_KEY, variants.size());
         }
     }
 

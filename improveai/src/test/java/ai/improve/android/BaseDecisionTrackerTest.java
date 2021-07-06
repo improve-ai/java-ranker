@@ -12,6 +12,8 @@ import ai.improve.HistoryIdProvider;
 import ai.improve.TrackerHandler;
 import ai.improve.ModelUtils;
 
+import static ai.improve.TrackerHandler.COUNT_KEY;
+import static ai.improve.TrackerHandler.DECISION_BEST_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -257,11 +259,10 @@ public class BaseDecisionTrackerTest {
         TrackerHandler.setBestVariant(null, body);
         // body looks like this
         // {
-        //     "count" : 1,
         //     "variant" : null
         // }
-        assertNull(body.get("variant"));
-        assertEquals(1, body.get("count"));
+        assertTrue(body.containsKey(DECISION_BEST_KEY));
+        assertNull(body.get(DECISION_BEST_KEY));
     }
 
     @Test
@@ -277,6 +278,21 @@ public class BaseDecisionTrackerTest {
 
         List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 0);
+    }
+
+    @Test
+    public void testTopRunnersUp_2_variants() {
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
+        tracker.setMaxRunnersUp(50);
+
+        int numOfVariants = 2;
+        List<Object> variants = new ArrayList<>();
+        for(int i = 0; i < numOfVariants; i++) {
+            variants.add(i);
+        }
+
+        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        assertEquals(topRunnersUp.size(), 1);
     }
 
     @Test
@@ -299,7 +315,7 @@ public class BaseDecisionTrackerTest {
     }
 
     @Test
-    public void testTopRunnersUp_100_variants() throws Exception {
+    public void testTopRunnersUp_100_variants() {
         DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
         tracker.setMaxRunnersUp(50);
 
@@ -318,10 +334,44 @@ public class BaseDecisionTrackerTest {
     }
 
     @Test
-    public void testSetBestVariantNonNil() throws Exception {
+    public void testSetBestVariantNonNil() {
         Map<String, Object> body = new HashMap();
         TrackerHandler.setBestVariant("hello", body);
 
-        assertEquals("hello", body.get("variant"));
+        assertEquals("hello", body.get(DECISION_BEST_KEY));
+    }
+
+    @Test
+    public void testSetCount_2_variants() {
+        int numOfVariants = 2;
+        List<Object> variants = new ArrayList<>();
+        for(int i = 0; i < numOfVariants; i++) {
+            variants.add(i);
+        }
+
+        Map<String, Object> body = new HashMap();
+        TrackerHandler.setCount(variants, body);
+
+        assertEquals(2, body.get(COUNT_KEY));
+    }
+
+    @Test
+    public void testSetCount_null_variants() {
+        List<Object> variants = null;
+
+        Map<String, Object> body = new HashMap();
+        TrackerHandler.setCount(variants, body);
+
+        assertEquals(1, body.get(COUNT_KEY));
+    }
+
+    @Test
+    public void testSetCount_empty_variants() {
+        List<Object> variants = new ArrayList<>();
+
+        Map<String, Object> body = new HashMap();
+        TrackerHandler.setCount(variants, body);
+
+        assertEquals(1, body.get(COUNT_KEY));
     }
 }
