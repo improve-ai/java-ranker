@@ -26,6 +26,8 @@ import static org.junit.Assert.assertTrue;
 public class BaseDecisionTrackerTest {
     public static final String Tag = "IMPDecisionModelTest";
 
+    public static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
+
     private class DecisionTracker extends BaseDecisionTracker {
 
         public DecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
@@ -373,5 +375,19 @@ public class BaseDecisionTrackerTest {
         TrackerHandler.setCount(variants, body);
 
         assertEquals(1, body.get(COUNT_KEY));
+    }
+
+    @Test
+    public void testSetMaxRunnersUp() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, new HistoryIdProviderImp());
+        tracker.setMaxRunnersUp(10);
+        assertEquals(10, tracker.getMaxRunnersUp());
+    }
+
+    @Test
+    public void testSetMaxRunnersUp_NegativeValue() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, new HistoryIdProviderImp());
+        tracker.setMaxRunnersUp(-1);
+        assertEquals(0, tracker.getMaxRunnersUp());
     }
 }

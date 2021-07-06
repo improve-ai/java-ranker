@@ -52,7 +52,7 @@ public abstract class BaseDecisionTracker {
      *                      0 disables runners up tracking
      * */
     public void setMaxRunnersUp(int maxRunnersUp) {
-        this.maxRunnersUp = maxRunnersUp;
+        this.maxRunnersUp = maxRunnersUp >= 0 ? maxRunnersUp : 0;
     }
 
 
