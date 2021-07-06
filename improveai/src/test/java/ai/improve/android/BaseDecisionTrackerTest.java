@@ -14,7 +14,9 @@ import ai.improve.ModelUtils;
 
 import static ai.improve.TrackerHandler.COUNT_KEY;
 import static ai.improve.TrackerHandler.DECISION_BEST_KEY;
+import static ai.improve.TrackerHandler.SAMPLE_VARIANT_KEY;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -145,7 +147,7 @@ public class BaseDecisionTrackerTest {
     // If there are no runners up, then sample is a random sample from
     // variants with just best excluded.
     @Test
-    public void testSampleVariant_0_RunnersUp() {
+    public void testSetSampleVariant_0_RunnersUp() {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
@@ -162,7 +164,10 @@ public class BaseDecisionTrackerTest {
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
+            Map<String, Object> body = new HashMap();
+            TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+            String variant = (String)body.get(SAMPLE_VARIANT_KEY);
+
             if(countMap.containsKey(variant)) {
                 countMap.put(variant, countMap.get(variant) + 1);
             } else {
@@ -196,7 +201,10 @@ public class BaseDecisionTrackerTest {
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
+            Map<String, Object> body = new HashMap();
+            TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+            String variant = (String)body.get(SAMPLE_VARIANT_KEY);
+
             if(countMap.containsKey(variant)) {
                 countMap.put(variant, countMap.get(variant) + 1);
             } else {
@@ -222,11 +230,9 @@ public class BaseDecisionTrackerTest {
         int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
-        int loop = 10000000;
-        for(int i = 0; i < loop; ++i) {
-            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
-            assertNull(variant);
-        }
+        Map<String, Object> body = new HashMap();
+        TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+        assertFalse(body.containsKey(SAMPLE_VARIANT_KEY));
     }
 
     // If there are no remaining variants after best and runners up, then there is no sample.
@@ -245,11 +251,31 @@ public class BaseDecisionTrackerTest {
         int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
-        int loop = 10000000;
-        for(int i = 0; i < loop; ++i) {
-            String variant = (String) TrackerHandler.sampleVariant(variants, runnersUpCount);
-            assertNull(variant);
-        }
+        Map<String, Object> body = new HashMap();
+        TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+        assertFalse(body.containsKey(SAMPLE_VARIANT_KEY));
+    }
+
+    /**
+     * one best variant, one runners up and one null variant
+     * */
+    @Test
+    public void testSampleVariant_with_null_variant() {
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+        variants.add("Hi");
+        variants.add(null);
+
+        DecisionTracker tracker = new DecisionTracker("", new HistoryIdProviderImp());
+        tracker.setMaxRunnersUp(1);
+
+        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        System.out.println("runnersUpCount=" + runnersUpCount);
+
+        Map<String, Object> body = new HashMap();
+        TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+        assertTrue(body.containsKey(SAMPLE_VARIANT_KEY));
+        assertNull(body.get(SAMPLE_VARIANT_KEY));
     }
 
     @Test

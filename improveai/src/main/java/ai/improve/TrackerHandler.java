@@ -21,7 +21,7 @@ public class TrackerHandler {
     public static final String COUNT_KEY = "count";
     private static final String GIVEN_KEY = "given";
     private static final String RUNNERS_UP_KEY = "runners_up";
-    private static final String SAMPLE_VARIANT_KEY = "sample";
+    public static final String SAMPLE_VARIANT_KEY = "sample";
     private static final String TIMESTAMP_KEY = "timestamp";
     private static final String MESSAGE_ID_KEY = "message_id";
     private static final String PROPERTIES_KEY = "properties";
@@ -77,10 +77,8 @@ public class TrackerHandler {
             body.put(RUNNERS_UP_KEY, runnersUp);
         }
 
-        Object sampleVariant = sampleVariant(variants, runnersUp == null ? 0 : runnersUp.size());
-        if(sampleVariant != null) {
-            body.put(SAMPLE_VARIANT_KEY, sampleVariant);
-        }
+        int runnersUpCount = runnersUp == null ? 0 : runnersUp.size();
+        setSampleVariant(variants, runnersUpCount, body);
 
         postTrackingRequest(tracker, body);
     }
@@ -95,21 +93,21 @@ public class TrackerHandler {
     //
     // If there are no remaining variants after best and runners up, then
     // there is no sample.
-    public static <T> T sampleVariant(List<T> variants, int runnersUpCount) {
-        if(variants == null) {
-            return null;
-        }
-
-        // Sample variant is selected from variants excluding runners-up and the
-        // best variant
-        T variant = null;
-        int samplesCount = variants.size() - runnersUpCount - 1;
-        if (samplesCount > 0) {
-            int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
-            variant = variants.get(randomIndex);
-        }
-        return variant;
-    }
+//    public static <T> T sampleVariant(List<T> variants, int runnersUpCount) {
+//        if(variants == null) {
+//            return null;
+//        }
+//
+//        // Sample variant is selected from variants excluding runners-up and the
+//        // best variant
+//        T variant = null;
+//        int samplesCount = variants.size() - runnersUpCount - 1;
+//        if (samplesCount > 0) {
+//            int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
+//            variant = variants.get(randomIndex);
+//        }
+//        return variant;
+//    }
 
     public static <T> List<T> topRunnersUp(List<T> ranked, int maxRunnersUp) {
         return ranked.subList(1, 1+Math.min(maxRunnersUp, ranked.size()-1));
@@ -137,6 +135,39 @@ public class TrackerHandler {
         } else {
             body.put(COUNT_KEY, variants.size());
         }
+    }
+
+    /**
+     * Sample variant is selected from variants excluding runners-up and
+     * the best variant
+     *
+     * If there are no runners up, then sample is a random sample from
+     * variants with just best excluded.
+     *
+     * If there are runners up, then sample is a random sample from
+     * variants with best and runners up excluded.
+     *
+     * If there is only one variant, which is the best, then there is no sample.
+     *
+     * If there are no remaining variants after best and runners up, then
+     * there is no sample.
+     *
+     * If the sample variant itself is null, it should also be included in the body map.
+     **/
+    public static <T> void setSampleVariant(List<T> variants, int runnersUpCount, Map<String, Object> body) {
+        if(variants == null || variants.size() <= 0) {
+            return ;
+        }
+
+        T variant = null;
+        int samplesCount = variants.size() - runnersUpCount - 1;
+        if (samplesCount <= 0) {
+            return ;
+        }
+
+        int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
+        variant = variants.get(randomIndex);
+        body.put(SAMPLE_VARIANT_KEY, variant);
     }
 
     public static void postTrackingRequest(BaseDecisionTracker tracker, Map<String, Object> body) {
