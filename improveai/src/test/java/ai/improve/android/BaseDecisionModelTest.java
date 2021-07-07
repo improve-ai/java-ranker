@@ -10,11 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import ai.improve.GivensProvider;
 import ai.improve.BaseDecisionModel;
 import ai.improve.IMPLog;
 import ai.improve.ModelUtils;
-import ai.improve.XXHashProvider;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -30,15 +28,8 @@ public class BaseDecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
     public class DecisionModel extends BaseDecisionModel {
-        public DecisionModel(String modelName, XXHashProvider xxHashProvider) {
-            super(modelName, xxHashProvider);
-        }
-    }
-
-    public class XXHashProviderImp implements XXHashProvider {
-        @Override
-        public long xxhash(byte[] data, long seed) {
-            return 0;
+        public DecisionModel(String modelName) {
+            super(modelName);
         }
     }
 
@@ -232,13 +223,13 @@ public class BaseDecisionModelTest {
     public void testGiven() {
         Map<String, Object> given = new HashMap<>();
         List<Object> variants = new ArrayList<>();
-        DecisionModel decisionModel = new DecisionModel("music", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("music");
         decisionModel.given(given).chooseFrom(variants);
     }
 
     @Test
     public void testChooseFrom() {
-        DecisionModel decisionModel = new DecisionModel("music", new XXHashProviderImp());
+        DecisionModel decisionModel = new DecisionModel("music");
 
         // choose from double variants array
         decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import ai.improve.IMPLog;
-import ai.improve.XXHashProvider;
 import biz.k11i.xgboost.util.FVec;
 
 public class FeatureEncoder {
@@ -24,13 +23,10 @@ public class FeatureEncoder {
 
     private long contextSeed;
 
-    private XXHashProvider xxHashProvider;
-
-    public FeatureEncoder(long modelSeed, List<String> featureNames, XXHashProvider xxHashProvider) {
-        this.xxHashProvider = xxHashProvider;
-        variantSeed = xxHashProvider.xxhash("variant".getBytes(), modelSeed);
-        valueSeed = xxHashProvider.xxhash("$value".getBytes(), variantSeed);//$value
-        contextSeed = xxHashProvider.xxhash("context".getBytes(), modelSeed);
+    public FeatureEncoder(long modelSeed, List<String> featureNames) {
+        variantSeed = xxhash3("variant".getBytes(), modelSeed);
+        valueSeed = xxhash3("$value".getBytes(), variantSeed);//$value
+        contextSeed = xxhash3("context".getBytes(), modelSeed);
 
         if(featureNames != null) {
             for (int i = 0; i < featureNames.size(); ++i) {
@@ -86,7 +82,7 @@ public class FeatureEncoder {
                 features[index] += sprinkle(nodeValue, noise);
             }
         } else if(node instanceof String) {
-            long hashed = this.xxHashProvider.xxhash(((String) node).getBytes(), seed);
+            long hashed = xxhash3(((String) node).getBytes(), seed);
             String featureName = hash_to_feature_name(seed);
             if(featureNamesMap.containsKey(featureName)) {
                 int index = featureNamesMap.get(featureName);
@@ -104,14 +100,14 @@ public class FeatureEncoder {
                     IMPLog.w(Tag, "Map entry ignored: map key must be of type String.");
                     continue;
                 }
-                long newSeed = this.xxHashProvider.xxhash(entry.getKey().getBytes(), seed);
+                long newSeed = xxhash3(entry.getKey().getBytes(), seed);
                 encodeInternal(entry.getValue(), newSeed, noise, features);
             }
         } else if (node instanceof List) {
             List list = (List)node;
             for (int i = 0; i < list.size(); ++i) {
                 byte[] bytes = longToByteArray(i);
-                long newSeed = this.xxHashProvider.xxhash(bytes, seed);
+                long newSeed = xxhash3(bytes, seed);
                 encodeInternal(list.get(i), newSeed, noise, features);
             }
         }
@@ -140,5 +136,11 @@ public class FeatureEncoder {
                 (byte)(value >> 16),
                 (byte)(value >> 8),
                 (byte)value};
+    }
+
+    public static native long  xxhash3(byte[] data, long seed);
+
+    static {
+        System.loadLibrary("xxhash");
     }
 }

@@ -25,13 +25,10 @@ public abstract class BaseDecisionModel {
 
     private static Random randomGenerator = new Random();
 
-    private XXHashProvider xxHashProvider;
-
     private List<GivensProvider> givensProviders = new ArrayList<>();
 
-    public BaseDecisionModel(String modelName, XXHashProvider xxHashProvider) {
+    public BaseDecisionModel(String modelName) {
         this.modelName = modelName;
-        this.xxHashProvider = xxHashProvider;
     }
 
     public void setModel(ImprovePredictor predictor) {
@@ -49,7 +46,7 @@ public abstract class BaseDecisionModel {
         this.modelName = predictor.getModelMetadata().getModelName();
 
         featureEncoder = new FeatureEncoder(predictor.getModelMetadata().getModelSeed(),
-                predictor.getModelMetadata().getModelFeatureNames(), this.xxHashProvider);
+                predictor.getModelMetadata().getModelFeatureNames());
     }
 
     public String getModelName() {

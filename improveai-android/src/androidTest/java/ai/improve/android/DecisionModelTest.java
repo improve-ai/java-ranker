@@ -258,7 +258,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseFrom() throws  Exception {
+    public void testChooseFromAll() throws  Exception {
         URL modelUrl = new URL(ModelURL);
         Map<String, Object> given = new HashMap<>();
         given.put("language", "cowboy");
@@ -291,6 +291,15 @@ public class DecisionModelTest {
                 }
             }
         });
+    }
+
+    @Test
+    public void testChooseFrom() throws Exception {
+        URL modelUrl = new URL(ModelURL);
+        Map<String, Object> given = new HashMap<>();
+        given.put("language", "cowboy");
+        // Choose from string
+        DecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
     }
 
     @Test

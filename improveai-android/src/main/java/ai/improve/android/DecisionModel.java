@@ -15,7 +15,6 @@ import java.util.zip.GZIPInputStream;
 
 import ai.improve.BaseDecisionModel;
 import ai.improve.IMPLog;
-import ai.improve.encoder.XXHashAPI;
 import ai.improve.xgbpredictor.ImprovePredictor;
 
 public class DecisionModel extends BaseDecisionModel {
@@ -157,7 +156,7 @@ public class DecisionModel extends BaseDecisionModel {
     }
 
     public DecisionModel(String modelName) {
-        super(modelName, new XXHashAPI());
+        super(modelName);
     }
 
     public interface IMPDecisionModelLoadListener {
