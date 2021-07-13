@@ -6,35 +6,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.DecisionModel;
+import ai.improve.DecisionTracker;
 import ai.improve.GivensProvider;
-import ai.improve.BaseDecisionModel;
-import ai.improve.BaseDecisionTracker;
-import ai.improve.HistoryIdProvider;
 import ai.improve.Decision;
 
+import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
 import static org.junit.Assert.*;
 
 public class DecisionTest {
-    public class DecisionModel extends BaseDecisionModel {
-        public DecisionModel(String modelName) {
-            super(modelName);
-        }
-    }
-
     public class AppGivensProviderImp implements GivensProvider {
         @Override
         public Map<String, ?> getGivens() {
             return null;
-        }
-    }
-
-    private class DecisionTracker extends BaseDecisionTracker {
-        public DecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
-            super(trackURL, historyIdProvider);
-        }
-
-        public DecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
-            super(trackURL, apiKey, historyIdProvider);
         }
     }
 
@@ -94,12 +78,7 @@ public class DecisionTest {
         variants.add("Hello, World!");
 
         DecisionModel decisionModel = new DecisionModel("");
-        decisionModel.track(new DecisionTracker("http://trakcer.url", new HistoryIdProvider() {
-            @Override
-            public String getHistoryId() {
-                return "test-history-id";
-            }
-        }));
+        decisionModel.track(new DecisionTracker(Tracker_Url));
 
         Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();

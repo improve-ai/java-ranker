@@ -1,8 +1,10 @@
 package ai.improve;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Map;
 
-public abstract class BaseDecisionTracker {
+public class DecisionTracker {
     public static final String Tag = "BaseDecisionTracker";
 
     private String trackURL;
@@ -15,11 +17,11 @@ public abstract class BaseDecisionTracker {
      * */
     private int maxRunnersUp;
 
-    public BaseDecisionTracker(String trackURL, HistoryIdProvider historyIdProvider) {
-        this(trackURL, null, historyIdProvider);
+    public DecisionTracker(String trackURL) {
+        this(trackURL, null);
     }
 
-    public BaseDecisionTracker(String trackURL, String apiKey, HistoryIdProvider historyIdProvider) {
+    public DecisionTracker(String trackURL, String apiKey) {
         this.maxRunnersUp = 50;
         this.trackURL = trackURL;
         this.apiKey = apiKey;
@@ -28,8 +30,8 @@ public abstract class BaseDecisionTracker {
             IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
         }
 
-        String historyId = historyIdProvider.getHistoryId();
-        IMPLog.d(Tag, "historyId=" + historyId);
+        String historyId = getHistoryId();
+        IMPLog.d(Tag, "historyId = " + historyId);
 
         TrackerHandler.setHistoryId(historyId);
     }
@@ -62,5 +64,29 @@ public abstract class BaseDecisionTracker {
 
     public void trackEvent(String eventName, Map<String, Object> properties) {
         TrackerHandler.trackEvent(this, eventName, properties);
+    }
+
+    private String getHistoryId() {
+        if(Utils.isAndroid()) {
+            try {
+                Class clz = Class.forName("ai.improve.android.HistoryIdProviderImp");
+                Object o = clz.newInstance();
+
+                Method method = clz.getDeclaredMethod("getHistoryId");
+                String historyId = (String)method.invoke(o);
+                return historyId;
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (InvocationTargetException e) {
+                e.printStackTrace();
+            } catch (NoSuchMethodException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
     }
 }

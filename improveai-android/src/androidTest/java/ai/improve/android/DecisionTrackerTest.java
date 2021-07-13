@@ -1,9 +1,6 @@
 package ai.improve.android;
 
-import android.content.Context;
-
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,9 +9,12 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import ai.improve.DecisionModel;
+import ai.improve.DecisionTracker;
 import ai.improve.IMPLog;
 import ai.improve.TrackerHandler;
 
+import static ai.improve.android.DecisionModelTest.ModelURL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 
@@ -30,25 +30,24 @@ public class DecisionTrackerTest {
 
     @Test
     public void testHistoryId() {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        DecisionTracker tracker_0 = new DecisionTracker(appContext, "");
+        DecisionTracker tracker_0 = new DecisionTracker(Tracker_Url);
 
         String historyId_0 = TrackerHandler.getHistoryId();
         IMPLog.d(Tag, "testHistoryId, historyId=" + historyId_0);
         assertNotNull(historyId_0);
 
-        DecisionTracker tracker_1 = new DecisionTracker(appContext, "");
+        DecisionTracker tracker_1 = new DecisionTracker(Tracker_Url);
         String historyId_1 = (String) TrackerHandler.getHistoryId();
         assertEquals(historyId_0, historyId_1);
     }
 
     @Test
     public void testTracker() throws Exception {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        DecisionTracker tracker = new DecisionTracker(appContext, "trackerUrl"); // trackUrl is obtained from your Gym configuration
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url); // trackUrl is obtained from your Gym configuration
 
-        URL modelUrl = new URL("ModelURL");
+        URL modelUrl = new URL(ModelURL);
         int fontSize = (Integer) DecisionModel.load(modelUrl).track(tracker).chooseFrom(Arrays.asList(12, 16, 20)).get();
+        IMPLog.d(Tag, "fontSize=" + fontSize);
 
         tracker.trackEvent("Purchased", new HashMap<String, Object>(){
             {
@@ -67,9 +66,8 @@ public class DecisionTrackerTest {
      * */
     @Test
     public void testTrackerRequest() {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.track(new DecisionTracker(appContext, Tracker_Url));
+        decisionModel.track(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(Arrays.asList("Hello", "Hi", "Hey")).get();
     }
 
@@ -82,8 +80,7 @@ public class DecisionTrackerTest {
      * */
     @Test
     public void testTrackEvent() {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        DecisionTracker tracker = new DecisionTracker(appContext, Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         tracker.trackEvent("hello");
         tracker.trackEvent("hello", new HashMap<String, Object>(){
             {
@@ -102,9 +99,8 @@ public class DecisionTrackerTest {
      * */
     @Test
     public void testTrackerNullVariants() {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.track(new DecisionTracker(appContext, Tracker_Url));
+        decisionModel.track(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(null).get();
     }
 }

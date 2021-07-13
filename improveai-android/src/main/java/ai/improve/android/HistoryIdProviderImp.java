@@ -10,10 +10,12 @@ import java.util.UUID;
 import ai.improve.HistoryIdProvider;
 
 public class HistoryIdProviderImp implements HistoryIdProvider {
+    public static final String Tag = "HistoryIdProviderImp";
+
     private Context appContext;
 
-    public HistoryIdProviderImp(Context appContext) {
-        this.appContext = appContext;
+    public HistoryIdProviderImp() {
+        this.appContext = Utils.getAppContext();
     }
 
     @Override

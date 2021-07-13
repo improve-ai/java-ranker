@@ -1,7 +1,6 @@
 package ai.improve.android;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -25,6 +24,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+import ai.improve.DecisionModel;
+import ai.improve.DecisionTracker;
 import ai.improve.IMPLog;
 
 import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
@@ -44,33 +45,33 @@ public class DecisionModelTest {
     private static final String AssetModelFileName = "dummy_v6.xgb";
 
     static {
-        IMPLog.setLogger(new LoggerImp());
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
     }
 
-    @Test
-    public void testLoadFromAsset() throws Exception {
-        IMPLog.d(Tag, "testLoadFromAsset...");
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        DecisionModel decisionModel = DecisionModel.loadFromAsset(appContext, "dummy_v6.xgb");
-        assertNotNull(decisionModel);
-    }
-
-    @Test
-    public void testLoadFromAssetAsync() throws InterruptedException {
-        Semaphore semaphore = new Semaphore(0);
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.loadFromAssetAsync(appContext, "dummy_v6.xgb", new DecisionModel.IMPDecisionModelLoadListener() {
-            @Override
-            public void onFinish(DecisionModel model, Exception e) {
-                assertNotNull(model);
-                assertNull(e);
-                semaphore.release();
-            }
-        });
-        semaphore.acquire();
-    }
+//
+//    @Test
+//    public void testLoadFromAsset() throws Exception {
+//        IMPLog.d(Tag, "testLoadFromAsset...");
+//        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+//        DecisionModel decisionModel = DecisionModel.loadFromAsset(appContext, "dummy_v6.xgb");
+//        assertNotNull(decisionModel);
+//    }
+//
+//    @Test
+//    public void testLoadFromAssetAsync() throws InterruptedException {
+//        Semaphore semaphore = new Semaphore(0);
+//        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+//        DecisionModel decisionModel = new DecisionModel("music");
+//        decisionModel.loadFromAssetAsync(appContext, "dummy_v6.xgb", new DecisionModel.IMPDecisionModelLoadListener() {
+//            @Override
+//            public void onFinish(DecisionModel model, Exception e) {
+//                assertNotNull(model);
+//                assertNull(e);
+//                semaphore.release();
+//            }
+//        });
+//        semaphore.acquire();
+//    }
 
     @Test
     public void testModelNameWithoutLoadingModel() {
@@ -274,10 +275,10 @@ public class DecisionModelTest {
         DecisionModel.load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
 
         // loadFromAsset
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        DecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
+//        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+//        DecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
 
-        DecisionTracker tracker = new DecisionTracker(appContext, "trackUrl");
+        DecisionTracker tracker = new DecisionTracker("trackUrl");
         DecisionModel model = new DecisionModel("greetings");
         model.setTracker(tracker);
         model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
@@ -304,23 +305,25 @@ public class DecisionModelTest {
 
     @Test
     public void testChooseFromVariantsWithNull() throws Exception {
+        Semaphore semaphore = new Semaphore(0);
         URL modelUrl = new URL(ModelURL);
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-
-        DecisionTracker tracker = new DecisionTracker(appContext, Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
         model.setTracker(tracker);
         model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
             @Override
             public void onFinish(DecisionModel model, Exception e) {
                 if(e != null) {
-                    Log.d(Tag, "Error loading model: " + e.getLocalizedMessage());
-                } else {
-                    // the model is ready to go
-                    model.chooseFrom(Arrays.asList(null, 0.1, 0.2, 0.3)).get();
+                    IMPLog.d(Tag, "Error loading model: " + e.getLocalizedMessage());
+                    return ;
                 }
+
+                // the model is ready to go
+                Object variant = model.chooseFrom(Arrays.asList(null, 0.1, 0.2)).get();
+                IMPLog.d(Tag, "variant=" + variant);
+                semaphore.release();
             }
         });
-        Thread.sleep(10 * 1000);
+        semaphore.acquire();
     }
 }

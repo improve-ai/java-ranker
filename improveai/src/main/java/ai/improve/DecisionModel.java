@@ -1,37 +1,105 @@
 package ai.improve;
 
+import java.lang.ref.WeakReference;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import ai.improve.encoder.FeatureEncoder;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
-public abstract class BaseDecisionModel {
-    private static final String Tag = "BaseDecisionModel";
+public class DecisionModel {
+    public static final String Tag = "DecisionModel";
+
+    private final Object lock = new Object();
 
     private String modelName;
 
-    private BaseDecisionTracker tracker;
+    private DecisionTracker tracker;
 
     private ImprovePredictor predictor;
 
     private FeatureEncoder featureEncoder;
 
-    private static Random randomGenerator = new Random();
-
     private List<GivensProvider> givensProviders = new ArrayList<>();
 
-    public BaseDecisionModel(String modelName) {
+    private static AtomicInteger seq = new AtomicInteger(0);
+
+    /**
+     * WeakReference is used here to avoid Android activity leaks.
+     * A sample activity "LeakTestActivity" is included in the sample project.
+     * If WeakReference is removed, leaks can be observed when jumping between
+     * "MainActivity" and "LeakTestActivity" many times while network speed is slow.
+     */
+    private Map<Integer, WeakReference<IMPDecisionModelLoadListener>> listeners = new HashMap<>();
+
+    public static DecisionModel load(URL url) throws Exception {
+        final Exception[] loadException = {null};
+        DecisionModel decisionModel = new DecisionModel("");
+        decisionModel.loadAsync(url, new IMPDecisionModelLoadListener(){
+            @Override
+            public void onFinish(DecisionModel dm, Exception e) {
+                loadException[0] = e;
+                synchronized (decisionModel.lock) {
+                    decisionModel.lock.notifyAll();
+                }
+            }
+        });
+        synchronized (decisionModel.lock) {
+            try {
+                decisionModel.lock.wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+                IMPLog.e(Tag, e.getLocalizedMessage());
+            }
+        }
+
+        if(loadException[0] != null) {
+            IMPLog.e(Tag, "model loading failed, " + url.toString());
+            throw loadException[0];
+        }
+
+        IMPLog.d(Tag, "load, finish loading model, " + url.toString());
+
+        return decisionModel;
+    }
+
+    public void loadAsync(URL url, IMPDecisionModelLoadListener listener) {
+        int seq = getSeq();
+        listeners.put(seq, new WeakReference<>(listener));
+        ModelDownloader.download(url, new ModelDownloader.ModelDownloadListener() {
+            @Override
+            public void onFinish(ImprovePredictor predictor, Exception e) {
+                IMPDecisionModelLoadListener l = listeners.get(seq).get();
+                if(l != null) {
+                    if(e != null) {
+                        l.onFinish(null, e);
+                        IMPLog.d(Tag, "loadAsync, err=" + e.getMessage());
+                        return ;
+                    }
+                    IMPLog.d(Tag, "loadAsync, onFinish OK");
+
+                    DecisionModel.this.setModel(predictor);
+
+                    l.onFinish(DecisionModel.this, null);
+                } else {
+                    IMPLog.d(Tag, "onFinish, but listener is null");
+                }
+            }
+        });
+    }
+
+    public DecisionModel(String modelName) {
         this.modelName = modelName;
     }
 
-    public void setModel(ImprovePredictor predictor) {
+    public synchronized void setModel(ImprovePredictor predictor) {
         if(predictor == null) {
             IMPLog.e(Tag, "predictor is null");
             return ;
@@ -57,15 +125,15 @@ public abstract class BaseDecisionModel {
         return modelName;
     }
 
-    public BaseDecisionTracker getTracker() {
+    public DecisionTracker getTracker() {
         return tracker;
     }
 
-    public void setTracker(BaseDecisionTracker tracker) {
+    public void setTracker(DecisionTracker tracker) {
         this.tracker = tracker;
     }
 
-    public BaseDecisionModel track(BaseDecisionTracker tracker) {
+    public DecisionModel track(DecisionTracker tracker) {
         this.tracker = tracker;
         return this;
     }
@@ -77,7 +145,7 @@ public abstract class BaseDecisionModel {
         return new Decision(this).chooseFrom(variants);
     }
 
-    public BaseDecisionModel addGivensProvider(GivensProvider provider) {
+    public DecisionModel addGivensProvider(GivensProvider provider) {
         givensProviders.add(provider);
         return this;
     }
@@ -160,5 +228,16 @@ public abstract class BaseDecisionModel {
         }
 
         return result;
+    }
+
+    public interface IMPDecisionModelLoadListener {
+        /**
+         * @param decisionModel null when error occurred while loading the model
+         * */
+        void onFinish(DecisionModel decisionModel, Exception e);
+    }
+
+    private int getSeq() {
+        return seq.getAndIncrement();
     }
 }

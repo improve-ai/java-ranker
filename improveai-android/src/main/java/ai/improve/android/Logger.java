@@ -4,7 +4,7 @@ import android.util.Log;
 
 import ai.improve.IMPLog;
 
-public class LoggerImp implements IMPLog.Logger {
+public class Logger implements IMPLog.Logger {
 
     @Override
     public void d(String tag, String message) {

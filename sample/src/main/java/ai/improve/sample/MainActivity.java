@@ -2,6 +2,7 @@ package ai.improve.sample;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -19,14 +20,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.DecisionModel;
+import ai.improve.DecisionTracker;
 import ai.improve.IMPLog;
 import ai.improve.android.AppGivensProviderImp;
-import ai.improve.android.DecisionModel;
-import ai.improve.android.DecisionTracker;
-import ai.improve.android.LoggerImp;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String Tag = "MainActivity";
+
+    public static final String Model_URL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
 
     private TextView mGreetingTV;
 
@@ -37,17 +39,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mGreetingTV = findViewById(R.id.greeting_tv);
         findViewById(R.id.root_view).setOnClickListener(this);
+        findViewById(R.id.leak_test_btn).setOnClickListener(this);
 
         enableHttpResponseCache();
 
-        IMPLog.setLogger(new LoggerImp());
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
 
         AppGivensProviderImp provider = new AppGivensProviderImp(this);
         Map givens = provider.getGivens();
         IMPLog.d(Tag, "givens = " + givens);
 
-        DecisionModel model = new DecisionModel("");
     }
 
     @Override
@@ -67,6 +68,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     testHttpUrlConnection();
                 }
             }.start();
+        } else if(id == R.id.leak_test_btn) {
+            Intent intent = new Intent(this, LeakTestActivity.class);
+            startActivity(intent);
         }
     }
 
@@ -103,7 +107,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         variants.add("hello");
         variants.add("hi");
 
-        DecisionTracker tracker = new DecisionTracker(getApplicationContext(), "");
+        DecisionTracker tracker = new DecisionTracker("");
 
         Object variant = new DecisionModel("orange").track(tracker).chooseFrom(variants).get();
         Log.d(Tag, "variant = " + variant);

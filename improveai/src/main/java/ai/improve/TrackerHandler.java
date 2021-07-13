@@ -47,7 +47,7 @@ public class TrackerHandler {
         TrackerHandler.historyId = historyId;
     }
 
-    public static <T> void track(BaseDecisionTracker tracker, Object bestVariant, List<T> variants, Map<String, Object> givens,
+    public static <T> void track(DecisionTracker tracker, Object bestVariant, List<T> variants, Map<String, Object> givens,
                                  String modelName, boolean variantsRankedAndTrackRunnersUp) {
         if(modelName == null || modelName.isEmpty()) {
             IMPLog.e(Tag, "Improve.track error: modelName is empty or null");
@@ -170,7 +170,7 @@ public class TrackerHandler {
         body.put(SAMPLE_VARIANT_KEY, variant);
     }
 
-    public static void postTrackingRequest(BaseDecisionTracker tracker, Map<String, Object> body) {
+    public static void postTrackingRequest(DecisionTracker tracker, Map<String, Object> body) {
         if (historyId == null || historyId.isEmpty()) {
             IMPLog.e(Tag, "historyId cannot be null");
             return;
@@ -203,11 +203,11 @@ public class TrackerHandler {
         }.start();
     }
 
-    public static void trackEvent(BaseDecisionTracker tracker, String eventName) {
+    public static void trackEvent(DecisionTracker tracker, String eventName) {
         trackEvent(tracker, eventName, null);
     }
 
-    public static void trackEvent(BaseDecisionTracker tracker, String eventName, Map<String, Object> properties) {
+    public static void trackEvent(DecisionTracker tracker, String eventName, Map<String, Object> properties) {
         if(tracker.getTrackURL() == null || tracker.getTrackURL().isEmpty()) {
             IMPLog.w(Tag, "trackURL is empty or nil, event won't be tracked.");
             return ;

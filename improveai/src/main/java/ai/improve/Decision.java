@@ -1,13 +1,12 @@
 package ai.improve;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class Decision {
     public static final String Tag = "Decision";
 
-    private BaseDecisionModel model;
+    private DecisionModel model;
 
     private List<?> variants;
 
@@ -17,7 +16,7 @@ public class Decision {
 
     private Object best;
 
-    public Decision(BaseDecisionModel model) {
+    public Decision(DecisionModel model) {
         this.model = model;
     }
 
@@ -56,11 +55,11 @@ public class Decision {
         List<Double> scores = model.score(variants, allGivens);
 
         if(variants != null && variants.size() > 0) {
-            BaseDecisionTracker tracker = model.getTracker();
+            DecisionTracker tracker = model.getTracker();
             if(tracker != null) {
                 if(ModelUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
                     // the more variants there are, the less frequently this is called
-                    List<Object> rankedVariants = BaseDecisionModel.rank(variants, scores);
+                    List<Object> rankedVariants = DecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
                     TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), true);
                 } else {
@@ -75,7 +74,7 @@ public class Decision {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
             // "count" field should be 1
             best = null;
-            BaseDecisionTracker tracker = model.getTracker();
+            DecisionTracker tracker = model.getTracker();
             if(tracker != null) {
                 TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), false);
             }

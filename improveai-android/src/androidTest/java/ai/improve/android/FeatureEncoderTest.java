@@ -41,7 +41,6 @@ public class FeatureEncoderTest {
     @Before
     public void setUp() throws Exception {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        IMPLog.setLogger(new LoggerImp());
         loadFeatureNames();
     }
 

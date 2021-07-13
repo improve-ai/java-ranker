@@ -14,15 +14,4 @@
         android:text=""
         android:layout_centerInParent="true"/>
 
-    <TextView
-        android:id="@+id/leak_test_btn"
-        android:layout_width="match_parent"
-        android:layout_height="60dp"
-        android:layout_alignParentBottom="true"
-        android:gravity="center"
-        android:text="leak test"
-        android:textSize="24sp"
-        android:textColor="#ffffff"
-        android:background="#5d9cee"/>
-
 </RelativeLayout>

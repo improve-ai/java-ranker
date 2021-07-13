@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import ai.improve.BaseDecisionModel;
+import ai.improve.DecisionModel;
 import ai.improve.IMPLog;
 import ai.improve.ModelUtils;
 
@@ -24,14 +24,8 @@ import static org.junit.Assert.fail;
  *
  * @see <a href="http://d.android.com/tools/testing">Testing documentation</a>
  */
-public class BaseDecisionModelTest {
+public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
-
-    public class DecisionModel extends BaseDecisionModel {
-        public DecisionModel(String modelName) {
-            super(modelName);
-        }
-    }
 
     @Test
     public void testLoad() {
@@ -62,7 +56,7 @@ public class BaseDecisionModelTest {
         }
 
         IMPLog.d(Tag, "Sorted.....");
-        List<Object> sorted = BaseDecisionModel.rank(variants, scores);
+        List<Object> sorted = DecisionModel.rank(variants, scores);
         assertEquals(sorted.size(), variants.size());
 
         for(int i = 0; i < sorted.size(); ++i) {
@@ -86,7 +80,7 @@ public class BaseDecisionModelTest {
         variants.add(1);
 
         try {
-            BaseDecisionModel.rank(variants, scores);
+            DecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return ;
@@ -107,7 +101,7 @@ public class BaseDecisionModelTest {
         scores.add(0.1);
 
         try {
-            BaseDecisionModel.rank(variants, scores);
+            DecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
             e.printStackTrace();
             return ;

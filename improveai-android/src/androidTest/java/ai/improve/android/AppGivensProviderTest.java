@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import ai.improve.DecisionModel;
 import ai.improve.IMPLog;
 
 import static ai.improve.android.AppGivensProviderImp.SP_Key_Born_Time;
@@ -32,7 +33,6 @@ public class AppGivensProviderTest {
     public static final String Tag = "AppGivensProviderTest";
 
     static {
-        IMPLog.setLogger(new LoggerImp());
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
     }
 
