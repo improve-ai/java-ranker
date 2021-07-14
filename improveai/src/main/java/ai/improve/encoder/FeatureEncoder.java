@@ -1,6 +1,7 @@
 package ai.improve.encoder;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -9,7 +10,7 @@ import ai.improve.IMPLog;
 import biz.k11i.xgboost.util.FVec;
 
 public class FeatureEncoder {
-    private static final String Tag = "XXFeatureEncoder";
+    private static final String Tag = "FeatureEncoder";
 
     public boolean testMode;
 
@@ -21,12 +22,12 @@ public class FeatureEncoder {
 
     private long valueSeed;
 
-    private long contextSeed;
+    private long givensSeed;
 
     public FeatureEncoder(long modelSeed, List<String> featureNames) {
         variantSeed = xxhash3("variant".getBytes(), modelSeed);
         valueSeed = xxhash3("$value".getBytes(), variantSeed);//$value
-        contextSeed = xxhash3("context".getBytes(), modelSeed);
+        givensSeed = xxhash3("givens".getBytes(), modelSeed);
 
         if(featureNames != null) {
             for (int i = 0; i < featureNames.size(); ++i) {
@@ -37,24 +38,31 @@ public class FeatureEncoder {
         }
     }
 
-    public <T> List<FVec> encodeVariants(List<T> variants, Object context) {
+    public <T> List<FVec> encodeVariants(List<T> variants, Map givens) {
         double noise = testMode ? this.noise : Math.random();
 
-        double[] contextFeature = context != null ? encodeContext(context, noise) : null;
+        double[] givensFeature = givens != null ? encodeGivens(givens, noise) : null;
 
         List<FVec> result = new ArrayList(variants.size());
         for (Object variant: variants) {
-            double[] variantFeatures = (contextFeature != null) ? contextFeature : new double[featureNamesMap.size()];
+            double[] variantFeatures;
+            if(givensFeature != null) {
+                variantFeatures = givensFeature;
+            } else {
+                variantFeatures = new double[featureNamesMap.size()];
+                Arrays.fill(variantFeatures, Double.NaN);
+            }
             encodeVariant(variant, noise, variantFeatures);
-            result.add(FVec.Transformer.fromArray(variantFeatures, true));
+            result.add(FVec.Transformer.fromArray(variantFeatures, false));
         }
         return result;
     }
 
-    private double[] encodeContext(Object context, double noise) {
+    private double[] encodeGivens(Object givens, double noise) {
         double[] features = new double[featureNamesMap.size()];
+        Arrays.fill(features, Double.NaN);
         double smallNoise = shrink(noise);
-        return encodeInternal(context, contextSeed, smallNoise, features);
+        return encodeInternal(givens, givensSeed, smallNoise, features);
     }
 
     private double[] encodeVariant(Object variant, double noise, double[] features) {
@@ -70,29 +78,53 @@ public class FeatureEncoder {
         if(node instanceof Boolean) {
             double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
             String featureName = hash_to_feature_name(seed);
+            IMPLog.d(Tag, "featureName: "+featureName);
             if(featureNamesMap.containsKey(featureName)) {
                 int index = featureNamesMap.get(featureName);
-                features[index] += sprinkle(nodeValue, noise);
+                double unsprinkled = 0;
+                if(!Double.isNaN(features[index])) {
+                    unsprinkled = reverseSprinkle(features[index], noise);
+                }
+                features[index] = sprinkle(nodeValue+unsprinkled, noise);
             }
         } else if(node instanceof Number && !Double.isNaN(((Number)node).doubleValue())) {
             double nodeValue = ((Number)node).doubleValue();
             String featureName = hash_to_feature_name(seed);
+            if(featureName.equals("1c1de8c1")) {
+                if(featureName.equals("1c1de8c1")) {
+                }
+            }
+            IMPLog.d(Tag, "featureName: "+featureName);
             if(featureNamesMap.containsKey(featureName)) {
                 int index = featureNamesMap.get(featureName);
-                features[index] += sprinkle(nodeValue, noise);
+                double unsprinkled = 0;
+                if(!Double.isNaN(features[index])) {
+                    unsprinkled = reverseSprinkle(features[index], noise);
+                }
+                features[index] = sprinkle(nodeValue+unsprinkled, noise);
             }
         } else if(node instanceof String) {
             long hashed = xxhash3(((String) node).getBytes(), seed);
             String featureName = hash_to_feature_name(seed);
+            IMPLog.d(Tag, "featureName: " + featureName);
             if(featureNamesMap.containsKey(featureName)) {
                 int index = featureNamesMap.get(featureName);
-                features[index] += sprinkle(((hashed & 0xffff0000L) >>> 16) - 0x8000, noise);
+                double unsprinkled = 0.0;
+                if(!Double.isNaN(features[index])) {
+                    unsprinkled = reverseSprinkle(features[index], noise);
+                }
+                features[index] = sprinkle(unsprinkled + ((hashed & 0xffff0000L) >>> 16) - 0x8000, noise);
             }
 
             String hashedFeatureName = hash_to_feature_name(hashed);
+            IMPLog.d(Tag, "featureName: "+hashedFeatureName);
             if(featureNamesMap.containsKey(hashedFeatureName)) {
                 int index = featureNamesMap.get(hashedFeatureName);
-                features[index] += sprinkle((hashed & 0xffffL) - 0x8000, noise);
+                double unsprinkled = 0.0;
+                if(!Double.isNaN(features[index])) {
+                    unsprinkled = reverseSprinkle(features[index], noise);
+                }
+                features[index] = sprinkle(unsprinkled + (hashed & 0xffffL) - 0x8000, noise);
             }
         } else if (node instanceof Map) {
             for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)node).entrySet()) {
@@ -114,8 +146,8 @@ public class FeatureEncoder {
         return features;
     }
 
-    private String hash_to_feature_name(long hash) {
-        return String.format("%x", (int)(hash >>> 32));
+    public String hash_to_feature_name(long hash) {
+        return String.format("%08x", (int)(hash >>> 32));
     }
 
     private double shrink(double noise) {
@@ -124,6 +156,10 @@ public class FeatureEncoder {
 
     private double sprinkle(double x, double small_noise) {
         return (x + small_noise) * (1 + small_noise);
+    }
+
+    private double reverseSprinkle(double sprinkled, double small_noise) {
+        return sprinkled / (1 + small_noise) - small_noise;
     }
 
     private final byte[] longToByteArray(long value) {

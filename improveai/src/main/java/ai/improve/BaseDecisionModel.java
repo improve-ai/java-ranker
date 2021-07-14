@@ -49,6 +49,10 @@ public abstract class BaseDecisionModel {
                 predictor.getModelMetadata().getModelFeatureNames());
     }
 
+    public ImprovePredictor getModel() {
+        return predictor;
+    }
+
     public String getModelName() {
         return modelName;
     }

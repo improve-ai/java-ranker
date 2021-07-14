@@ -12,8 +12,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 public class ModelMetadata {
     private static final String Tag = "ModelMetadata";
 
@@ -45,12 +43,10 @@ public class ModelMetadata {
         }
     }
 
-    @Nonnull
     public String getModelName() {
         return modelName;
     }
 
-    @Nonnull
     public String getModelVersion() {
         return modelVersion;
     }
@@ -59,7 +55,6 @@ public class ModelMetadata {
         return modelSeed;
     }
 
-    @Nonnull
     public List<String> getModelFeatureNames() {
         return modelFeatureNames;
     }
