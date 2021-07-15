@@ -115,7 +115,6 @@ public class FeatureEncoderTest {
         JSONObject expected = root.getJSONObject("test_output");
 
         FeatureEncoder featureEncoder = new FeatureEncoder(modelSeed, featureNames);
-        featureEncoder.testMode = true;
         featureEncoder.noise = noise;
         List<FVec> features = featureEncoder.encodeVariants(variants, givens);
         assertEquals(features.size(), 1);
@@ -143,6 +142,7 @@ public class FeatureEncoderTest {
             for(int j = 0; j < featureNames.size(); ++j) {
                 if(featureNames.get(j).equals(key)) {
                     found = true;
+                    break;
                 }
             }
             assertTrue(found);
@@ -169,7 +169,6 @@ public class FeatureEncoderTest {
     @Test
     public void testNAN() throws JSONException {
         FeatureEncoder featureEncoder = new FeatureEncoder(1, featureNames);
-        featureEncoder.testMode = true;
         featureEncoder.noise = 0.8928601514360016;
 
         Object variant = Double.NaN;

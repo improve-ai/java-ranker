@@ -12,8 +12,6 @@ import biz.k11i.xgboost.util.FVec;
 public class FeatureEncoder {
     private static final String Tag = "FeatureEncoder";
 
-    public boolean testMode;
-
     public double noise;
 
     private Map<String, Integer> featureNamesMap = new HashMap<>();
@@ -29,6 +27,8 @@ public class FeatureEncoder {
         valueSeed = xxhash3("$value".getBytes(), variantSeed);//$value
         givensSeed = xxhash3("givens".getBytes(), modelSeed);
 
+        noise = Double.NaN;
+
         if(featureNames != null) {
             for (int i = 0; i < featureNames.size(); ++i) {
                 featureNamesMap.put(featureNames.get(i), i);
@@ -39,7 +39,7 @@ public class FeatureEncoder {
     }
 
     public <T> List<FVec> encodeVariants(List<T> variants, Map givens) {
-        double noise = testMode ? this.noise : Math.random();
+        double noise = Double.isNaN(this.noise) ? Math.random() : this.noise;
 
         double[] givensFeature = givens != null ? encodeGivens(givens, noise) : null;
 
@@ -90,10 +90,6 @@ public class FeatureEncoder {
         } else if(node instanceof Number && !Double.isNaN(((Number)node).doubleValue())) {
             double nodeValue = ((Number)node).doubleValue();
             String featureName = hash_to_feature_name(seed);
-            if(featureName.equals("1c1de8c1")) {
-                if(featureName.equals("1c1de8c1")) {
-                }
-            }
             IMPLog.d(Tag, "featureName: "+featureName);
             if(featureNamesMap.containsKey(featureName)) {
                 int index = featureNamesMap.get(featureName);
