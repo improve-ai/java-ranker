@@ -3,9 +3,11 @@
     package="ai.improve.improveai_android"
     android:versionCode="1"
     android:versionName="1.0.0.alpha">
-<!--    <application-->
-<!--        android:usesCleartextTraffic="true">-->
-
-<!--    </application>-->
-
+    <application
+        android:usesCleartextTraffic="true">
+        <provider
+            android:name="ai.improve.android.ImproveContentProvider"
+            android:authorities="${applicationId}.improveaiprovider"
+            android:exported="false"/>
+    </application>
 </manifest>

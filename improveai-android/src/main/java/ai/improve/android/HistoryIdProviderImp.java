@@ -15,7 +15,7 @@ public class HistoryIdProviderImp implements HistoryIdProvider {
     private Context appContext;
 
     public HistoryIdProviderImp() {
-        this.appContext = Utils.getAppContext();
+        this.appContext = ImproveContentProvider.getAppContext();
     }
 
     @Override
