@@ -76,7 +76,7 @@ public class DecisionModel {
         ModelDownloader.download(url, new ModelDownloader.ModelDownloadListener() {
             @Override
             public void onFinish(ImprovePredictor predictor, Exception e) {
-                IMPDecisionModelLoadListener l = listeners.get(seq).get();
+                IMPDecisionModelLoadListener l = listeners.remove(seq).get();
                 if(l != null) {
                     if(e != null) {
                         l.onFinish(null, e);
@@ -109,7 +109,7 @@ public class DecisionModel {
 
         if((modelName != null && !modelName.isEmpty()) && !modelName.equals(predictor.getModelMetadata().getModelName())) {
             IMPLog.w(Tag, "Model names don't match: Current model name [" + modelName
-                    + "], new model Name [" + predictor.getModelMetadata().getModelName() +"]");
+                    + "], new model Name [" + predictor.getModelMetadata().getModelName() +"] will be used.");
         }
         this.modelName = predictor.getModelMetadata().getModelName();
 

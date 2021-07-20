@@ -123,6 +123,7 @@ public class DecisionModelTest {
         decisionModel.loadAsync(url, new DecisionModel.IMPDecisionModelLoadListener() {
             @Override
             public void onFinish(DecisionModel model, Exception e) {
+                assertNull(e);
                 assertNotNull(model);
                 IMPLog.d(Tag, "testLoadAsync, OK");
                 semaphore.release();
