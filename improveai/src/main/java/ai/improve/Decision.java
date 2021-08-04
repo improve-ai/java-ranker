@@ -20,10 +20,6 @@ public class Decision {
         this.model = model;
     }
 
-//    public <T> IMPDecision chooseFrom(T[] variants) {
-//        return chooseFrom(Arrays.asList(variants));
-//    }
-
     public <T> Decision chooseFrom(List<T> variants) {
         if(chosen) {
             IMPLog.e(Tag, "variant already chosen, ignoring variants");
@@ -69,6 +65,7 @@ public class Decision {
                 }
             } else {
                 best = ModelUtils.topScoringVariant(variants, scores);
+                IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
         } else {
             // Unit test that "variant": null JSON is tracked on null or empty variants.
@@ -77,6 +74,8 @@ public class Decision {
             DecisionTracker tracker = model.getTracker();
             if(tracker != null) {
                 TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), false);
+            } else {
+                IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
         }
 

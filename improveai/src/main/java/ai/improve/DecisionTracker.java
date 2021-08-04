@@ -76,15 +76,10 @@ public class DecisionTracker {
                 String historyId = (String)method.invoke(o);
                 return historyId;
             } catch (InstantiationException e) {
-                e.printStackTrace();
             } catch (InvocationTargetException e) {
-                e.printStackTrace();
             } catch (NoSuchMethodException e) {
-                e.printStackTrace();
             } catch (IllegalAccessException e) {
-                e.printStackTrace();
             } catch (ClassNotFoundException e) {
-                e.printStackTrace();
             }
         }
         return "";

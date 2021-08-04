@@ -3,6 +3,7 @@ package ai.improve.android;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -10,6 +11,7 @@ import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
 import ai.improve.GivensProvider;
 import ai.improve.Decision;
+import ai.improve.IMPLog;
 
 import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
 import static org.junit.Assert.*;
@@ -82,5 +84,25 @@ public class DecisionTest {
 
         Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();
+    }
+
+    /**
+     * Always pass
+     * Just a convenient method to test that an error log is printed when
+     * Decision.get() is called but tracker is not set for the model
+     * */
+    @Test
+    public void testGetWithoutTracker() {
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        List<String> variants = Arrays.asList("hello", "hi");
+        DecisionModel decisionModel = new DecisionModel("theme");
+        decisionModel.chooseFrom(variants).get();
+
+        List emptyVariants = new ArrayList<>();
+        decisionModel.chooseFrom(emptyVariants).get();
+
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        decisionModel.track(tracker);
+        decisionModel.chooseFrom(emptyVariants).get();
     }
 }
