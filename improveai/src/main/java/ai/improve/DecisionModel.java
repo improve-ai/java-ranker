@@ -204,6 +204,8 @@ public class DecisionModel {
     }
 
     /**
+     * This method is likely to be changed in the future. Try not to use it in your code.
+     *
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
      * @return a list of the variants ranked from best to worst by scores
      * */
