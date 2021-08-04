@@ -44,9 +44,11 @@ public class DecisionTrackerTest {
     @Test
     public void testTracker() throws Exception {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url); // trackUrl is obtained from your Gym configuration
+        DecisionModel model = new DecisionModel("theme");
+        model.track(tracker);
 
         URL modelUrl = new URL(ModelURL);
-        int fontSize = (Integer) DecisionModel.load(modelUrl).track(tracker).chooseFrom(Arrays.asList(12, 16, 20)).get();
+        int fontSize = (Integer) model.chooseFrom(Arrays.asList(12, 16, 20)).get();
         IMPLog.d(Tag, "fontSize=" + fontSize);
 
         tracker.trackEvent("Purchased", new HashMap<String, Object>(){

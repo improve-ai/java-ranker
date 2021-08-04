@@ -1,4 +1,4 @@
-package com.panhongx.featureencoder;
+package ai.improve.featureencoder;
 
 import org.junit.Test;
 

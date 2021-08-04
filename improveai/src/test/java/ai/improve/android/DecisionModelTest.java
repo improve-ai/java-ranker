@@ -202,10 +202,10 @@ public class DecisionModelTest {
         }
 
         System.out.println("median=" + numbers.get(size/2));
-        System.out.println("averate=" + total/size);
+        System.out.println("average=" + total/size);
 
-        assertTrue(Math.abs(numbers.get(size/2)) < 0.01);
-        assertTrue(Math.abs(total/size) < 0.01);
+        assertEquals(numbers.get(size/2), 0, 0.02);
+        assertEquals(total/size, 0, 0.01);
 
         // Test that it is descending
         for(int i = 0; i < size-1; ++i) {

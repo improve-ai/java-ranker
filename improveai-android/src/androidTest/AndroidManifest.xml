@@ -3,6 +3,8 @@
     package="ai.improve.improveai_android"
     android:versionCode="1"
     android:versionName="1.0.0.alpha">
+
+    <uses-permission android:name="android.permission.INTERNET" />
 <!--    <application-->
 <!--        android:usesCleartextTraffic="true">-->
 
