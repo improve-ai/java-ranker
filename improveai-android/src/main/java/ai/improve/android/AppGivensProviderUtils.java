@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 import static ai.improve.android.AppGivensProviderImp.SP_Key_Born_Time;
 import static ai.improve.android.AppGivensProviderImp.SP_Key_Decision_Count;

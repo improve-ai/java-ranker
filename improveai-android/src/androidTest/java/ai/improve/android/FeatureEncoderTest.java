@@ -21,7 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 import ai.improve.encoder.FeatureEncoder;
 import biz.k11i.xgboost.util.FVec;
 

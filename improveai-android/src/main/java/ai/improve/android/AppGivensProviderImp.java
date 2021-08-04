@@ -20,8 +20,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.TimeZone;
 
-import ai.improve.GivensProvider;
-import ai.improve.IMPLog;
+import ai.improve.util.GivensProvider;
+import ai.improve.log.IMPLog;
 import ai.improve.improveai_android.BuildConfig;
 
 import static ai.improve.android.Constants.SP_File_Name;

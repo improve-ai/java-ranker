@@ -1,4 +1,4 @@
-package ai.improve;
+package ai.improve.downloader;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -8,6 +8,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
+import ai.improve.log.IMPLog;
 import ai.improve.xgbpredictor.ImprovePredictor;
 
 public class ModelDownloader {

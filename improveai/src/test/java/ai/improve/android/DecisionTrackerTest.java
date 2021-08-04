@@ -8,12 +8,12 @@ import java.util.List;
 import java.util.Map;
 
 import ai.improve.DecisionTracker;
-import ai.improve.TrackerHandler;
-import ai.improve.ModelUtils;
+import ai.improve.util.TrackerHandler;
+import ai.improve.util.ModelUtils;
 
-import static ai.improve.TrackerHandler.COUNT_KEY;
-import static ai.improve.TrackerHandler.DECISION_BEST_KEY;
-import static ai.improve.TrackerHandler.SAMPLE_VARIANT_KEY;
+import static ai.improve.util.TrackerHandler.COUNT_KEY;
+import static ai.improve.util.TrackerHandler.DECISION_BEST_KEY;
+import static ai.improve.util.TrackerHandler.SAMPLE_VARIANT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;

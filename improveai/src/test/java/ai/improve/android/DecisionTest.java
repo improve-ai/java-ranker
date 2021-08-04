@@ -9,9 +9,9 @@ import java.util.Map;
 
 import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
-import ai.improve.GivensProvider;
+import ai.improve.util.GivensProvider;
 import ai.improve.Decision;
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
 import static org.junit.Assert.*;

@@ -6,7 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 public class ImproveContentProvider extends ContentProvider {
     public static final String Tag = "ImproveContentProvider";

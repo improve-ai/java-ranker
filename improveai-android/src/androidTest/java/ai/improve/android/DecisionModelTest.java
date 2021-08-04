@@ -26,7 +26,7 @@ import java.util.concurrent.Semaphore;
 
 import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
 import static org.junit.Assert.assertEquals;

@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 import biz.k11i.xgboost.util.FVec;
 
 public class FeatureEncoder {

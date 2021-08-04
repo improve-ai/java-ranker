@@ -1,4 +1,4 @@
-package ai.improve;
+package ai.improve.log;
 
 public class IMPLog {
     public static final String Prefix = "IMPROVE_AI.";

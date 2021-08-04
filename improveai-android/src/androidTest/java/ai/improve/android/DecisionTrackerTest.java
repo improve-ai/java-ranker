@@ -11,8 +11,8 @@ import java.util.HashMap;
 
 import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
-import ai.improve.IMPLog;
-import ai.improve.TrackerHandler;
+import ai.improve.log.IMPLog;
+import ai.improve.util.TrackerHandler;
 
 import static ai.improve.android.DecisionModelTest.ModelURL;
 import static org.junit.Assert.assertEquals;

@@ -22,7 +22,7 @@ import java.util.Map;
 
 import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 import ai.improve.android.AppGivensProviderImp;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {

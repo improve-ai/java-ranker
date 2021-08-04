@@ -3,7 +3,7 @@ package ai.improve.android;
 
 import org.junit.Test;
 
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;

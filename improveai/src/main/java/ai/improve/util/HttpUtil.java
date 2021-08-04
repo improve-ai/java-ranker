@@ -1,4 +1,4 @@
-package ai.improve;
+package ai.improve.util;
 
 import org.json.JSONObject;
 
@@ -8,8 +8,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.Map;
-import java.util.logging.Logger;
 import java.util.zip.GZIPInputStream;
+
+import ai.improve.log.IMPLog;
 
 /**
  * Basic wrapper for HttpURLConnection

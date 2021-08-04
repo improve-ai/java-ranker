@@ -10,7 +10,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
+import ai.improve.util.GivensProvider;
+import ai.improve.log.IMPLog;
+import ai.improve.util.ModelUtils;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 

@@ -2,7 +2,7 @@ package ai.improve.sample;
 
 import android.app.Application;
 
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 public class SampleApplication extends Application {
     public static final String Tag = "SampleApplication";

@@ -11,8 +11,8 @@ import java.util.Map;
 import java.util.Random;
 
 import ai.improve.DecisionModel;
-import ai.improve.IMPLog;
-import ai.improve.ModelUtils;
+import ai.improve.log.IMPLog;
+import ai.improve.util.ModelUtils;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;

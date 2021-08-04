@@ -7,7 +7,7 @@ import android.util.Base64;
 
 import java.util.UUID;
 
-import ai.improve.HistoryIdProvider;
+import ai.improve.util.HistoryIdProvider;
 
 public class HistoryIdProviderImp implements HistoryIdProvider {
     public static final String Tag = "HistoryIdProviderImp";

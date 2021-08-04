@@ -2,7 +2,7 @@ package ai.improve.android;
 
 import android.util.Log;
 
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 public class Logger implements IMPLog.Logger {
 

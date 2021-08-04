@@ -15,7 +15,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import ai.improve.DecisionModel;
-import ai.improve.IMPLog;
+import ai.improve.log.IMPLog;
 
 import static ai.improve.android.AppGivensProviderImp.SP_Key_Born_Time;
 import static ai.improve.android.AppGivensProviderImp.SP_Key_Session_Count;

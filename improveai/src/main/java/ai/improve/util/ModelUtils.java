@@ -1,4 +1,4 @@
-package ai.improve;
+package ai.improve.util;
 
 import java.util.Arrays;
 import java.util.Collections;
