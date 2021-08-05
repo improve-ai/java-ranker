@@ -142,6 +142,10 @@ public class DecisionModel {
         return this;
     }
 
+//    public <T> Decision chooseFrom(T[] variants) {
+//        return chooseFrom(Arrays.asList(variants));
+//    }
+
     /**
      * @return an IMPDecision object
      * */

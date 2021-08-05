@@ -21,11 +21,25 @@ public class DecisionTracker {
      * */
     private int maxRunnersUp;
 
+    /**
+     * Android only
+     * */
     public DecisionTracker(String trackURL) {
         this(trackURL, null);
     }
 
+    /**
+     * Android only
+     * */
     public DecisionTracker(String trackURL, String apiKey) {
+        this(trackURL, apiKey, null);
+    }
+
+    /**
+     * History id must be set for non-Android platforms, so this is the only
+     * valid constructor method for them.
+     * */
+    public DecisionTracker(String trackURL, String apiKey, String historyId) {
         this.maxRunnersUp = 50;
         this.trackURL = trackURL;
         this.apiKey = apiKey;
@@ -34,11 +48,21 @@ public class DecisionTracker {
             IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
         }
 
-        String historyId = getHistoryId();
-        IMPLog.d(Tag, "historyId = " + historyId);
-
-        TrackerHandler.setHistoryId(historyId);
+        if(Utils.isAndroid()) {
+            String id = getHistoryId();
+            if(Utils.isEmpty(id)) {
+                throw new RuntimeException("Fatal error, history id must not be null or empty");
+            }
+            TrackerHandler.setHistoryId(id);
+        } else {
+            // history id must be set for non-Android platform
+            if(Utils.isEmpty(historyId)) {
+                throw new RuntimeException("Fatal error, history id must not be null or empty");
+            }
+            TrackerHandler.setHistoryId(historyId);
+        }
     }
+
 
     public String getTrackURL() {
         return trackURL;
@@ -71,20 +95,18 @@ public class DecisionTracker {
     }
 
     private String getHistoryId() {
-        if(Utils.isAndroid()) {
-            try {
-                Class clz = Class.forName("ai.improve.android.HistoryIdProviderImp");
-                Object o = clz.newInstance();
+        try {
+            Class clz = Class.forName("ai.improve.android.HistoryIdProviderImp");
+            Object o = clz.newInstance();
 
-                Method method = clz.getDeclaredMethod("getHistoryId");
-                String historyId = (String)method.invoke(o);
-                return historyId;
-            } catch (InstantiationException e) {
-            } catch (InvocationTargetException e) {
-            } catch (NoSuchMethodException e) {
-            } catch (IllegalAccessException e) {
-            } catch (ClassNotFoundException e) {
-            }
+            Method method = clz.getDeclaredMethod("getHistoryId");
+            String historyId = (String)method.invoke(o);
+            return historyId;
+        } catch (InstantiationException e) {
+        } catch (InvocationTargetException e) {
+        } catch (NoSuchMethodException e) {
+        } catch (IllegalAccessException e) {
+        } catch (ClassNotFoundException e) {
         }
         return "";
     }

@@ -7,7 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
+import ai.improve.log.IMPLog;
 import ai.improve.util.TrackerHandler;
 import ai.improve.util.ModelUtils;
 
@@ -18,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -28,6 +31,10 @@ public class DecisionTrackerTest {
     public static final String Tag = "IMPDecisionModelTest";
 
     public static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
+
+    static {
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+    }
 
     @Test
     public void testShouldTrackRunnersUp_0_variantsCount() {
@@ -396,5 +403,32 @@ public class DecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         tracker.setMaxRunnersUp(-1);
         assertEquals(0, tracker.getMaxRunnersUp());
+    }
+
+    @Test
+    public void testTrackWithEmptyHistoryId() {
+        try {
+            new DecisionTracker(Tracker_Url, null, "");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail("A runtime exception should have been thrown. We should never reach here.");
+    }
+
+    @Test
+    public void testTrackWithNullHistoryId() {
+        try {
+            new DecisionTracker(Tracker_Url, null, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail("A runtime exception should have been thrown. We should never reach here.");
+    }
+
+    @Test
+    public void testTrackWithValidHistoryId() {
+        new DecisionTracker(Tracker_Url, null, "history_id");
     }
 }
