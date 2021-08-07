@@ -15,6 +15,7 @@ import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -26,6 +27,10 @@ import static org.junit.Assert.fail;
  */
 public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
+
+    static {
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+    }
 
     @Test
     public void testLoad() {
@@ -260,5 +265,26 @@ public class DecisionModelTest {
 
         // product = try DecisionModel.load(modelUrl).chooseFrom(["clutch", "dress", "jacket"]).get()
 //        product = IMPDecisionModel.lo(modelUrl).chooseFrom(["clutch", "dress", "jacket"]).get()
+    }
+
+    @Test
+    public void testScoreWithoutLoadingModel() {
+        int size = 100;
+
+        List variants = new ArrayList();
+        for(int i = 0; i < size; ++i) {
+            variants.add(Math.random());
+        }
+
+        DecisionModel model = new DecisionModel("theme");
+        List<Double> scores = model.score(variants);
+        assertNotNull(scores);
+        assertEquals(scores.size(), variants.size());
+
+        // assert scores is in descending order
+        for(int i = 0; i < scores.size()-1; ++i) {
+            IMPLog.d(Tag, "score["+i+"] = " + scores.get(i));
+            assertTrue(scores.get(i) > scores.get(i+1));
+        }
     }
 }

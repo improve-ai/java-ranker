@@ -176,6 +176,10 @@ public class DecisionModel {
         return new Decision(this).given(givens);
     }
 
+    public <T> List<Double> score(List<T> variants) {
+        return this.score(variants, null);
+    }
+
     /**
      * Returns a list of double scores. If variants is null or empty, an empty
      * list is returned.
