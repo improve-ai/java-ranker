@@ -201,7 +201,9 @@ public class DecisionModel {
 
         List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
         for (FVec fvec : encodedFeatures) {
-            result.add((double)predictor.predictSingle(fvec));
+            // add a very small random number to randomly break ties
+            double smallNoise = Math.random() * Math.pow(2, -23);
+            result.add((double)predictor.predictSingle(fvec) + smallNoise);
         }
 
         return result;
