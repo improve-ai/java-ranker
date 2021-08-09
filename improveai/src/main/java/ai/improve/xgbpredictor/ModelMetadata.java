@@ -1,10 +1,9 @@
 package ai.improve.xgbpredictor;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import biz.k11i.xgboost.util.ModelReader;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -26,7 +25,7 @@ public class ModelMetadata {
 
     private List<String> modelFeatureNames;
 
-    public ModelMetadata(ModelReader r) throws IOException, JSONException {
+    public ModelMetadata(ModelReader r) throws IOException {
         long num_attrs = r.readLong();
         for (long i = 0; i < num_attrs; ++i) {
             long strlenkey = r.readLong();
@@ -67,16 +66,17 @@ public class ModelMetadata {
         return getValue(USER_DEFINED_METADATA);
     }
 
-    private void parseMetadata(String value) throws JSONException {
-        JSONObject root = new JSONObject(value).getJSONObject("json");
-        modelName = root.getString("model");
-        modelVersion = root.getString("version");
-        modelSeed = root.getLong("model_seed");
+    private void parseMetadata(String value) {
+        JsonObject root = JsonParser.parseString(value).getAsJsonObject();
+        modelName = root.get("model").getAsString();
+        modelVersion = root.get("version").getAsString();
+        modelSeed = root.get("model_seed").getAsLong();
 
-        JSONArray featuresArray = root.getJSONArray("feature_names");
-        modelFeatureNames = new ArrayList<>(featuresArray.length());
-        for(int i = 0; i < featuresArray.length(); ++i) {
-            modelFeatureNames.add(featuresArray.getString(i));
+        JsonArray featuresArray = root.get("feature_names").getAsJsonArray();
+        modelFeatureNames = new ArrayList<>(featuresArray.size());
+        for(int i = 0; i < featuresArray.size(); ++i) {
+            modelFeatureNames.add(featuresArray.get(i).getAsString());
         }
+
     }
 }

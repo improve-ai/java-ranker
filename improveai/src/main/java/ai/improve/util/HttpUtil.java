@@ -1,7 +1,5 @@
 package ai.improve.util;
 
-import org.json.JSONObject;
-
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -11,6 +9,8 @@ import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import ai.improve.log.IMPLog;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 /**
  * Basic wrapper for HttpURLConnection
@@ -53,7 +53,7 @@ public class HttpUtil {
                 connection.setRequestMethod("POST");
                 connection.setDoOutput(true);
                 connection.setChunkedStreamingMode(0);
-                String jsonBody = new JSONObject(body).toString();
+                String jsonBody = serializeBody(body);
                 IMPLog.d(Tag, "tracker request body, " + jsonBody);
                 connection.getOutputStream().write(jsonBody.getBytes());
                 connection.getOutputStream().flush();
@@ -93,5 +93,7 @@ public class HttpUtil {
         return dis;
     }
 
-
+    public static String serializeBody(Map<String, Object> body) {
+        return new GsonBuilder().serializeNulls().create().toJson(body);
+    }
 }

@@ -1,7 +1,5 @@
 package ai.improve.xgbpredictor;
 
-import org.json.JSONException;
-
 import biz.k11i.xgboost.config.PredictorConfiguration;
 import biz.k11i.xgboost.gbm.GradBooster;
 import biz.k11i.xgboost.learner.ObjFunction;
@@ -28,7 +26,7 @@ public class ImprovePredictor implements Serializable {
 
     private float base_score;
 
-    public ImprovePredictor(InputStream in) throws IOException, JSONException {
+    public ImprovePredictor(InputStream in) throws IOException {
         this(in, null);
     }
 
@@ -39,7 +37,7 @@ public class ImprovePredictor implements Serializable {
      * @param configuration configuration
      * @throws IOException If an I/O error occurs
      */
-    public ImprovePredictor(InputStream in, PredictorConfiguration configuration) throws IOException, JSONException {
+    public ImprovePredictor(InputStream in, PredictorConfiguration configuration) throws IOException {
         if (configuration == null) {
             configuration = PredictorConfiguration.DEFAULT;
         }

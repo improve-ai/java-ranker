@@ -116,18 +116,11 @@ public class TrackerHandler {
         return ranked.subList(1, 1+Math.min(maxRunnersUp, ranked.size()-1));
     }
 
-    // Notice:
-    // Putting null into hashmap won't throw an NullPointerException; It appears as
-    // {"variant":null} when json encoded.
+    /**
+     * A null variant should appear as {"variant":null} when json encoded
+     * */
     public static void setBestVariant(Object variant, Map<String, Object> body) {
-        if(variant != null) {
-            body.put(DECISION_BEST_KEY, variant);
-        } else {
-            // This happens only in two cases
-            // case 1: variants is empty
-            // case 2: variants is nil
-            body.put(DECISION_BEST_KEY, null);
-        }
+        body.put(DECISION_BEST_KEY, variant);
     }
 
     // Move to separate method for unit test

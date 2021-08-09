@@ -1,13 +1,14 @@
 package ai.improve.android;
 
+import com.google.gson.GsonBuilder;
 import org.junit.Test;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
 import ai.improve.util.TrackerHandler;
@@ -18,6 +19,7 @@ import static ai.improve.util.TrackerHandler.DECISION_BEST_KEY;
 import static ai.improve.util.TrackerHandler.SAMPLE_VARIANT_KEY;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -42,7 +44,7 @@ public class DecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -60,7 +62,7 @@ public class DecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -78,7 +80,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -99,7 +101,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -120,7 +122,7 @@ public class DecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(0);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -143,7 +145,7 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(0);
 
         int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -180,7 +182,7 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(2);
 
         int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -212,7 +214,7 @@ public class DecisionTrackerTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        DecisionTracker tracker = new DecisionTracker("", Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
 
         int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -233,7 +235,7 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
 
         int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -254,7 +256,7 @@ public class DecisionTrackerTest {
         variants.add("Hi");
         variants.add(null);
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(1);
 
         int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -266,24 +268,42 @@ public class DecisionTrackerTest {
         assertNull(body.get(SAMPLE_VARIANT_KEY));
     }
 
+    /**
+     * Make sure that null variant is correctly json encoded
+     * */
     @Test
     public void testSetBestVariantNil() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
 
         Map<String, Object> body = new HashMap();
         TrackerHandler.setBestVariant(null, body);
-        // body looks like this
-        // {
-        //     "variant" : null
-        // }
         assertTrue(body.containsKey(DECISION_BEST_KEY));
-        assertNull(body.get(DECISION_BEST_KEY));
+        assertEquals(new GsonBuilder().serializeNulls().create().toJson(body), "{\"variant\":null}");
+
+        Map<String, Object> root = new HashMap<>();
+        Map<String, Object> variant = new HashMap<>();
+        variant.put("theme", null);
+        variant.put("font", null);
+        variant.put("color", "#f0f0f0");
+        root.put("variant", variant);
+        IMPLog.d(Tag, new GsonBuilder().serializeNulls().create().toJson(root));
+    }
+
+    @Test
+    public void testTopRunnersUp_Null_runner_up() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
+        tracker.setMaxRunnersUp(2);
+
+        List variants = Arrays.asList("foo", null, "bar");
+        List topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        assertNotNull(topRunnersUp);
+        assertEquals(2, topRunnersUp.size());
     }
 
     @Test
     public void testTopRunnersUp_1_variant() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 1;
@@ -298,7 +318,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_2_variants() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 2;
@@ -313,7 +333,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_10_variants() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 10;
@@ -332,7 +352,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_100_variants() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 100;
@@ -393,14 +413,14 @@ public class DecisionTrackerTest {
 
     @Test
     public void testSetMaxRunnersUp() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(10);
         assertEquals(10, tracker.getMaxRunnersUp());
     }
 
     @Test
     public void testSetMaxRunnersUp_NegativeValue() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "", getHistoryId());
         tracker.setMaxRunnersUp(-1);
         assertEquals(0, tracker.getMaxRunnersUp());
     }
@@ -430,5 +450,9 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackWithValidHistoryId() {
         new DecisionTracker(Tracker_Url, null, "history_id");
+    }
+
+    private String getHistoryId() {
+        return "history_id";
     }
 }
