@@ -5,11 +5,9 @@ import org.junit.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
-import ai.improve.util.GivensProvider;
 import ai.improve.Decision;
 import ai.improve.log.IMPLog;
 
@@ -17,13 +15,6 @@ import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
 import static org.junit.Assert.*;
 
 public class DecisionTest {
-    public class AppGivensProviderImp implements GivensProvider {
-        @Override
-        public Map<String, ?> getGivens() {
-            return null;
-        }
-    }
-
     @Test
     public void testGetWithoutModel() {
         List<Object> variants = new ArrayList<>();

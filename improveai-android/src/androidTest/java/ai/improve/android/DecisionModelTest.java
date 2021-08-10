@@ -279,9 +279,9 @@ public class DecisionModelTest {
 //        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 //        DecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
 
-        DecisionTracker tracker = new DecisionTracker("trackUrl");
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
-        model.setTracker(tracker);
+        model.trackWith(tracker);
         model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
             @Override
             public void onFinish(DecisionModel model, Exception e) {
@@ -310,7 +310,7 @@ public class DecisionModelTest {
         URL modelUrl = new URL(ModelURL);
         DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
-        model.setTracker(tracker);
+        model.trackWith(tracker);
         model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
             @Override
             public void onFinish(DecisionModel model, Exception e) {

@@ -12,7 +12,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
-import ai.improve.util.GivensProvider;
 import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
 import ai.improve.xgbpredictor.ImprovePredictor;
@@ -30,8 +29,6 @@ public class DecisionModel {
     private ImprovePredictor predictor;
 
     private FeatureEncoder featureEncoder;
-
-    private List<GivensProvider> givensProviders = new ArrayList<>();
 
     private static AtomicInteger seq = new AtomicInteger(0);
 
@@ -143,22 +140,6 @@ public class DecisionModel {
      * */
     public <T> Decision chooseFrom(List<T> variants) {
         return new Decision(this).chooseFrom(variants);
-    }
-
-    public DecisionModel addGivensProvider(GivensProvider provider) {
-        givensProviders.add(provider);
-        return this;
-    }
-
-    protected Map<String, Object> collectAllGivens() {
-        Map<String, Object> allGivens = new HashMap<>();
-        for (GivensProvider provider: givensProviders) {
-            Map<String, ?> givens = provider.getGivens();
-            if(givens != null) {
-                allGivens.putAll(givens);
-            }
-        }
-        return allGivens;
     }
 
     /**

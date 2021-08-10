@@ -47,12 +47,7 @@ public class Decision {
             return best;
         }
 
-        Map<String, Object> allGivens = model.collectAllGivens();
-        if(givens != null) {
-            allGivens.putAll(givens);
-        }
-
-        List<Double> scores = model.score(variants, allGivens);
+        List<Double> scores = model.score(variants, givens);
 
         if(variants != null && variants.size() > 0) {
             DecisionTracker tracker = model.getTracker();
@@ -61,11 +56,11 @@ public class Decision {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = DecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), true);
+                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
                     best = ModelUtils.topScoringVariant(variants, scores);
-                    TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), false);
+                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
                 }
             } else {
                 best = ModelUtils.topScoringVariant(variants, scores);
@@ -77,7 +72,7 @@ public class Decision {
             best = null;
             DecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                TrackerHandler.track(tracker, best, variants, allGivens, model.getModelName(), false);
+                TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
             } else {
                 IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
