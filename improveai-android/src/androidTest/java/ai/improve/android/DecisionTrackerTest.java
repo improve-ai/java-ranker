@@ -45,7 +45,7 @@ public class DecisionTrackerTest {
     public void testTracker() throws Exception {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url); // trackUrl is obtained from your Gym configuration
         DecisionModel model = new DecisionModel("theme");
-        model.track(tracker);
+        model.trackWith(tracker);
 
         URL modelUrl = new URL(ModelURL);
         int fontSize = (Integer) model.chooseFrom(Arrays.asList(12, 16, 20)).get();
@@ -69,7 +69,7 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackerRequest() {
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.track(new DecisionTracker(Tracker_Url));
+        decisionModel.trackWith(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(Arrays.asList("Hello", "Hi", "Hey")).get();
     }
 
@@ -102,7 +102,7 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackerNullVariants() {
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.track(new DecisionTracker(Tracker_Url));
+        decisionModel.trackWith(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(null).get();
     }
 }

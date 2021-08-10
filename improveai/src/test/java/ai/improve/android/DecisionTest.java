@@ -80,7 +80,7 @@ public class DecisionTest {
         variants.add("Hello, World!");
 
         DecisionModel decisionModel = new DecisionModel("");
-        decisionModel.track(new DecisionTracker(Tracker_Url));
+        decisionModel.trackWith(new DecisionTracker(Tracker_Url));
 
         Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();
@@ -102,7 +102,7 @@ public class DecisionTest {
         decisionModel.chooseFrom(emptyVariants).get();
 
         DecisionTracker tracker = new DecisionTracker(Tracker_Url);
-        decisionModel.track(tracker);
+        decisionModel.trackWith(tracker);
         decisionModel.chooseFrom(emptyVariants).get();
     }
 }

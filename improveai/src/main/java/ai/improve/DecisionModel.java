@@ -133,18 +133,10 @@ public class DecisionModel {
         return tracker;
     }
 
-    public void setTracker(DecisionTracker tracker) {
-        this.tracker = tracker;
-    }
-
-    public DecisionModel track(DecisionTracker tracker) {
+    public DecisionModel trackWith(DecisionTracker tracker) {
         this.tracker = tracker;
         return this;
     }
-
-//    public <T> Decision chooseFrom(T[] variants) {
-//        return chooseFrom(Arrays.asList(variants));
-//    }
 
     /**
      * @return an IMPDecision object

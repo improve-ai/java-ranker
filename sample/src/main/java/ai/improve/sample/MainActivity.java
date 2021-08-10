@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         DecisionTracker tracker = new DecisionTracker("");
 
-        Object variant = new DecisionModel("orange").track(tracker).chooseFrom(variants).get();
+        Object variant = new DecisionModel("orange").trackWith(tracker).chooseFrom(variants).get();
         Log.d(Tag, "variant = " + variant);
     }
 
