@@ -38,9 +38,9 @@ import static org.junit.Assert.fail;
 public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
-    public static final String ModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
+    public static final String ModelURL = "http://192.168.1.101/dummy_v6.xgb";
 
-    private static final String CompressedModelURL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb.gz";
+    private static final String CompressedModelURL = "http://192.168.1.101/dummy_v6.xgb.gz";
 
     private static final String AssetModelFileName = "dummy_v6.xgb";
 

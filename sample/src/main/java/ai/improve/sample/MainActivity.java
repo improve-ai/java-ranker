@@ -28,7 +28,7 @@ import ai.improve.android.AppGivensProviderImp;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String Tag = "MainActivity";
 
-    public static final String Model_URL = "https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb";
+    public static final String Model_URL = "http://192.168.1.101/dummy_v6.xgb";
 
     private TextView mGreetingTV;
 
@@ -81,7 +81,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         variants.add("hello");
         variants.add("hi");
 
-        URL url = new URL("https://yamotek-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb");
+        URL url = new URL(Model_URL);
         DecisionModel model = DecisionModel.load(url);
         String greeting = (String) model.chooseFrom(variants).get();
         Log.d(Tag, "greeting=" + greeting);

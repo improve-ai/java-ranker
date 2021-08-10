@@ -5,9 +5,9 @@
     android:versionName="1.0.0.alpha">
 
     <uses-permission android:name="android.permission.INTERNET" />
-<!--    <application-->
-<!--        android:usesCleartextTraffic="true">-->
+    <application
+        android:usesCleartextTraffic="true">
 
-<!--    </application>-->
+    </application>
 
 </manifest>

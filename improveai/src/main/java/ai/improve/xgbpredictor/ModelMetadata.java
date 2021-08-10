@@ -67,8 +67,8 @@ public class ModelMetadata {
     }
 
     private void parseMetadata(String value) {
-        JsonObject root = JsonParser.parseString(value).getAsJsonObject();
-        modelName = root.get("model").getAsString();
+        JsonObject root = JsonParser.parseString(value).getAsJsonObject().getAsJsonObject("json");
+        modelName = root.get("model_name").getAsString();
         modelVersion = root.get("version").getAsString();
         modelSeed = root.get("model_seed").getAsLong();
 
