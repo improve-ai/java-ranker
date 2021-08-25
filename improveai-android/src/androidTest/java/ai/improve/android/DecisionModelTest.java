@@ -18,6 +18,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -205,7 +206,6 @@ public class DecisionModelTest {
             loadException = e;
             e.printStackTrace();
         }
-        IMPLog.d(Tag, "greeting=" + greeting);
         assertNull(greeting);
         assertNotNull(loadException);
     }
@@ -326,5 +326,22 @@ public class DecisionModelTest {
             }
         });
         semaphore.acquire();
+    }
+
+    @Test
+    public void testChooseFromNonJsonEncodable() throws MalformedURLException {
+        List<Object> variants = new ArrayList<>();
+        variants.add("hi");
+        variants.add(new Date());
+
+        URL url = new URL("https://kpz-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb");
+        try {
+            DecisionModel.load(url).chooseFrom(variants).get();
+        } catch (RuntimeException e) {
+            IMPLog.e(Tag, ""+e.getMessage());
+            e.printStackTrace();
+            return;
+        }
+        fail("A RuntimeException is expected. We should never reach here");
     }
 }

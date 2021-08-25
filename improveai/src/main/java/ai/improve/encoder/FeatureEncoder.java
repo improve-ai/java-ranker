@@ -138,6 +138,9 @@ public class FeatureEncoder {
                 long newSeed = xxhash3(bytes, seed);
                 encodeInternal(list.get(i), newSeed, noise, features);
             }
+        } else {
+            throw new RuntimeException("unsupported type <" + node.getClass().getCanonicalName() + ">, not JSON encodeable." +
+                    " Must be one of type map, list, string, number, boolean, or null");
         }
         return features;
     }

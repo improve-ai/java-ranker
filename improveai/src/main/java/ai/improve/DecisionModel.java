@@ -40,18 +40,9 @@ public class DecisionModel {
      */
     private Map<Integer, WeakReference<IMPDecisionModelLoadListener>> listeners = new HashMap<>();
 
-    public static DecisionModel load(URL url) throws Exception {
-        final Exception[] loadException = {null};
+    public static DecisionModel load(URL url) {
         DecisionModel decisionModel = new DecisionModel("");
-        decisionModel.loadAsync(url, new IMPDecisionModelLoadListener(){
-            @Override
-            public void onFinish(DecisionModel dm, Exception e) {
-                loadException[0] = e;
-                synchronized (decisionModel.lock) {
-                    decisionModel.lock.notifyAll();
-                }
-            }
-        });
+        decisionModel.loadAsync(url, decisionModel.listener);
         synchronized (decisionModel.lock) {
             try {
                 decisionModel.lock.wait();
@@ -61,12 +52,9 @@ public class DecisionModel {
             }
         }
 
-        if(loadException[0] != null) {
-            IMPLog.e(Tag, "model loading failed, " + url.toString());
-            throw loadException[0];
+        if(decisionModel.predictor == null) {
+            throw new RuntimeException("model loading failed, " + url.toString());
         }
-
-        IMPLog.d(Tag, "load, finish loading model, " + url.toString());
 
         return decisionModel;
     }
@@ -80,11 +68,10 @@ public class DecisionModel {
                 IMPDecisionModelLoadListener l = listeners.remove(seq).get();
                 if(l != null) {
                     if(e != null) {
-                        l.onFinish(null, e);
-                        IMPLog.d(Tag, "loadAsync, err=" + e.getMessage());
+                        l.onFinish(DecisionModel.this, e);
                         return ;
                     }
-                    IMPLog.d(Tag, "loadAsync, onFinish OK");
+                    IMPLog.d(Tag, "loadAsync, finish loading model, " + url.toString());
 
                     DecisionModel.this.setModel(predictor);
 
@@ -218,6 +205,18 @@ public class DecisionModel {
 
         return result;
     }
+
+    /**
+     * The listener is only used for synchronized model loading
+     * */
+    private IMPDecisionModelLoadListener listener = new IMPDecisionModelLoadListener() {
+        @Override
+        public void onFinish(DecisionModel decisionModel, Exception e) {
+            synchronized (decisionModel.lock) {
+                decisionModel.lock.notifyAll();
+            }
+        }
+    };
 
     public interface IMPDecisionModelLoadListener {
         /**

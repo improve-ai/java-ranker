@@ -63,7 +63,7 @@ public class ModelDownloader {
                         }
                     }
                 } catch (Exception e) {
-                    IMPLog.e(Tag, "download exception: " + e.getMessage());
+                    IMPLog.e(Tag, "model download exception: " + e.getMessage());
                     if(listener != null) {
                         listener.onFinish(null, e);
                     }
