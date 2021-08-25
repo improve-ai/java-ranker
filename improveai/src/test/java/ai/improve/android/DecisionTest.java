@@ -1,6 +1,7 @@
 package ai.improve.android;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +13,8 @@ import ai.improve.Decision;
 import ai.improve.log.IMPLog;
 
 import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
-import static org.junit.Assert.*;
+
+import org.junit.jupiter.api.Test;
 
 public class DecisionTest {
     @Test

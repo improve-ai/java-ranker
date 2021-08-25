@@ -1,14 +1,15 @@
 package ai.improve.android;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import org.junit.jupiter.api.Test;
+
 import ai.improve.log.IMPLog;
 import ai.improve.util.HttpUtil;
 import ai.improve.util.TrackerHandler;
-import org.junit.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 public class HttpUtilTest {
     public static final String Tag = "HttpUtilTest";

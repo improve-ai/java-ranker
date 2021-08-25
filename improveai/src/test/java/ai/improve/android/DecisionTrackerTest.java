@@ -1,10 +1,17 @@
 package ai.improve.android;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
+
 import com.google.gson.GsonBuilder;
-import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -17,12 +24,8 @@ import ai.improve.util.ModelUtils;
 import static ai.improve.util.TrackerHandler.COUNT_KEY;
 import static ai.improve.util.TrackerHandler.DECISION_BEST_KEY;
 import static ai.improve.util.TrackerHandler.SAMPLE_VARIANT_KEY;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+
+import org.junit.jupiter.api.Test;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -450,6 +453,15 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackWithValidHistoryId() {
         new DecisionTracker(Tracker_Url, null, "history_id");
+    }
+
+    @Test
+    public void testTrackWithNonJsonEncodable() {
+        Map<String, Object> body = new HashMap<>();
+        body.put("a", "aaaa");
+        body.put("c", new Date());
+        String result = new GsonBuilder().serializeNulls().create().toJson(body);
+        IMPLog.d(Tag, "result = " + result);
     }
 
     private String getHistoryId() {
