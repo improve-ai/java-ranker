@@ -5,20 +5,18 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.net.http.HttpResponseCache;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
@@ -31,6 +29,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private TextView mGreetingTV;
 
+    private Handler mHandler = new Handler();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,14 +40,34 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.root_view).setOnClickListener(this);
         findViewById(R.id.leak_test_btn).setOnClickListener(this);
 
-        enableHttpResponseCache();
-
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
 
-        AppGivensProviderImp provider = new AppGivensProviderImp(this);
-        Map givens = provider.getGivens();
-        IMPLog.d(Tag, "givens = " + givens);
+        enableHttpResponseCache();
 
+        testCache();
+    }
+
+    /**
+     * How do you know that cache is used???
+     * Method 1: Run tcpdump in the server.
+     * When cache is used, there would be no request to the server or only a header request
+     * which returns '304, Not Modified'
+     *
+     * Method 2: Perhaps turn off the internet
+     * If the model can still be loaded, then we assume that cache is used.
+     * */
+    private void testCache() {
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    URL url = new URL(Model_URL);
+                    DecisionModel.load(url);
+                } catch (MalformedURLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 2000);
     }
 
     @Override
@@ -60,13 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 e.printStackTrace();
             }
             track();
-
-            new Thread() {
-                @Override
-                public void run() {
-                    testHttpUrlConnection();
-                }
-            }.start();
         } else if(id == R.id.leak_test_btn) {
             Intent intent = new Intent(this, LeakTestActivity.class);
             startActivity(intent);
@@ -112,36 +125,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Log.d(Tag, "variant = " + variant);
     }
 
-    private void testHttpUrlConnection() {
-        HttpURLConnection urlConnection = null;
-        try {
-            URL url = new URL("http://10.254.115.144:8080/dummy_v6.xgb");
-            urlConnection = (HttpURLConnection)url.openConnection();
-            urlConnection.setReadTimeout(15000);
-            InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-
-            int totalBytes = 0;
-            int bytesRead = 0;
-            byte[] buffer = new byte[1024];
-//            DataInputStream dis = new DataInputStream(inputStream);
-            while(-1 != (bytesRead = inputStream.read(buffer))) {
-                totalBytes += bytesRead;
-            }
-            Log.d(Tag, "totalBytesRead: " + totalBytes);
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            if(urlConnection != null) {
-                urlConnection.disconnect();
-            }
-        }
-    }
-
     private void enableHttpResponseCache() {
         try {
             File httpCacheDir = new File(getCacheDir(), "http");
-            long httpCacheSize = 10 * 1024 * 1024; // 10 MiB
+            long httpCacheSize = 300 * 1024 * 1024;
             HttpResponseCache.install(httpCacheDir, httpCacheSize);
+            Log.d(Tag, "cache enabled");
         } catch (IOException e) {
             Log.i(Tag, "HTTP response cache installation failed:" + e);
         }
