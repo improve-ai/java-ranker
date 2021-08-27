@@ -28,12 +28,12 @@ public class ModelDownloader {
         new Thread() {
             @Override
             public void run() {
+                InputStream inputStream = null;
                 try {
                     if(url.toString().startsWith("http")) {
                         IMPLog.d(Tag, "loadAsync, start loading model, " + url.toString());
                         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                         urlConnection.setReadTimeout(15000);
-                        InputStream inputStream;
                         if (url.getPath().endsWith(".gz")) {
                             inputStream = new GZIPInputStream(urlConnection.getInputStream());
                         } else {
@@ -50,7 +50,6 @@ public class ModelDownloader {
                         // READ_EXTERNAL_STORAGE might be required to read the file.
                         // We are leaving any permission request stuff to sdk users.
                         new File(url.toURI());
-                        InputStream inputStream;
                         if (url.getPath().endsWith(".gz")) {
                             inputStream = new GZIPInputStream(new FileInputStream(new File(url.toURI())));
                         } else {
@@ -66,6 +65,14 @@ public class ModelDownloader {
                     IMPLog.e(Tag, "model download exception: " + e.getMessage());
                     if(listener != null) {
                         listener.onFinish(null, e);
+                    }
+                } finally {
+                    if(inputStream != null) {
+                        try {
+                            inputStream.close();
+                        } catch (Throwable t) {
+                            t.printStackTrace();
+                        }
                     }
                 }
             }
