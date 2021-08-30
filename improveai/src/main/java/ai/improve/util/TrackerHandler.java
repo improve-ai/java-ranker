@@ -182,7 +182,7 @@ public class TrackerHandler {
         body = new HashMap<>(body);
         body.put(TIMESTAMP_KEY, timestamp);
         body.put(HISTORY_ID_KEY, historyId);
-        body.put(MESSAGE_ID_KEY, UUID.randomUUID());
+        body.put(MESSAGE_ID_KEY, UUID.randomUUID().toString());
 
         Map<String, Object> finalBody = body;
         new Thread() {

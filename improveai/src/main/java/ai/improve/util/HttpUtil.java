@@ -5,11 +5,11 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
 import ai.improve.log.IMPLog;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
 /**
@@ -45,6 +45,11 @@ public class HttpUtil {
 
     public void post() {
         try {
+            if(!isJsonEncodable(body)) {
+                IMPLog.w(Tag, "track request body not json encodable");
+                return ;
+            }
+
             connection = (HttpURLConnection) url.openConnection();
             try {
                 for(Map.Entry<String, String> header: headers.entrySet()) {
@@ -95,5 +100,32 @@ public class HttpUtil {
 
     public static String serializeBody(Map<String, Object> body) {
         return new GsonBuilder().serializeNulls().create().toJson(body);
+    }
+
+    public static boolean isJsonEncodable(Object node) {
+        if(node instanceof Boolean) {
+            return true;
+        } else if(node instanceof Number && !Double.isNaN(((Number)node).doubleValue())) {
+            return true;
+        } else if(node instanceof String) {
+            return true;
+        } else if (node instanceof Map) {
+            for (Map.Entry<String, Object> entry : ((Map<String, Object>)node).entrySet()) {
+                if(!isJsonEncodable(entry.getValue())) {
+                    return false;
+                }
+            }
+            return true;
+        } else if (node instanceof List) {
+            List list = (List)node;
+            for (int i = 0; i < list.size(); ++i) {
+                if(!isJsonEncodable(list.get(i))) {
+                    return false;
+                }
+            }
+            return true;
+        } else {
+            return false;
+        }
     }
 }

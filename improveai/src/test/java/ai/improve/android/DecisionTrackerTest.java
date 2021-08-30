@@ -18,8 +18,10 @@ import java.util.Map;
 
 import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
+import ai.improve.util.HttpUtil;
 import ai.improve.util.TrackerHandler;
 import ai.improve.util.ModelUtils;
+import ai.improve.util.Utils;
 
 import static ai.improve.util.TrackerHandler.COUNT_KEY;
 import static ai.improve.util.TrackerHandler.DECISION_BEST_KEY;
@@ -453,15 +455,6 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackWithValidHistoryId() {
         new DecisionTracker(Tracker_Url, null, "history_id");
-    }
-
-    @Test
-    public void testTrackWithNonJsonEncodable() {
-        Map<String, Object> body = new HashMap<>();
-        body.put("a", "aaaa");
-        body.put("c", new Date());
-        String result = new GsonBuilder().serializeNulls().create().toJson(body);
-        IMPLog.d(Tag, "result = " + result);
     }
 
     private String getHistoryId() {

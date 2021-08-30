@@ -123,7 +123,7 @@ public class FeatureEncoder {
                 features[index] = sprinkle(unsprinkled + (hashed & 0xffffL) - 0x8000, noise);
             }
         } else if (node instanceof Map) {
-            for (Map.Entry<String, Object> entry : ((HashMap<String, Object>)node).entrySet()) {
+            for (Map.Entry<String, Object> entry : ((Map<String, Object>)node).entrySet()) {
                 if(!(entry.getKey() instanceof String)) {
                     IMPLog.w(Tag, "Map entry ignored: map key must be of type String.");
                     continue;

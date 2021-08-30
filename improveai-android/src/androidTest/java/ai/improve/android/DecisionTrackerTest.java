@@ -105,4 +105,21 @@ public class DecisionTrackerTest {
         decisionModel.trackWith(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(null).get();
     }
+
+    /**
+     * No assertion here.
+     * Just a convenient place to observer log output of non-json-encodable objects tracking
+     * */
+    @Test
+    public void testTrackNonJsonEncodable() {
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.trackWith(new DecisionTracker(Tracker_Url));
+        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
 }
