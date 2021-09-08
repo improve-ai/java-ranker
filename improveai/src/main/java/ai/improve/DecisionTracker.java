@@ -13,8 +13,6 @@ public class DecisionTracker {
 
     private String trackURL;
 
-    private String apiKey;
-
     /**
      * Hyperparameter that affects training speed and model performance.
      * Values from 10-100 are probably reasonable.  0 disables runners up tracking
@@ -29,20 +27,12 @@ public class DecisionTracker {
     }
 
     /**
-     * Android only
-     * */
-    public DecisionTracker(String trackURL, String apiKey) {
-        this(trackURL, apiKey, null);
-    }
-
-    /**
      * History id must be set for non-Android platforms, so this is the only
      * valid constructor method for them.
      * */
-    public DecisionTracker(String trackURL, String apiKey, String historyId) {
+    public DecisionTracker(String trackURL, String historyId) {
         this.maxRunnersUp = 50;
         this.trackURL = trackURL;
-        this.apiKey = apiKey;
 
         if(trackURL == null || trackURL.isEmpty()) {
             IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
@@ -66,10 +56,6 @@ public class DecisionTracker {
 
     public String getTrackURL() {
         return trackURL;
-    }
-
-    public String getApiKey() {
-        return apiKey;
     }
 
     public int getMaxRunnersUp() {

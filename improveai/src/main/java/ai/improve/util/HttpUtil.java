@@ -124,6 +124,8 @@ public class HttpUtil {
                 }
             }
             return true;
+        } else if(node == null) {
+            return true;
         } else {
             return false;
         }

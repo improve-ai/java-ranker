@@ -4,15 +4,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.google.gson.GsonBuilder;
 
 import org.junit.jupiter.api.Test;
 
-import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
 import ai.improve.util.HttpUtil;
 import ai.improve.util.TrackerHandler;
-import ai.improve.util.Utils;
 
 import java.util.ArrayList;
 import java.util.Date;

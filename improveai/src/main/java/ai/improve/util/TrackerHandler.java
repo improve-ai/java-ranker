@@ -33,7 +33,6 @@ public class TrackerHandler {
 
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-    private static final String API_KEY_HEADER = "x-api-key";
 
     private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
 
@@ -148,13 +147,9 @@ public class TrackerHandler {
 
         Map<String, String> headers = new HashMap<>();
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_JSON);
-        if (tracker.getApiKey() != null) {
-            headers.put(API_KEY_HEADER, tracker.getApiKey());
-        }
-        String timestamp = ISO_TIMESTAMP_FORMAT.format(new Date());
 
         body = new HashMap<>(body);
-        body.put(TIMESTAMP_KEY, timestamp);
+        body.put(TIMESTAMP_KEY, ISO_TIMESTAMP_FORMAT.format(new Date()));
         body.put(HISTORY_ID_KEY, historyId);
         body.put(MESSAGE_ID_KEY, UUID.randomUUID().toString());
 
