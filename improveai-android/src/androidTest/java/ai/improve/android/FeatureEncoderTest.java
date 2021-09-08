@@ -78,7 +78,9 @@ public class FeatureEncoderTest {
         String[] allTestCases = content.split("\\n");
         for (int i = 0; i < allTestCases.length; ++i) {
             IMPLog.d(Tag, "verify case " + allTestCases[i]);
-            assertTrue(verify(allTestCases[i]));
+//            if("none.json".equals(allTestCases[i])) {
+                assertTrue(verify(allTestCases[i]));
+//            }
         }
     }
 
@@ -91,14 +93,21 @@ public class FeatureEncoderTest {
 
         String content = new String(buffer);
         JSONObject root = new JSONObject(content);
-        Object variant = root.getJSONObject("test_case").get("variant");
+        JSONObject testCase = root.getJSONObject("test_case");
         List variants;
-        if(variant instanceof JSONObject) {
-            variants = Arrays.asList(toMap((JSONObject)variant));
-        } else if (variant instanceof JSONArray) {
-            variants = Arrays.asList(toList((JSONArray) variant));
+
+        if(testCase.isNull("variant")) {
+            variants = new ArrayList<>();
+            variants.add(null);
         } else {
-            variants = Arrays.asList(variant);
+            Object variant = root.getJSONObject("test_case").get("variant");
+            if (variant instanceof JSONObject) {
+                variants = Arrays.asList(toMap((JSONObject) variant));
+            } else if (variant instanceof JSONArray) {
+                variants = Arrays.asList(toList((JSONArray) variant));
+            } else {
+                variants = Arrays.asList(variant);
+            }
         }
 
         Map givens = null;

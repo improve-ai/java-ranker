@@ -87,17 +87,19 @@ public class FeatureEncoder {
                 }
                 features[index] = sprinkle(nodeValue+unsprinkled, noise);
             }
-        } else if(node instanceof Number && !Double.isNaN(((Number)node).doubleValue())) {
-            double nodeValue = ((Number)node).doubleValue();
-            String featureName = hash_to_feature_name(seed);
-            IMPLog.d(Tag, "featureName: "+featureName);
-            if(featureNamesMap.containsKey(featureName)) {
-                int index = featureNamesMap.get(featureName);
-                double unsprinkled = 0;
-                if(!Double.isNaN(features[index])) {
-                    unsprinkled = reverseSprinkle(features[index], noise);
+        } else if(node instanceof Number) {
+            if(!Double.isNaN(((Number)node).doubleValue())) {
+                double nodeValue = ((Number) node).doubleValue();
+                String featureName = hash_to_feature_name(seed);
+                IMPLog.d(Tag, "featureName: " + featureName);
+                if (featureNamesMap.containsKey(featureName)) {
+                    int index = featureNamesMap.get(featureName);
+                    double unsprinkled = 0;
+                    if (!Double.isNaN(features[index])) {
+                        unsprinkled = reverseSprinkle(features[index], noise);
+                    }
+                    features[index] = sprinkle(nodeValue + unsprinkled, noise);
                 }
-                features[index] = sprinkle(nodeValue+unsprinkled, noise);
             }
         } else if(node instanceof String) {
             long hashed = xxhash3(((String) node).getBytes(), seed);
@@ -138,6 +140,8 @@ public class FeatureEncoder {
                 long newSeed = xxhash3(bytes, seed);
                 encodeInternal(list.get(i), newSeed, noise, features);
             }
+        } else if(node == null) {
+            // do nothing
         } else {
             throw new RuntimeException("unsupported type <" + node.getClass().getCanonicalName() + ">, not JSON encodeable." +
                     " Must be one of type map, list, string, number, boolean, or null");
