@@ -22,7 +22,7 @@ public class TrackerHandler {
     private static final String MODEL_KEY = "model";
     public static final String DECISION_BEST_KEY = "variant";
     public static final String COUNT_KEY = "count";
-    private static final String GIVEN_KEY = "given";
+    private static final String GIVENS_KEY = "givens";
     private static final String RUNNERS_UP_KEY = "runners_up";
     public static final String SAMPLE_VARIANT_KEY = "sample";
     private static final String TIMESTAMP_KEY = "timestamp";
@@ -71,7 +71,7 @@ public class TrackerHandler {
         setBestVariant(bestVariant, body);
 
         if(givens != null) {
-            body.put(GIVEN_KEY, givens);
+            body.put(GIVENS_KEY, givens);
         }
 
         List<T> runnersUp = null;
@@ -85,32 +85,6 @@ public class TrackerHandler {
 
         postTrackingRequest(tracker, body);
     }
-
-    // If there are no runners up, then sample is a random sample from
-    // variants with just best excluded.
-    //
-    // If there are runners up, then sample is a random sample from
-    // variants with best and runners up excluded.
-    //
-    // If there is only one variant, which is the best, then there is no sample.
-    //
-    // If there are no remaining variants after best and runners up, then
-    // there is no sample.
-//    public static <T> T sampleVariant(List<T> variants, int runnersUpCount) {
-//        if(variants == null) {
-//            return null;
-//        }
-//
-//        // Sample variant is selected from variants excluding runners-up and the
-//        // best variant
-//        T variant = null;
-//        int samplesCount = variants.size() - runnersUpCount - 1;
-//        if (samplesCount > 0) {
-//            int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
-//            variant = variants.get(randomIndex);
-//        }
-//        return variant;
-//    }
 
     public static <T> List<T> topRunnersUp(List<T> ranked, int maxRunnersUp) {
         return ranked.subList(1, 1+Math.min(maxRunnersUp, ranked.size()-1));

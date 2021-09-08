@@ -8,6 +8,7 @@ import org.junit.runner.RunWith;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Map;
 
 import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
@@ -112,14 +113,11 @@ public class DecisionTrackerTest {
      * */
     @Test
     public void testTrackNonJsonEncodable() {
+        Map givens = new HashMap();
+        givens.put("font", 12);
+        givens.put("color", "#ffffff");
         DecisionModel decisionModel = new DecisionModel("music");
         decisionModel.trackWith(new DecisionTracker(Tracker_Url));
-        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
-
-        try {
-            Thread.sleep(3000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(givens).get();
     }
 }
