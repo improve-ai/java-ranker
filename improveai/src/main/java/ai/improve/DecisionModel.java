@@ -40,9 +40,18 @@ public class DecisionModel {
      */
     private Map<Integer, WeakReference<IMPDecisionModelLoadListener>> listeners = new HashMap<>();
 
-    public static DecisionModel load(URL url) {
+    public static DecisionModel load(URL url) throws Exception {
         DecisionModel decisionModel = new DecisionModel("");
-        decisionModel.loadAsync(url, decisionModel.listener);
+        final Exception[] downloadException = {null};
+        decisionModel.loadAsync(url, new IMPDecisionModelLoadListener() {
+            @Override
+            public void onFinish(DecisionModel decisionModel, Exception e) {
+                synchronized (decisionModel.lock) {
+                    downloadException[0] = e;
+                    decisionModel.lock.notifyAll();
+                }
+            }
+        });
         synchronized (decisionModel.lock) {
             try {
                 decisionModel.lock.wait();
@@ -52,8 +61,8 @@ public class DecisionModel {
             }
         }
 
-        if(decisionModel.predictor == null) {
-            throw new RuntimeException("model loading failed, " + url.toString());
+        if(downloadException[0] != null) {
+            throw downloadException[0];
         }
 
         return decisionModel;
@@ -77,6 +86,11 @@ public class DecisionModel {
 
                     l.onFinish(DecisionModel.this, null);
                 } else {
+                    // TODO Double check it later
+                    // When calling DecisionModel.load(url), the anonymous listener might be
+                    // released before the onFinish callback???
+                    // I have seen the log 'onFinish, but listener is null' before, but can't
+                    // reproduce it now.
                     IMPLog.d(Tag, "onFinish, but listener is null");
                 }
             }
@@ -205,18 +219,6 @@ public class DecisionModel {
 
         return result;
     }
-
-    /**
-     * The listener is only used for synchronized model loading
-     * */
-    private IMPDecisionModelLoadListener listener = new IMPDecisionModelLoadListener() {
-        @Override
-        public void onFinish(DecisionModel decisionModel, Exception e) {
-            synchronized (decisionModel.lock) {
-                decisionModel.lock.notifyAll();
-            }
-        }
-    };
 
     public interface IMPDecisionModelLoadListener {
         /**

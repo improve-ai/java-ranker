@@ -63,7 +63,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try {
                     URL url = new URL(Model_URL);
                     DecisionModel.load(url);
-                } catch (MalformedURLException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
             }

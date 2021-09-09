@@ -111,7 +111,7 @@ public class DecisionModelTest {
         variants.add("hi");
 
         // Don't load model
-        String greeting = (String) new DecisionModel("").chooseFrom(variants).get();
+        String greeting = (String) new DecisionModel("theme").chooseFrom(variants).get();
         IMPLog.d(Tag, "greeting=" + greeting);
         assertNotNull(greeting);
     }
@@ -337,7 +337,7 @@ public class DecisionModelTest {
         URL url = new URL("https://kpz-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb");
         try {
             DecisionModel.load(url).chooseFrom(variants).get();
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             IMPLog.e(Tag, ""+e.getMessage());
             e.printStackTrace();
             return;
