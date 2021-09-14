@@ -17,8 +17,6 @@ public class ModelMetadata {
     public static final String USER_DEFINED_METADATA = "user_defined_metadata";
     private Map<String, String> storage = new HashMap<>();
 
-    private String modelVersion;
-
     private String modelName;
 
     private long modelSeed;
@@ -46,10 +44,6 @@ public class ModelMetadata {
         return modelName;
     }
 
-    public String getModelVersion() {
-        return modelVersion;
-    }
-
     public long getModelSeed() {
         return modelSeed;
     }
@@ -69,7 +63,6 @@ public class ModelMetadata {
     private void parseMetadata(String value) {
         JsonObject root = JsonParser.parseString(value).getAsJsonObject().getAsJsonObject("json");
         modelName = root.get("model_name").getAsString();
-        modelVersion = root.get("version").getAsString();
         modelSeed = root.get("model_seed").getAsLong();
 
         JsonArray featuresArray = root.get("feature_names").getAsJsonArray();
