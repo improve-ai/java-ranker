@@ -43,7 +43,7 @@ public class DecisionModel {
     public static DecisionModel load(URL url) throws Exception {
         DecisionModel decisionModel = new DecisionModel("");
         final Exception[] downloadException = {null};
-        decisionModel.loadAsync(url, new IMPDecisionModelLoadListener() {
+        IMPDecisionModelLoadListener listener = new IMPDecisionModelLoadListener() {
             @Override
             public void onFinish(DecisionModel decisionModel, Exception e) {
                 synchronized (decisionModel.lock) {
@@ -51,7 +51,9 @@ public class DecisionModel {
                     decisionModel.lock.notifyAll();
                 }
             }
-        });
+        };
+
+        decisionModel.loadAsync(url, listener);
         synchronized (decisionModel.lock) {
             try {
                 decisionModel.lock.wait();
