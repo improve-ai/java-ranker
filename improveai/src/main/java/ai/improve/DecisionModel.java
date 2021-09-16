@@ -175,7 +175,10 @@ public class DecisionModel {
         }
 
         if(predictor == null) {
-            IMPLog.e(Tag, "model is not loaded, a randomly generated list of Gaussian numbers is returned");
+            // When tracking a decision like this:
+            // DecisionModel("model_name").chooseFrom(variants).get()
+            // The model is not loaded. In this case, we return the scores quietly without logging an error.
+            // IMPLog.e(Tag, "model is not loaded, a randomly generated list of Gaussian numbers is returned");
             return ModelUtils.generateDescendingGaussians(variants.size());
         }
 
