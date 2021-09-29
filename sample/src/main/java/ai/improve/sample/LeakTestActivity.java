@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -32,14 +33,15 @@ public class LeakTestActivity extends AppCompatActivity {
     private void loadModelAsync() {
         try {
             DecisionModel decisionModel = new DecisionModel("");
-            decisionModel.loadAsync(new URL(Model_URL), new DecisionModel.IMPDecisionModelLoadListener() {
+            decisionModel.loadAsync(new URL(Model_URL), new DecisionModel.LoadListener() {
                 @Override
-                public void onFinish(DecisionModel decisionModel, Exception e) {
-                    if(e != null) {
-                        Log.d(Tag, "on finish loading model, err=" + e.getMessage());
-                    } else {
-                        Log.d(Tag, "on finish loading model");
-                    }
+                public void onLoad(DecisionModel decisionModel) {
+                    Log.d(Tag, "on finish loading model");
+                }
+
+                @Override
+                public void onError(IOException e) {
+                    Log.d(Tag, "on finish loading model, err=" + e.getMessage());
                 }
             });
         } catch (MalformedURLException e) {

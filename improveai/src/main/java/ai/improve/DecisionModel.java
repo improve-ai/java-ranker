@@ -1,5 +1,6 @@
 package ai.improve;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
@@ -38,18 +39,23 @@ public class DecisionModel {
      * If WeakReference is removed, leaks can be observed when jumping between
      * "MainActivity" and "LeakTestActivity" many times while network speed is slow.
      */
-    private Map<Integer, WeakReference<IMPDecisionModelLoadListener>> listeners = new HashMap<>();
+    private Map<Integer, WeakReference<LoadListener>> listeners = new HashMap<>();
 
-    public static DecisionModel load(URL url) throws Exception {
+    public static DecisionModel load(URL url) throws IOException {
         DecisionModel decisionModel = new DecisionModel("");
-        final Exception[] downloadException = {null};
-        IMPDecisionModelLoadListener listener = new IMPDecisionModelLoadListener() {
+        final IOException[] downloadException = {null};
+        LoadListener listener = new LoadListener() {
             @Override
-            public void onFinish(DecisionModel decisionModel, Exception e) {
+            public void onLoad(DecisionModel decisionModel) {
                 synchronized (decisionModel.lock) {
-                    downloadException[0] = e;
                     decisionModel.lock.notifyAll();
                 }
+            }
+
+            @Override
+            public void onError(IOException e) {
+                downloadException[0] = e;
+                decisionModel.lock.notifyAll();
             }
         };
 
@@ -70,23 +76,26 @@ public class DecisionModel {
         return decisionModel;
     }
 
-    public void loadAsync(URL url, IMPDecisionModelLoadListener listener) {
+    /**
+     * @deprecated  The callback method signature will likely have to change for multiple URLs
+     * */
+    public void loadAsync(URL url, LoadListener listener) {
         int seq = getSeq();
         listeners.put(seq, new WeakReference<>(listener));
         ModelDownloader.download(url, new ModelDownloader.ModelDownloadListener() {
             @Override
-            public void onFinish(ImprovePredictor predictor, Exception e) {
-                IMPDecisionModelLoadListener l = listeners.remove(seq).get();
+            public void onFinish(ImprovePredictor predictor, IOException e) {
+                LoadListener l = listeners.remove(seq).get();
                 if(l != null) {
                     if(e != null) {
-                        l.onFinish(DecisionModel.this, e);
+                        l.onError(e);
                         return ;
                     }
                     IMPLog.d(Tag, "loadAsync, finish loading model, " + url.toString());
 
                     DecisionModel.this.setModel(predictor);
 
-                    l.onFinish(DecisionModel.this, null);
+                    l.onLoad(DecisionModel.this);
                 } else {
                     // TODO Double check it later
                     // When calling DecisionModel.load(url), the anonymous listener might be
@@ -225,11 +234,10 @@ public class DecisionModel {
         return result;
     }
 
-    public interface IMPDecisionModelLoadListener {
-        /**
-         * @param decisionModel null when error occurred while loading the model
-         * */
-        void onFinish(DecisionModel decisionModel, Exception e);
+    public interface LoadListener {
+        void onLoad(DecisionModel decisionModel);
+
+        void onError(IOException e);
     }
 
     private int getSeq() {

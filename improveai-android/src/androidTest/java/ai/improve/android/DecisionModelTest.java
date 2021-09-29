@@ -121,13 +121,17 @@ public class DecisionModelTest {
         Semaphore semaphore = new Semaphore(0);
         URL url = new URL(ModelURL);
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.loadAsync(url, new DecisionModel.IMPDecisionModelLoadListener() {
+        decisionModel.loadAsync(url, new DecisionModel.LoadListener() {
             @Override
-            public void onFinish(DecisionModel model, Exception e) {
-                assertNull(e);
+            public void onLoad(DecisionModel model) {
                 assertNotNull(model);
                 IMPLog.d(Tag, "testLoadAsync, OK");
                 semaphore.release();
+            }
+
+            @Override
+            public void onError(IOException e) {
+                assertNotNull(e);
             }
         });
         semaphore.acquire();
@@ -169,13 +173,15 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testLoadLocalCompressedModel() throws Exception {
+    public void testLoadLocalCompressedModel() throws IOException {
         // Download model file and save it to external cache dir
         String localModelFilePath = download(CompressedModelURL);
 
         URL url = new File(localModelFilePath).toURI().toURL();
 
-        DecisionModel decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = null;
+        decisionModel = DecisionModel.load(url);
+
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -282,15 +288,16 @@ public class DecisionModelTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
         model.trackWith(tracker);
-        model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
+        model.loadAsync(modelUrl, new DecisionModel.LoadListener() {
             @Override
-            public void onFinish(DecisionModel model, Exception e) {
-                if(e != null) {
-                    Log.d(Tag, "Error loading model: " + e.getLocalizedMessage());
-                } else {
-                    // the model is ready to go
-                    model.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
-                }
+            public void onLoad(DecisionModel decisionModel) {
+                assertNotNull(decisionModel);
+                decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
+            }
+
+            @Override
+            public void onError(IOException e) {
+                Log.d(Tag, "Error loading model: " + e.getLocalizedMessage());
             }
         });
     }
@@ -311,18 +318,18 @@ public class DecisionModelTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
         model.trackWith(tracker);
-        model.loadAsync(modelUrl, new DecisionModel.IMPDecisionModelLoadListener() {
+        model.loadAsync(modelUrl, new DecisionModel.LoadListener() {
             @Override
-            public void onFinish(DecisionModel model, Exception e) {
-                if(e != null) {
-                    IMPLog.d(Tag, "Error loading model: " + e.getLocalizedMessage());
-                    return ;
-                }
-
+            public void onLoad(DecisionModel model) {
                 // the model is ready to go
                 Object variant = model.chooseFrom(Arrays.asList(null, 0.1, 0.2)).get();
                 IMPLog.d(Tag, "variant=" + variant);
                 semaphore.release();
+            }
+
+            @Override
+            public void onError(IOException e) {
+                IMPLog.d(Tag, "Error loading model: " + e.getLocalizedMessage());
             }
         });
         semaphore.acquire();
@@ -334,7 +341,7 @@ public class DecisionModelTest {
         variants.add("hi");
         variants.add(new Date());
 
-        URL url = new URL("https://kpz-1251356641.cos.ap-guangzhou.myqcloud.com/dummy_v6.xgb");
+        URL url = new URL(ModelURL);
         try {
             DecisionModel.load(url).chooseFrom(variants).get();
         } catch (Exception e) {

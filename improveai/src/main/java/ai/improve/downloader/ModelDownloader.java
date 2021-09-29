@@ -3,8 +3,10 @@ package ai.improve.downloader;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.zip.GZIPInputStream;
 
@@ -49,7 +51,6 @@ public class ModelDownloader {
                         // If local model files is not in the sandbox of the app,
                         // READ_EXTERNAL_STORAGE might be required to read the file.
                         // We are leaving any permission request stuff to sdk users.
-                        new File(url.toURI());
                         if (url.getPath().endsWith(".gz")) {
                             inputStream = new GZIPInputStream(new FileInputStream(new File(url.toURI())));
                         } else {
@@ -61,10 +62,16 @@ public class ModelDownloader {
                             listener.onFinish(predictor, null);
                         }
                     }
-                } catch (Exception e) {
+                }
+                catch (IOException e) {
                     IMPLog.e(Tag, "model download exception: " + e.getMessage());
                     if(listener != null) {
                         listener.onFinish(null, e);
+                    }
+                } catch (URISyntaxException e) {
+                    IMPLog.e(Tag, "model download exception: " + e.getMessage());
+                    if(listener != null) {
+                        listener.onFinish(null, new IOException(e.getMessage()));
                     }
                 } finally {
                     if(inputStream != null) {
@@ -80,6 +87,6 @@ public class ModelDownloader {
     }
 
     public interface ModelDownloadListener {
-        void onFinish(ImprovePredictor predictor, Exception e);
+        void onFinish(ImprovePredictor predictor, IOException e);
     }
 }
