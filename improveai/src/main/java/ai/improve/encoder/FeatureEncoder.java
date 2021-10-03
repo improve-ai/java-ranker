@@ -47,7 +47,7 @@ public class FeatureEncoder {
         for (Object variant: variants) {
             double[] variantFeatures;
             if(givensFeature != null) {
-                variantFeatures = givensFeature;
+                variantFeatures = Arrays.copyOf(givensFeature, givensFeature.length);
             } else {
                 variantFeatures = new double[featureNamesMap.size()];
                 Arrays.fill(variantFeatures, Double.NaN);
