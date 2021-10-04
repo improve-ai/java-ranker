@@ -1,6 +1,7 @@
 package ai.improve.android;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -34,7 +35,7 @@ import static org.junit.Assert.*;
  */
 @RunWith(AndroidJUnit4.class)
 public class FeatureEncoderTest {
-    public static final String Tag = "ExampleInstrumentedTest";
+    public static final String Tag = "FeatureEncoderTest";
 
     private List<String> featureNames;
 
@@ -231,5 +232,36 @@ public class FeatureEncoderTest {
             }
             list.add(value);
         }   return list;
+    }
+
+    @Test
+    public void testEncodeMultipleVariants() throws Exception {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        InputStream inputStream = appContext.getAssets().open("multiple_variants.json");
+        byte[] buffer = new byte[inputStream.available()];
+        inputStream.read(buffer);
+        inputStream.close();
+
+        String content = new String(buffer);
+        JSONObject root = new JSONObject(content);
+        JSONObject testCase = root.getJSONObject("test_case");
+
+        List variants = toList(testCase.getJSONArray("variants"));
+
+        Object givensObject = testCase.get("givens");
+        Map givens = toMap((JSONObject) givensObject);
+
+        long modelSeed = root.getLong("model_seed");
+        double noise = root.getDouble("noise");
+        JSONArray expected = root.getJSONArray("test_output");
+
+
+        FeatureEncoder featureEncoder = new FeatureEncoder(modelSeed, featureNames);
+        featureEncoder.noise = noise;
+        List<FVec> features = featureEncoder.encodeVariants(variants, givens);
+        assertEquals(2, features.size());
+
+        assertTrue(isEqual(expected.getJSONObject(0), features.get(0)));
+        assertTrue(isEqual(expected.getJSONObject(1), features.get(1)));
     }
 }
