@@ -1,4 +1,4 @@
-package ai.improve.android;
+package ai.improve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
-import ai.improve.DecisionModel;
 import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
 

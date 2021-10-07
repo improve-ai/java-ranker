@@ -29,7 +29,7 @@ import ai.improve.DecisionModel;
 import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
 
-import static ai.improve.android.DecisionTrackerTest.Tracker_Url;
+import static ai.improve.DecisionTrackerTest.Tracker_Url;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;

@@ -1,4 +1,4 @@
-package ai.improve.android;
+package ai.improve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -7,25 +7,21 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import static ai.improve.DecisionTracker.COUNT_KEY;
+import static ai.improve.DecisionTracker.DECISION_BEST_KEY;
+import static ai.improve.DecisionTracker.SAMPLE_VARIANT_KEY;
+
 import com.google.gson.GsonBuilder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
-import ai.improve.util.HttpUtil;
-import ai.improve.util.TrackerHandler;
 import ai.improve.util.ModelUtils;
-import ai.improve.util.Utils;
 
-import static ai.improve.util.TrackerHandler.COUNT_KEY;
-import static ai.improve.util.TrackerHandler.DECISION_BEST_KEY;
-import static ai.improve.util.TrackerHandler.SAMPLE_VARIANT_KEY;
 
 import org.junit.jupiter.api.Test;
 
@@ -153,14 +149,14 @@ public class DecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
         tracker.setMaxRunnersUp(0);
 
-        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
             Map<String, Object> body = new HashMap();
-            TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
+            tracker.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
             String variant = (String)body.get(SAMPLE_VARIANT_KEY);
 
             if(countMap.containsKey(variant)) {
@@ -190,14 +186,14 @@ public class DecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
         tracker.setMaxRunnersUp(2);
 
-        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Integer> countMap = new HashMap<>();
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
             Map<String, Object> body = new HashMap();
-            TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
+            tracker.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
             String variant = (String)body.get(SAMPLE_VARIANT_KEY);
 
             if(countMap.containsKey(variant)) {
@@ -222,11 +218,11 @@ public class DecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
         tracker.setMaxRunnersUp(50);
 
-        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
+        tracker.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
         assertFalse(body.containsKey(SAMPLE_VARIANT_KEY));
     }
 
@@ -243,11 +239,11 @@ public class DecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
         tracker.setMaxRunnersUp(50);
 
-        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
+        tracker.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
         assertFalse(body.containsKey(SAMPLE_VARIANT_KEY));
     }
 
@@ -264,11 +260,11 @@ public class DecisionTrackerTest {
         DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
         tracker.setMaxRunnersUp(1);
 
-        int runnersUpCount = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
+        int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
+        tracker.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
         assertTrue(body.containsKey(SAMPLE_VARIANT_KEY));
         assertNull(body.get(SAMPLE_VARIANT_KEY));
     }
@@ -282,6 +278,8 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
+
         int runnersUpCount = 0;
         String bestVariant = "hello, world!";
 
@@ -289,7 +287,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
             Map<String, Object> body = new HashMap();
-            TrackerHandler.setSampleVariant(variants, runnersUpCount, false, bestVariant, body);
+            tracker.setSampleVariant(variants, runnersUpCount, false, bestVariant, body);
             String variant = (String)body.get(SAMPLE_VARIANT_KEY);
 
             if(countMap.containsKey(variant)) {
@@ -317,6 +315,8 @@ public class DecisionTrackerTest {
         variants.add("Hello, World!");
         variants.add("Hello, World!");
 
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
+
         int runnersUpCount = 0;
         String bestVariant = "Hello, World!";
 
@@ -324,7 +324,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
             Map<String, Object> body = new HashMap();
-            TrackerHandler.setSampleVariant(variants, runnersUpCount, false, bestVariant, body);
+            tracker.setSampleVariant(variants, runnersUpCount, false, bestVariant, body);
             String variant = (String)body.get(SAMPLE_VARIANT_KEY);
 
             if(countMap.containsKey(variant)) {
@@ -346,7 +346,7 @@ public class DecisionTrackerTest {
         tracker.setMaxRunnersUp(50);
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setBestVariant(null, body);
+        tracker.setBestVariant(null, body);
         assertTrue(body.containsKey(DECISION_BEST_KEY));
         assertEquals(new GsonBuilder().serializeNulls().create().toJson(body), "{\"variant\":null}");
 
@@ -365,7 +365,7 @@ public class DecisionTrackerTest {
         tracker.setMaxRunnersUp(2);
 
         List variants = Arrays.asList("foo", null, "bar");
-        List topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List topRunnersUp = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertNotNull(topRunnersUp);
         assertEquals(2, topRunnersUp.size());
     }
@@ -381,7 +381,7 @@ public class DecisionTrackerTest {
             variants.add(i);
         }
 
-        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List<Object> topRunnersUp = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 0);
     }
 
@@ -396,7 +396,7 @@ public class DecisionTrackerTest {
             variants.add(i);
         }
 
-        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List<Object> topRunnersUp = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 1);
     }
 
@@ -411,7 +411,7 @@ public class DecisionTrackerTest {
             variants.add(i);
         }
 
-        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List<Object> topRunnersUp = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 9);
 
         for(int i = 0; i < topRunnersUp.size(); i++) {
@@ -430,7 +430,7 @@ public class DecisionTrackerTest {
             variants.add(i);
         }
 
-        List<Object> topRunnersUp = TrackerHandler.topRunnersUp(variants, tracker.getMaxRunnersUp());
+        List<Object> topRunnersUp = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp());
         assertEquals(topRunnersUp.size(), 50);
 
         for(int i = 0; i < topRunnersUp.size(); i++) {
@@ -440,14 +440,15 @@ public class DecisionTrackerTest {
 
     @Test
     public void testSetBestVariantNonNil() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setBestVariant("hello", body);
-
+        tracker.setBestVariant("hello", body);
         assertEquals("hello", body.get(DECISION_BEST_KEY));
     }
 
     @Test
     public void testSetCount_2_variants() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
         int numOfVariants = 2;
         List<Object> variants = new ArrayList<>();
         for(int i = 0; i < numOfVariants; i++) {
@@ -455,27 +456,31 @@ public class DecisionTrackerTest {
         }
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setCount(variants, body);
+        tracker.setCount(variants, body);
 
         assertEquals(2, body.get(COUNT_KEY));
     }
 
     @Test
     public void testSetCount_null_variants() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
+
         List<Object> variants = null;
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setCount(variants, body);
+        tracker.setCount(variants, body);
 
         assertEquals(1, body.get(COUNT_KEY));
     }
 
     @Test
     public void testSetCount_empty_variants() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, getHistoryId());
+
         List<Object> variants = new ArrayList<>();
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setCount(variants, body);
+        tracker.setCount(variants, body);
 
         assertEquals(1, body.get(COUNT_KEY));
     }

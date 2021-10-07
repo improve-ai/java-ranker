@@ -1,15 +1,16 @@
-package ai.improve.android;
+package ai.improve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
+import static ai.improve.DecisionTrackerTest.Tracker_Url;
+
 import org.junit.jupiter.api.Test;
 
 import ai.improve.log.IMPLog;
 import ai.improve.util.HttpUtil;
-import ai.improve.util.TrackerHandler;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -26,14 +27,18 @@ public class HttpUtilTest {
 
     @Test
     public void testSerializeBody_null_variant() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "history_id");
+
         Map<String, Object> body = new HashMap();
         body.put("variant", null);
-        TrackerHandler.setBestVariant(null, body);
+        tracker.setBestVariant(null, body);
         assertEquals(HttpUtil.serializeBody(body), "{\"variant\":null}");
     }
 
     @Test
     public void testSerializeBody_null_leaf() {
+        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "history_id");
+
         Map<String, Object> body = new HashMap();
 
         Map<String, Object> variant = new HashMap<>();
@@ -41,7 +46,7 @@ public class HttpUtilTest {
         variant.put("font", null);
         variant.put("color", "#f0f0f0");
 
-        TrackerHandler.setBestVariant(variant, body);
+        tracker.setBestVariant(variant, body);
 
         assertEquals(HttpUtil.serializeBody(body), "{\"variant\":{\"color\":\"#f0f0f0\",\"theme\":null,\"font\":null}}");
     }

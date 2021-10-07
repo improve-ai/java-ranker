@@ -5,7 +5,6 @@ import java.util.Map;
 
 import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
-import ai.improve.util.TrackerHandler;
 
 public class Decision {
     public static final String Tag = "Decision";
@@ -56,11 +55,11 @@ public class Decision {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = DecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), true);
+                    tracker.track(best, variants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
                     best = ModelUtils.topScoringVariant(variants, scores);
-                    TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
+                    tracker.track(best, variants, givens, model.getModelName(), false);
                 }
             } else {
                 best = ModelUtils.topScoringVariant(variants, scores);
@@ -72,7 +71,7 @@ public class Decision {
             best = null;
             DecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                TrackerHandler.track(tracker, best, variants, givens, model.getModelName(), false);
+                tracker.track(best, variants, givens, model.getModelName(), false);
             } else {
                 IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }

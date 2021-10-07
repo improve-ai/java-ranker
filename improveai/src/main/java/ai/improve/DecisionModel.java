@@ -54,8 +54,10 @@ public class DecisionModel {
 
             @Override
             public void onError(IOException e) {
-                downloadException[0] = e;
-                decisionModel.lock.notifyAll();
+                synchronized (decisionModel.lock) {
+                    downloadException[0] = e;
+                    decisionModel.lock.notifyAll();
+                }
             }
         };
 
