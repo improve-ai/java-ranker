@@ -6,8 +6,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 
-import ai.improve.log.IMPLog;
-
 public class ImproveContentProvider extends ContentProvider {
     public static final String Tag = "ImproveContentProvider";
 
@@ -15,7 +13,6 @@ public class ImproveContentProvider extends ContentProvider {
 
     @Override
     public boolean onCreate() {
-        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
         sContext = getContext();
         return true;
     }

@@ -80,7 +80,7 @@ public class TrackerHandler {
         }
 
         int runnersUpCount = runnersUp == null ? 0 : runnersUp.size();
-        setSampleVariant(variants, runnersUpCount, body);
+        setSampleVariant(variants, runnersUpCount, variantsRankedAndTrackRunnersUp, bestVariant, body);
 
         postTrackingRequest(tracker, body);
     }
@@ -123,20 +123,30 @@ public class TrackerHandler {
      *
      * If the sample variant itself is null, it should also be included in the body map.
      **/
-    public static <T> void setSampleVariant(List<T> variants, int runnersUpCount, Map<String, Object> body) {
+    public static <T> void setSampleVariant(List<T> variants, int runnersUpCount, boolean ranked, Object bestVariant, Map<String, Object> body) {
         if(variants == null || variants.size() <= 0) {
             return ;
         }
 
-        T variant = null;
         int samplesCount = variants.size() - runnersUpCount - 1;
         if (samplesCount <= 0) {
             return ;
         }
 
-        int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
-        variant = variants.get(randomIndex);
-        body.put(SAMPLE_VARIANT_KEY, variant);
+        if(ranked) {
+            int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
+            body.put(SAMPLE_VARIANT_KEY, variants.get(randomIndex));
+        } else {
+            int indexOfBestVariant = variants.indexOf(bestVariant);
+            Random r = new Random();
+            while (true) {
+                int randomIdx = r.nextInt(variants.size());
+                if(randomIdx != indexOfBestVariant) {
+                    body.put(SAMPLE_VARIANT_KEY, variants.get(randomIdx));
+                    break;
+                }
+            }
+        }
     }
 
     public static void postTrackingRequest(DecisionTracker tracker, Map<String, Object> body) {

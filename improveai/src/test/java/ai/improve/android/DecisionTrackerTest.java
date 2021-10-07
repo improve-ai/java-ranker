@@ -160,7 +160,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
             Map<String, Object> body = new HashMap();
-            TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+            TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
             String variant = (String)body.get(SAMPLE_VARIANT_KEY);
 
             if(countMap.containsKey(variant)) {
@@ -197,7 +197,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         for(int i = 0; i < loop; ++i) {
             Map<String, Object> body = new HashMap();
-            TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+            TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
             String variant = (String)body.get(SAMPLE_VARIANT_KEY);
 
             if(countMap.containsKey(variant)) {
@@ -226,7 +226,7 @@ public class DecisionTrackerTest {
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+        TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
         assertFalse(body.containsKey(SAMPLE_VARIANT_KEY));
     }
 
@@ -247,7 +247,7 @@ public class DecisionTrackerTest {
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+        TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
         assertFalse(body.containsKey(SAMPLE_VARIANT_KEY));
     }
 
@@ -268,9 +268,73 @@ public class DecisionTrackerTest {
         System.out.println("runnersUpCount=" + runnersUpCount);
 
         Map<String, Object> body = new HashMap();
-        TrackerHandler.setSampleVariant(variants, runnersUpCount, body);
+        TrackerHandler.setSampleVariant(variants, runnersUpCount, true, "Hello, World!", body);
         assertTrue(body.containsKey(SAMPLE_VARIANT_KEY));
         assertNull(body.get(SAMPLE_VARIANT_KEY));
+    }
+
+    @Test
+    public void testSampleVariant_not_ranked() {
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+        variants.add("hello, world!");
+        variants.add("hello");
+        variants.add("hi");
+        variants.add("Hello World!");
+
+        int runnersUpCount = 0;
+        String bestVariant = "hello, world!";
+
+        Map<String, Integer> countMap = new HashMap<>();
+        int loop = 10000000;
+        for(int i = 0; i < loop; ++i) {
+            Map<String, Object> body = new HashMap();
+            TrackerHandler.setSampleVariant(variants, runnersUpCount, false, bestVariant, body);
+            String variant = (String)body.get(SAMPLE_VARIANT_KEY);
+
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+
+        assertFalse(countMap.containsKey(bestVariant));
+
+        int expectedCount = loop / (variants.size()-1);
+        assertEquals(countMap.get("Hello, World!"), expectedCount, 0.01 * expectedCount);
+        assertEquals(countMap.get("hello"), expectedCount, 0.01 * expectedCount);
+        assertEquals(countMap.get("hi"), expectedCount, 0.01 * expectedCount);
+        assertEquals(countMap.get("Hello World!"), expectedCount, 0.01 * expectedCount);
+    }
+
+    @Test
+    public void testSampleVariant_not_ranked_identical_variants() {
+        List<Object> variants = new ArrayList<>();
+        variants.add("Hello, World!");
+        variants.add("Hello, World!");
+        variants.add("Hello, World!");
+        variants.add("Hello, World!");
+        variants.add("Hello, World!");
+
+        int runnersUpCount = 0;
+        String bestVariant = "Hello, World!";
+
+        Map<String, Integer> countMap = new HashMap<>();
+        int loop = 10000000;
+        for(int i = 0; i < loop; ++i) {
+            Map<String, Object> body = new HashMap();
+            TrackerHandler.setSampleVariant(variants, runnersUpCount, false, bestVariant, body);
+            String variant = (String)body.get(SAMPLE_VARIANT_KEY);
+
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+
+        assertEquals(countMap.get("Hello, World!"), loop);
     }
 
     /**
