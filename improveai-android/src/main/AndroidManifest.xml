@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="ai.improve.improveai_android"
+    android:versionCode="1"
+    android:versionName="1.0.0.alpha">
+    <application>
+        <provider
+            android:name="ai.improve.android.ImproveContentProvider"
+            android:authorities="${applicationId}.improveaiprovider"
+            android:exported="false"/>
+    </application>
+</manifest>
