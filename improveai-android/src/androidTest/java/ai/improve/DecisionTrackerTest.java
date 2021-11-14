@@ -5,13 +5,13 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import ai.improve.DecisionModel;
 import ai.improve.log.IMPLog;
-import ai.improve.DecisionTracker;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
@@ -20,30 +20,17 @@ import static org.junit.Assert.assertNotNull;
 public class DecisionTrackerTest {
     private static final String Tag = "IMPDecisionTrackerTest";
 
-    public static final String Tracker_Url = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
+    public static final String Track_URL = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-    }
-
-    @Test
-    public void testHistoryId() {
-        DecisionTracker tracker_0 = new DecisionTracker(Tracker_Url);
-
-        String historyId_0 = tracker_0.getHistoryId();
-        IMPLog.d(Tag, "testHistoryId, historyId=" + historyId_0);
-        assertNotNull(historyId_0);
-
-        DecisionTracker tracker_1 = new DecisionTracker(Tracker_Url);
-        String historyId_1 = tracker_1.getHistoryId();
-        assertEquals(historyId_0, historyId_1);
+        DecisionModel.defaultTrackURL = Track_URL;
     }
 
     @Test
     public void testTracker() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url); // trackUrl is obtained from your Gym configuration
+        DecisionTracker tracker = new DecisionTracker(Track_URL); // trackUrl is obtained from your Gym configuration
         DecisionModel model = new DecisionModel("theme");
-        model.trackWith(tracker);
 
         int fontSize = (Integer) model.chooseFrom(Arrays.asList(12, 16, 20)).get();
         IMPLog.d(Tag, "fontSize=" + fontSize);
@@ -66,7 +53,6 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackerRequest() {
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.trackWith(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(Arrays.asList("Hello", "Hi", "Hey")).get();
     }
 
@@ -79,7 +65,7 @@ public class DecisionTrackerTest {
      * */
     @Test
     public void testTrackEvent() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
+        DecisionTracker tracker = new DecisionTracker(Track_URL);
         tracker.trackEvent("hello");
         tracker.trackEvent("hello", new HashMap<String, Object>(){
             {
@@ -99,7 +85,6 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackerNullVariants() {
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.trackWith(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(null).get();
     }
 
@@ -113,7 +98,6 @@ public class DecisionTrackerTest {
         givens.put("font", 12);
         givens.put("color", "#ffffff");
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.trackWith(new DecisionTracker(Tracker_Url));
         decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(givens).get();
     }
 }

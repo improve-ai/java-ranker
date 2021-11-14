@@ -30,10 +30,9 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
 import ai.improve.DecisionModel;
-import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
 
-import static ai.improve.DecisionTrackerTest.Tracker_Url;
+import static ai.improve.DecisionTrackerTest.Track_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -53,6 +52,7 @@ public class DecisionModelTest {
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        DecisionModel.defaultTrackURL = Track_URL;
     }
 
 //
@@ -291,9 +291,7 @@ public class DecisionModelTest {
 //        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
 //        DecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
-        model.trackWith(tracker);
         model.loadAsync(modelUrl, new DecisionModel.LoadListener() {
             @Override
             public void onLoad(DecisionModel decisionModel) {
@@ -321,9 +319,7 @@ public class DecisionModelTest {
     public void testChooseFromVariantsWithNull() throws Exception {
         Semaphore semaphore = new Semaphore(0);
         URL modelUrl = new URL(ModelURL);
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
-        model.trackWith(tracker);
         model.loadAsync(modelUrl, new DecisionModel.LoadListener() {
             @Override
             public void onLoad(DecisionModel model) {

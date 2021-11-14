@@ -22,13 +22,13 @@ import biz.k11i.xgboost.util.FVec;
 public class DecisionModel {
     public static final String Tag = "DecisionModel";
 
-    public static URL defaultTrackURL = null;
+    public static String defaultTrackURL = null;
 
     private final Object lock = new Object();
 
     private String modelName;
 
-    private URL trackURL;
+    private String trackURL;
 
     private DecisionTracker tracker;
 
@@ -127,20 +127,26 @@ public class DecisionModel {
      * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be tracked.
      * @exception RuntimeException in case of an invalid modelName
      */
-    public DecisionModel(String modelName, URL trackURL) {
+    public DecisionModel(String modelName, String trackURL) {
         if(!isValidModelName(modelName)) {
             throw new RuntimeException("invalid modelName: [" + modelName + "]");
         }
         this.modelName = modelName;
 
+
         this.trackURL = trackURL;
     }
 
-    public void setTrackURL(URL trackURL) {
-        this.trackURL = trackURL;
+    public String getTrackURL() {
+        return this.trackURL;
     }
 
-    public void setDefaultTrackURL(URL trackURL) {
+    public void setTrackURL(String trackURL) {
+        this.trackURL = trackURL;
+        this.tracker = new DecisionTracker(trackURL);
+    }
+
+    public void setDefaultTrackURL(String trackURL) {
         defaultTrackURL = trackURL;
     }
 
@@ -170,13 +176,8 @@ public class DecisionModel {
         return modelName;
     }
 
-    public DecisionTracker getTracker() {
+    protected DecisionTracker getTracker() {
         return tracker;
-    }
-
-    public DecisionModel trackWith(DecisionTracker tracker) {
-        this.tracker = tracker;
-        return this;
     }
 
     protected FeatureEncoder getFeatureEncoder() {

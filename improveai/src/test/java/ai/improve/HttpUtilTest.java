@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-import static ai.improve.DecisionTrackerTest.Tracker_Url;
+import static ai.improve.DecisionTrackerTest.Track_URL;
 
 import org.junit.jupiter.api.Test;
 
@@ -27,7 +27,7 @@ public class HttpUtilTest {
 
     @Test
     public void testSerializeBody_null_variant() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "history_id");
+        DecisionTracker tracker = new DecisionTracker(Track_URL);
 
         Map<String, Object> body = new HashMap();
         body.put("variant", null);
@@ -37,7 +37,7 @@ public class HttpUtilTest {
 
     @Test
     public void testSerializeBody_null_leaf() {
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "history_id");
+        DecisionTracker tracker = new DecisionTracker(Track_URL);
 
         Map<String, Object> body = new HashMap();
 

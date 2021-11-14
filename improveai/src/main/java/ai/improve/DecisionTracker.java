@@ -1,7 +1,5 @@
 package ai.improve;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -16,8 +14,8 @@ import ai.improve.log.IMPLog;
 import ai.improve.util.HttpUtil;
 import ai.improve.util.Utils;
 
-public class DecisionTracker {
-    public static final String Tag = "BaseDecisionTracker";
+class DecisionTracker {
+    public static final String Tag = "DecisionTracker";
 
     private static final String TYPE_KEY = "type";
 
@@ -39,12 +37,7 @@ public class DecisionTracker {
 
     private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
 
-
-    private static final String HISTORY_ID_KEY = "history_id";
-
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
-
-    private static String sHistoryId = "";
 
     private String trackURL;
 
@@ -54,37 +47,11 @@ public class DecisionTracker {
      * */
     private int maxRunnersUp = DEFAULT_MAX_RUNNERS_UP;
 
-    /**
-     * Android only
-     * */
     public DecisionTracker(String trackURL) {
-        this(trackURL, null);
-    }
-
-    /**
-     * History id must be set for non-Android platforms, so this is the only
-     * valid constructor method for them.
-     * */
-    public DecisionTracker(String trackURL, String historyId) {
         this.trackURL = trackURL;
-
-        if(trackURL == null || trackURL.isEmpty()) {
-            // Just a warning
+        if(Utils.isEmpty(trackURL)) {
+            // Just give a warning
             IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
-        }
-
-        if(Utils.isAndroid()) {
-            String id = getHistoryId();
-            if(Utils.isEmpty(id)) {
-                throw new RuntimeException("Fatal error, history id must not be null or empty");
-            }
-            setHistoryId(id);
-        } else {
-            // history id must be set for non-Android platform
-            if(Utils.isEmpty(historyId)) {
-                throw new RuntimeException("Fatal error, history id must not be null or empty");
-            }
-            sHistoryId = historyId;
         }
     }
 
@@ -160,27 +127,6 @@ public class DecisionTracker {
         postTrackingRequest(body);
     }
 
-    public static void setHistoryId(String historyId) {
-        sHistoryId = historyId;
-    }
-
-    protected String getHistoryId() {
-        try {
-            Class clz = Class.forName("ai.improve.android.HistoryIdProviderImp");
-            Object o = clz.newInstance();
-
-            Method method = clz.getDeclaredMethod("getHistoryId");
-            String historyId = (String)method.invoke(o);
-            return historyId;
-        } catch (InstantiationException e) {
-        } catch (InvocationTargetException e) {
-        } catch (NoSuchMethodException e) {
-        } catch (IllegalAccessException e) {
-        } catch (ClassNotFoundException e) {
-        }
-        return "";
-    }
-
     protected void setBestVariant(Object variant, Map<String, Object> body) {
         body.put(DECISION_BEST_KEY, variant);
     }
@@ -241,17 +187,11 @@ public class DecisionTracker {
     }
 
     private void postTrackingRequest(Map<String, Object> body) {
-        if (sHistoryId == null || sHistoryId.isEmpty()) {
-            IMPLog.e(Tag, "historyId cannot be null");
-            return;
-        }
-
         Map<String, String> headers = new HashMap<>();
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 
         body = new HashMap<>(body);
         body.put(TIMESTAMP_KEY, ISO_TIMESTAMP_FORMAT.format(new Date()));
-        body.put(HISTORY_ID_KEY, sHistoryId);
         body.put(MESSAGE_ID_KEY, UUID.randomUUID().toString());
 
         Map<String, Object> finalBody = body;

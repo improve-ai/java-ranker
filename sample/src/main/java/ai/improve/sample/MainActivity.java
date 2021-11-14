@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ai.improve.DecisionModel;
-import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
@@ -118,9 +117,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         variants.add("hello");
         variants.add("hi");
 
-        DecisionTracker tracker = new DecisionTracker("");
-
-        Object variant = new DecisionModel("orange").trackWith(tracker).chooseFrom(variants).get();
+        Object variant = new DecisionModel("orange").chooseFrom(variants).get();
         Log.d(Tag, "variant = " + variant);
     }
 

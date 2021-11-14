@@ -6,8 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import static ai.improve.DecisionTrackerTest.Track_URL;
+
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -115,6 +119,24 @@ public class DecisionModelTest {
             }
         }
         assertEquals(l.size(), count);
+    }
+
+    @Test
+    public void testDefaultTrackURL() throws MalformedURLException {
+        assertNull(DecisionModel.defaultTrackURL);
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNull(decisionModel.getTrackURL());
+
+        DecisionModel.defaultTrackURL = Track_URL;
+
+        decisionModel = new DecisionModel("hello");
+        assertNotNull(decisionModel.getTrackURL());
+        assertEquals(Track_URL, decisionModel.getTrackURL());
+    }
+
+    @Test
+    public void testSetDefaultTrackURL() {
+
     }
 
     @Test
