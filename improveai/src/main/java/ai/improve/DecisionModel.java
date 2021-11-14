@@ -15,15 +15,20 @@ import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
 import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
+import ai.improve.util.Utils;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
 public class DecisionModel {
     public static final String Tag = "DecisionModel";
 
+    public static URL defaultTrackURL = null;
+
     private final Object lock = new Object();
 
     private String modelName;
+
+    private URL trackURL;
 
     private DecisionTracker tracker;
 
@@ -113,7 +118,30 @@ public class DecisionModel {
     }
 
     public DecisionModel(String modelName) {
+        this(modelName, defaultTrackURL);
+    }
+
+    /**
+     * @param modelName Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
+     * are allowed in the modenName and the first character must be an alphnumeric one; nil is also a valid model name.
+     * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be tracked.
+     * @exception RuntimeException in case of an invalid modelName
+     */
+    public DecisionModel(String modelName, URL trackURL) {
+        if(!isValidModelName(modelName)) {
+            throw new RuntimeException("invalid modelName: [" + modelName + "]");
+        }
         this.modelName = modelName;
+
+        this.trackURL = trackURL;
+    }
+
+    public void setTrackURL(URL trackURL) {
+        this.trackURL = trackURL;
+    }
+
+    public void setDefaultTrackURL(URL trackURL) {
+        defaultTrackURL = trackURL;
     }
 
     public synchronized void setModel(ImprovePredictor predictor) {
@@ -254,5 +282,12 @@ public class DecisionModel {
 
     private int getSeq() {
         return seq.getAndIncrement();
+    }
+
+    private boolean isValidModelName(String modelName) {
+        if(Utils.isEmpty(modelName)) {
+            return false;
+        }
+        return modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
     }
 }

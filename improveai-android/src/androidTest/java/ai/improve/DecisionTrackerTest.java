@@ -9,7 +9,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import ai.improve.DecisionModel;
 import ai.improve.log.IMPLog;
+import ai.improve.DecisionTracker;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

@@ -28,8 +28,93 @@ import ai.improve.util.ModelUtils;
 public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
+    public static final String DefaultFailMessage = "A runtime exception should have been thrown, we should never have reached here";
+
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+    }
+
+    @Test
+    public void testModelName_null() {
+        try {
+            new DecisionModel(null);
+        } catch (RuntimeException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testModelName_empty() {
+        try {
+            new DecisionModel("");
+        } catch (RuntimeException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testModelName_Valid_Length() {
+        new DecisionModel("a");
+        new DecisionModel("abcde");
+
+        String s = "";
+        for(int i = 0; i < 64; ++i) {
+            s += "a";
+        }
+        assertEquals(64, s.length());
+        new DecisionModel(s);
+    }
+
+    @Test
+    public void testModelName_Invalid_Length() {
+        String s = "";
+
+        int length = 65;
+        for(int i = 0; i < length; ++i) {
+            s += "a";
+        }
+        assertEquals(length, s.length());
+        new DecisionModel(s);
+    }
+
+    @Test
+    public void testModelName_Valid_Character() {
+        List<String> l = Arrays.asList(
+                "a",
+                "a_",
+                "a.",
+                "a-",
+                "a1",
+                "3abb"
+        );
+        assertTrue(l.size() > 0);
+
+        for(int i = 0; i < l.size(); ++i) {
+            new DecisionModel(l.get(i));
+        }
+    }
+
+    @Test
+    public void testModelName_Invalid_Character() {
+        List<String> l = Arrays.asList(
+                "_a",
+                "a+",
+                "a\\",
+                ".a"
+        );
+
+        int count = 0;
+        for(int i = 0; i < l.size(); ++i) {
+            try {
+                new DecisionModel(l.get(i));
+            } catch (RuntimeException e) {
+                e.printStackTrace();
+                count++;
+            }
+        }
+        assertEquals(l.size(), count);
     }
 
     @Test

@@ -45,9 +45,9 @@ import static java.lang.Math.pow;
 public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
-    public static final String ModelURL = "http://192.168.1.101/dummy_v6.xgb";
+    public static final String ModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
 
-    private static final String CompressedModelURL = "http://192.168.1.101/dummy_v6.xgb.gz";
+    private static final String CompressedModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
 
     private static final String AssetModelFileName = "dummy_v6.xgb";
 
