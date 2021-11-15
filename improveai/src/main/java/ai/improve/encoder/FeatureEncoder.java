@@ -78,7 +78,7 @@ public class FeatureEncoder {
         if(node instanceof Boolean) {
             double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
             String featureName = hash_to_feature_name(seed);
-//            IMPLog.d(Tag, "featureName: "+featureName);
+            IMPLog.d(Tag, "featureName: "+featureName);
             if(featureNamesMap.containsKey(featureName)) {
                 int index = featureNamesMap.get(featureName);
                 double unsprinkled = 0;
@@ -91,7 +91,7 @@ public class FeatureEncoder {
             if(!Double.isNaN(((Number)node).doubleValue())) {
                 double nodeValue = ((Number) node).doubleValue();
                 String featureName = hash_to_feature_name(seed);
-//                IMPLog.d(Tag, "featureName: " + featureName);
+                IMPLog.d(Tag, "featureName: " + featureName);
                 if (featureNamesMap.containsKey(featureName)) {
                     int index = featureNamesMap.get(featureName);
                     double unsprinkled = 0;
@@ -104,7 +104,7 @@ public class FeatureEncoder {
         } else if(node instanceof String) {
             long hashed = xxhash3(((String) node).getBytes(), seed);
             String featureName = hash_to_feature_name(seed);
-//            IMPLog.d(Tag, "featureName: " + featureName);
+            IMPLog.d(Tag, "featureName: " + featureName);
             if(featureNamesMap.containsKey(featureName)) {
                 int index = featureNamesMap.get(featureName);
                 double unsprinkled = 0.0;
@@ -115,7 +115,7 @@ public class FeatureEncoder {
             }
 
             String hashedFeatureName = hash_to_feature_name(hashed);
-//            IMPLog.d(Tag, "featureName: "+hashedFeatureName);
+            IMPLog.d(Tag, "featureName: "+hashedFeatureName);
             if(featureNamesMap.containsKey(hashedFeatureName)) {
                 int index = featureNamesMap.get(hashedFeatureName);
                 double unsprinkled = 0.0;

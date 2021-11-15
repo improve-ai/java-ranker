@@ -55,8 +55,9 @@ public class FeatureEncoderTest {
      * 5. cp feature_names.txt ~/workspace/improve-android/improveai-android/src/androidTest/assets/
      * */
     private void loadFeatureNames() throws IOException {
+        String rootDir = "feature_encoder_test_suite/";
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open("feature_names.txt");
+        InputStream inputStream = appContext.getAssets().open(rootDir + "feature_names.txt");
         byte[] buffer = new byte[inputStream.available()];
         inputStream.read(buffer);
         inputStream.close();
@@ -69,8 +70,9 @@ public class FeatureEncoderTest {
 
     @Test
     public void testFeatureEncoder() throws Exception {
+        String rootDir = "feature_encoder_test_suite/";
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open("feature_encoder_test_suite.txt");
+        InputStream inputStream = appContext.getAssets().open(rootDir + "feature_encoder_test_suite.txt");
         byte[] buffer = new byte[inputStream.available()];
         inputStream.read(buffer);
         inputStream.close();
@@ -78,10 +80,8 @@ public class FeatureEncoderTest {
         String content = new String(buffer);
         String[] allTestCases = content.split("\\n");
         for (int i = 0; i < allTestCases.length; ++i) {
-            IMPLog.d(Tag, "verify case " + allTestCases[i]);
-//            if("none.json".equals(allTestCases[i])) {
-                assertTrue(verify(allTestCases[i]));
-//            }
+            IMPLog.d(Tag, i + ", verify case " + allTestCases[i]);
+            assertTrue(verify(rootDir + allTestCases[i]));
         }
     }
 
