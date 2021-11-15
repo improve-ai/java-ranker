@@ -33,6 +33,8 @@ public class DecisionModel {
 
     private static AtomicInteger seq = new AtomicInteger(0);
 
+    protected boolean enableTieBreaker = true;
+
     /**
      * WeakReference is used here to avoid Android activity leaks.
      * A sample activity "LeakTestActivity" is included in the sample project.
@@ -149,6 +151,10 @@ public class DecisionModel {
         return this;
     }
 
+    protected FeatureEncoder getFeatureEncoder() {
+        return featureEncoder;
+    }
+
     /**
      * @return an IMPDecision object
      * */
@@ -195,9 +201,13 @@ public class DecisionModel {
 
         List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
         for (FVec fvec : encodedFeatures) {
-            // add a very small random number to randomly break ties
-            double smallNoise = Math.random() * Math.pow(2, -23);
-            result.add((double)predictor.predictSingle(fvec) + smallNoise);
+            if(enableTieBreaker) {
+                // add a very small random number to randomly break ties
+                double smallNoise = Math.random() * Math.pow(2, -23);
+                result.add((double) predictor.predictSingle(fvec) + smallNoise);
+            } else {
+                result.add((double) predictor.predictSingle(fvec));
+            }
         }
 
         return result;

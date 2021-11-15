@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -32,7 +33,8 @@ public class ModelDownloader {
             public void run() {
                 InputStream inputStream = null;
                 try {
-                    if(url.toString().startsWith("http")) {
+                    String urlString = url.toString();
+                    if(urlString.startsWith("http")) {
                         IMPLog.d(Tag, "loadAsync, start loading model, " + url.toString());
                         HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                         urlConnection.setReadTimeout(15000);
@@ -45,6 +47,26 @@ public class ModelDownloader {
                         ImprovePredictor predictor = new ImprovePredictor(inputStream);
                         if(listener != null) {
                             listener.onFinish(predictor, null);
+                        }
+                    } else if(urlString.startsWith("file:///android_asset")) {
+                        try {
+                            String path = urlString.substring("file:///android_asset/".length());
+                            Class<?> clz = Class.forName("ai.improve.android.AssetModelLoader");
+                            Method method = clz.getMethod("loadFromAsset", String.class);
+                            if(urlString.endsWith(".gz")) {
+                                inputStream = new GZIPInputStream((InputStream) method.invoke(null, path));
+                            } else {
+                                inputStream = (InputStream) method.invoke(null, path);
+                            }
+                            ImprovePredictor predictor = new ImprovePredictor(inputStream);
+                            if(listener != null) {
+                                listener.onFinish(predictor, null);
+                            }
+                        } catch (Exception e) {
+                            IMPLog.e(Tag, "model download exception: " + e.getMessage());
+                            if(listener != null) {
+                                listener.onFinish(null, new IOException(e.getMessage()));
+                            }
                         }
                     } else {
                         // local model files
