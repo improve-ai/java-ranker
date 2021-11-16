@@ -10,6 +10,7 @@ import static ai.improve.DecisionTrackerTest.Track_URL;
 
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -39,13 +40,9 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testModelName_null() {
-        try {
-            new DecisionModel(null);
-        } catch (RuntimeException e) {
-            return ;
-        }
-        fail(DefaultFailMessage);
+    public void testModelName_null() throws IOException {
+        // null is a valid model name
+        new DecisionModel(null);
     }
 
     @Test
@@ -80,7 +77,13 @@ public class DecisionModelTest {
             s += "a";
         }
         assertEquals(length, s.length());
-        new DecisionModel(s);
+
+        try {
+            new DecisionModel(s);
+        } catch (Exception e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

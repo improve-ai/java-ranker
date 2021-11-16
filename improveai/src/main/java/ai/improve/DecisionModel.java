@@ -157,7 +157,9 @@ public class DecisionModel {
 
         this.predictor = predictor;
 
-        if(!modelName.equals(predictor.getModelMetadata().getModelName())){
+        if(modelName == null) {
+            modelName = predictor.getModelMetadata().getModelName();
+        } else if(!modelName.equals(predictor.getModelMetadata().getModelName())){
             IMPLog.w(Tag, "Model names don't match: current model name [" + modelName
                     + "], model name extracted [" + predictor.getModelMetadata().getModelName() +"], ["
                     + modelName + "] will be used.");
@@ -285,8 +287,8 @@ public class DecisionModel {
     }
 
     private boolean isValidModelName(String modelName) {
-        if(Utils.isEmpty(modelName)) {
-            return false;
+        if(modelName == null) {
+            return true;
         }
         return modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
     }
