@@ -2,9 +2,6 @@ package ai.improve.sample;
 
 import android.app.Application;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-
 import ai.improve.DecisionModel;
 import ai.improve.log.IMPLog;
 
@@ -17,12 +14,6 @@ public class SampleApplication extends Application {
     public void onCreate() {
         super.onCreate();
         IMPLog.d(Tag, "onCreate");
-
-        try {
-            DecisionModel.defaultTrackURL = new URL(Track_URL);
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        }
-
+        DecisionModel.defaultTrackURL = Track_URL;
     }
 }

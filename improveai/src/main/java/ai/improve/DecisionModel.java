@@ -48,8 +48,7 @@ public class DecisionModel {
      */
     private Map<Integer, WeakReference<LoadListener>> listeners = new HashMap<>();
 
-    public static DecisionModel load(URL url) throws IOException {
-        DecisionModel decisionModel = new DecisionModel("");
+    public DecisionModel load(URL url) throws IOException {
         final IOException[] downloadException = {null};
         LoadListener listener = new LoadListener() {
             @Override
@@ -61,17 +60,17 @@ public class DecisionModel {
 
             @Override
             public void onError(IOException e) {
-                synchronized (decisionModel.lock) {
+                synchronized (DecisionModel.this.lock) {
                     downloadException[0] = e;
-                    decisionModel.lock.notifyAll();
+                    DecisionModel.this.lock.notifyAll();
                 }
             }
         };
 
-        decisionModel.loadAsync(url, listener);
-        synchronized (decisionModel.lock) {
+        loadAsync(url, listener);
+        synchronized (lock) {
             try {
-                decisionModel.lock.wait();
+                lock.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 IMPLog.e(Tag, e.getLocalizedMessage());
@@ -82,7 +81,7 @@ public class DecisionModel {
             throw downloadException[0];
         }
 
-        return decisionModel;
+        return this;
     }
 
     /**
@@ -158,11 +157,11 @@ public class DecisionModel {
 
         this.predictor = predictor;
 
-        if((modelName != null && !modelName.isEmpty()) && !modelName.equals(predictor.getModelMetadata().getModelName())) {
-            IMPLog.w(Tag, "Model names don't match: Current model name [" + modelName
-                    + "], new model Name [" + predictor.getModelMetadata().getModelName() +"] will be used.");
+        if(!modelName.equals(predictor.getModelMetadata().getModelName())){
+            IMPLog.w(Tag, "Model names don't match: current model name [" + modelName
+                    + "], model name extracted [" + predictor.getModelMetadata().getModelName() +"], ["
+                    + modelName + "] will be used.");
         }
-        this.modelName = predictor.getModelMetadata().getModelName();
 
         featureEncoder = new FeatureEncoder(predictor.getModelMetadata().getModelSeed(),
                 predictor.getModelMetadata().getModelFeatureNames());

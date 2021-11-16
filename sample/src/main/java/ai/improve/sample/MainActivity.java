@@ -23,7 +23,7 @@ import ai.improve.log.IMPLog;
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final String Tag = "MainActivity";
 
-    public static final String Model_URL = "http://192.168.1.101/dummy_v6.xgb";
+    public static final String Model_URL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
 
     private TextView mGreetingTV;
 
@@ -60,7 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public void run() {
                 try {
                     URL url = new URL(Model_URL);
-                    DecisionModel.load(url);
+                    DecisionModel decisionModel = new DecisionModel("hello");
+                    decisionModel.load(url);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -92,8 +93,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         variants.add("hi");
 
         URL url = new URL(Model_URL);
-        DecisionModel model = DecisionModel.load(url);
-        String greeting = (String) model.chooseFrom(variants).get();
+        DecisionModel decisionModel = new DecisionModel("hello");
+        decisionModel.load(url);
+        String greeting = (String) decisionModel.chooseFrom(variants).get();
         Log.d(Tag, "greeting=" + greeting);
 
         runOnUiThread(new Runnable() {

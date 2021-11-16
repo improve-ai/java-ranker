@@ -80,6 +80,10 @@ public class DecisionModelTest {
 //        semaphore.acquire();
 //    }
 
+    public DecisionModel getDecisionModel(String modelName) {
+        return new DecisionModel(modelName);
+    }
+
     @Test
     public void testModelNameWithoutLoadingModel() {
         DecisionModel decisionModel = new DecisionModel("music");
@@ -89,9 +93,9 @@ public class DecisionModelTest {
     @Test
     public void testModelName() throws Exception {
         URL url = new URL(ModelURL);
-        DecisionModel decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
         IMPLog.d(Tag, "modelName=" + decisionModel.getModelName());
-        assertEquals("dummy-model-0", decisionModel.getModelName());
+        assertEquals("hello", decisionModel.getModelName());
     }
 
     @Test
@@ -103,7 +107,7 @@ public class DecisionModelTest {
         variants.add("hi");
 
         URL url = new URL(ModelURL);
-        String greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
+        String greeting = (String) getDecisionModel("hello").load(url).chooseFrom(variants).get();
         IMPLog.d(Tag, "testGet, greeting=" + greeting);
         assertNotNull(greeting);
     }
@@ -146,7 +150,7 @@ public class DecisionModelTest {
     @Test
     public void testLoadGzipModel() throws Exception {
         URL url = new URL(CompressedModelURL);
-        DecisionModel decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -165,7 +169,7 @@ public class DecisionModelTest {
         String localModelFilePath = download(ModelURL);
         URL url = new File(localModelFilePath).toURI().toURL();
 
-        DecisionModel decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -185,8 +189,7 @@ public class DecisionModelTest {
 
         URL url = new File(localModelFilePath).toURI().toURL();
 
-        DecisionModel decisionModel = null;
-        decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
 
         assertNotNull(decisionModel);
 
@@ -213,7 +216,7 @@ public class DecisionModelTest {
         String greeting = null;
         Exception loadException = null;
         try {
-            greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
+            greeting = (String) getDecisionModel("hello").load(url).chooseFrom(variants).get();
         } catch (Exception e) {
             loadException = e;
             e.printStackTrace();
@@ -236,7 +239,7 @@ public class DecisionModelTest {
                     variants.add("hi");
 
                     URL url = new URL(ModelURL);
-                    String greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
+                    String greeting = (String) getDecisionModel("hello").load(url).chooseFrom(variants).get();
                     IMPLog.d(Tag, "testGet, greeting=" + greeting);
                     assertNotNull(greeting);
 
@@ -278,14 +281,13 @@ public class DecisionModelTest {
         given.put("language", "cowboy");
 
         // Choose from null
-        DecisionModel.load(modelUrl).chooseFrom(null).get();
-
+        getDecisionModel("hello").load(modelUrl).chooseFrom(null).get();
 
         // Choose from string
-        DecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
+        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
 
         // Choose from boolean
-        DecisionModel.load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
+        getDecisionModel("hello").load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
 
         // loadFromAsset
 //        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -312,7 +314,7 @@ public class DecisionModelTest {
         Map<String, Object> given = new HashMap<>();
         given.put("language", "cowboy");
         // Choose from string
-        DecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
+        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
     }
 
     @Test
@@ -345,7 +347,7 @@ public class DecisionModelTest {
 
         URL url = new URL(ModelURL);
         try {
-            DecisionModel.load(url).chooseFrom(variants).get();
+            getDecisionModel("hello").load(url).chooseFrom(variants).get();
         } catch (Exception e) {
             IMPLog.e(Tag, ""+e.getMessage());
             e.printStackTrace();
@@ -374,7 +376,7 @@ public class DecisionModelTest {
         // are somehow stripped by Android aapt tool, so we have to remove
         // the '.gz' suffix to access it here.
         URL modelUrl = new URL("file:///android_asset/validate_models/" + path + "/model.xgb");
-        DecisionModel decisionModel = DecisionModel.load(modelUrl);
+        DecisionModel decisionModel = getDecisionModel("hello").load(modelUrl);
 
         // load testcase json
         InputStream inputStream = getContext().getAssets().open("validate_models/" + path + "/" + path + ".json");
