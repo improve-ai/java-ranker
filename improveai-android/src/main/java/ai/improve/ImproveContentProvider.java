@@ -1,10 +1,12 @@
-package ai.improve.android;
+package ai.improve;
 
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+
+import ai.improve.android.AppGivensProvider;
 
 public class ImproveContentProvider extends ContentProvider {
     public static final String Tag = "ImproveContentProvider";
@@ -14,6 +16,9 @@ public class ImproveContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         sContext = getContext();
+
+        DecisionModel.setDefaultGivensProvider(new AppGivensProvider(sContext));
+
         return true;
     }
 

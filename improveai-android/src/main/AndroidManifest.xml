@@ -5,7 +5,7 @@
     android:versionName="1.0.0.alpha">
     <application>
         <provider
-            android:name="ai.improve.android.ImproveContentProvider"
+            android:name="ai.improve.ImproveContentProvider"
             android:authorities="${applicationId}.improveaiprovider"
             android:exported="false"/>
     </application>

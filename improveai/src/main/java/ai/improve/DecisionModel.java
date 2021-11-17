@@ -14,8 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
 import ai.improve.log.IMPLog;
+import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelUtils;
-import ai.improve.util.Utils;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
@@ -39,6 +39,10 @@ public class DecisionModel {
     private static AtomicInteger seq = new AtomicInteger(0);
 
     protected boolean enableTieBreaker = true;
+
+    private GivensProvider givensProvider;
+
+    public static GivensProvider defaultGivensProvider;
 
     /**
      * WeakReference is used here to avoid Android activity leaks.
@@ -132,8 +136,7 @@ public class DecisionModel {
         }
         this.modelName = modelName;
 
-
-        this.trackURL = trackURL;
+        setTrackURL(trackURL);
     }
 
     public String getTrackURL() {
@@ -147,6 +150,18 @@ public class DecisionModel {
 
     public void setDefaultTrackURL(String trackURL) {
         defaultTrackURL = trackURL;
+    }
+
+    public GivensProvider getGivensProvider() {
+        return givensProvider != null ? givensProvider : defaultGivensProvider;
+    }
+
+    public void setGivensProvider(GivensProvider givensProvider) {
+        this.givensProvider = givensProvider;
+    }
+
+    protected static void setDefaultGivensProvider(GivensProvider givensProvider) {
+        defaultGivensProvider = givensProvider;
     }
 
     public synchronized void setModel(ImprovePredictor predictor) {
