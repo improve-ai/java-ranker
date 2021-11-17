@@ -1,5 +1,7 @@
 package ai.improve;
 
+import static ai.improve.DecisionTracker.persistenceProvider;
+
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -271,8 +273,15 @@ public class DecisionModel {
             throw new IllegalArgumentException("reward must not be NaN or infinity");
         }
 
+        if(persistenceProvider == null) {
+            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+        }
+
         if(tracker != null) {
             tracker.addRewardForModel(modelName, reward);
+
+            // reward persisted would be used in AppGivensProvider later
+            persistenceProvider.addRewardForModel(modelName, reward);
         }
     }
 

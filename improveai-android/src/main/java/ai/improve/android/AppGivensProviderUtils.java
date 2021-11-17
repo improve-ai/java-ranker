@@ -2,6 +2,7 @@ package ai.improve.android;
 
 import static ai.improve.android.AppGivensProvider.SP_Key_Born_Time;
 import static ai.improve.android.AppGivensProvider.SP_Key_Decision_Count;
+import static ai.improve.android.AppGivensProvider.SP_Key_Model_Reward;
 import static ai.improve.android.AppGivensProvider.SP_Key_Session_Count;
 import static ai.improve.android.AppGivensProvider.SP_Key_Session_Start_Time;
 import static ai.improve.android.Constants.Improve_SP_File_Name;
@@ -10,6 +11,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
 
+import ai.improve.ImproveContentProvider;
 import ai.improve.log.IMPLog;
 
 public class AppGivensProviderUtils {
@@ -156,5 +158,20 @@ public class AppGivensProviderUtils {
             }
         }
         return 0;
+    }
+
+    public static void addRewardForModel(String modelName, double reward) {
+        Context context = ImproveContentProvider.getAppContext();
+        String key = String.format(SP_Key_Model_Reward, modelName);
+        SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
+        double curReward = Double.longBitsToDouble(sp.getLong(key, 0));
+        sp.edit().putLong(key, Double.doubleToLongBits(curReward + reward));
+    }
+
+    public static double rewardOfModel(String modelName) {
+        Context context = ImproveContentProvider.getAppContext();
+        String key = String.format(SP_Key_Model_Reward, modelName);
+        SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
+        return Double.longBitsToDouble(sp.getLong(key, 0));
     }
 }

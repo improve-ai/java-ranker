@@ -5,6 +5,7 @@ import static ai.improve.android.Constants.Improve_SP_File_Name;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import ai.improve.android.AppGivensProviderUtils;
 import ai.improve.provider.PersistenceProvider;
 
 public class AndroidPersistenceProvider implements PersistenceProvider {
@@ -28,5 +29,10 @@ public class AndroidPersistenceProvider implements PersistenceProvider {
         String key = String.format(Key_Last_Decision_Id, modelName);
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         return sp.getString(key, "");
+    }
+
+    @Override
+    public void addRewardForModel(String modelName, double reward) {
+        AppGivensProviderUtils.addRewardForModel(modelName, reward);
     }
 }

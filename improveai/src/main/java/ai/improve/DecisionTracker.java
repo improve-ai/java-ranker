@@ -46,7 +46,7 @@ class DecisionTracker {
 
     private String trackURL;
 
-    private static PersistenceProvider persistenceProvider;
+    protected static PersistenceProvider persistenceProvider;
 
     private static final KsuidGenerator KSUID_GENERATOR = new KsuidGenerator(new SecureRandom());
 
@@ -203,9 +203,6 @@ class DecisionTracker {
     }
 
     public void addRewardForModel(String modelName, double reward) {
-        if(persistenceProvider == null) {
-            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
-        }
         String lastDecisionId = persistenceProvider.lastDecisionIdForModel(modelName);
         if(Utils.isEmpty(lastDecisionId)) {
             IMPLog.w(Tag, "add reward for [" + modelName + "], but lastDecisionId is empty");

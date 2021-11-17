@@ -49,12 +49,14 @@ public class AppGivensProvider implements GivensProvider {
     private static final String APP_Given_Key_Since_Born = "since_born";
     private static final String APP_Given_Key_Session_Count = "session_count";
     private static final String APP_Given_Key_Decision_Count = "decision_count";
+    private static final String App_Given_Key_Rewards = "rewards";
 
     // SharedPreference key
     public static final String SP_Key_Born_Time = "born_time";
     public static final String SP_Key_Session_Start_Time = "session_start_time";
     public static final String SP_Key_Session_Count = "session_count";
     public static final String SP_Key_Decision_Count = "decision_count-%s";
+    public static final String SP_Key_Model_Reward = "rewards-%s";
 
     private Context appContext;
 
@@ -121,6 +123,7 @@ public class AppGivensProvider implements GivensProvider {
         appGivens.put(APP_Given_Key_Since_Born, getSinceBorn());
         appGivens.put(APP_Given_Key_Session_Count, getSessionCount());
         appGivens.put(APP_Given_Key_Decision_Count, getDecisionCount(decisionModel.getModelName()));
+        appGivens.put(App_Given_Key_Rewards, AppGivensProviderUtils.rewardOfModel(decisionModel.getModelName()));
 
         // increment decision count value by 1
         SharedPreferences sp = appContext.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
