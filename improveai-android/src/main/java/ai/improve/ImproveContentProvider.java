@@ -19,6 +19,8 @@ public class ImproveContentProvider extends ContentProvider {
 
         DecisionModel.setDefaultGivensProvider(new AppGivensProvider(sContext));
 
+        DecisionTracker.setPersistenceProvider(new AndroidPersistenceProvider(sContext));
+
         return true;
     }
 

@@ -1,6 +1,9 @@
 package ai.improve;
 
+import com.github.ksuid.KsuidGenerator;
+
 import java.net.MalformedURLException;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -8,9 +11,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
 import ai.improve.log.IMPLog;
+import ai.improve.provider.PersistenceProvider;
 import ai.improve.util.HttpUtil;
 import ai.improve.util.Utils;
 
@@ -30,6 +33,8 @@ class DecisionTracker {
     private static final String MESSAGE_ID_KEY = "message_id";
     private static final String PROPERTIES_KEY = "properties";
     private static final String EVENT_KEY = "event";
+    private static final String DECISION_ID_KEY = "decision_id";
+    private static final String VALUE_KEY = "value";
 
 
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
@@ -40,6 +45,10 @@ class DecisionTracker {
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
 
     private String trackURL;
+
+    private static PersistenceProvider persistenceProvider;
+
+    private static final KsuidGenerator KSUID_GENERATOR = new KsuidGenerator(new SecureRandom());
 
     /**
      * Hyperparameter that affects training speed and model performance.
@@ -53,6 +62,10 @@ class DecisionTracker {
             // Just give a warning
             IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
         }
+    }
+
+    protected static void setPersistenceProvider(PersistenceProvider persistenceProvider) {
+        DecisionTracker.persistenceProvider = persistenceProvider;
     }
 
     public int getMaxRunnersUp() {
@@ -80,9 +93,12 @@ class DecisionTracker {
             return ;
         }
 
+        String decisionId = createAndPersistDecisionIdForModel(modelName);
+
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, DECISION_TYPE);
         body.put(MODEL_KEY, modelName);
+        body.put(MESSAGE_ID_KEY, decisionId);
 
         setCount(variants, body);
 
@@ -186,13 +202,39 @@ class DecisionTracker {
         }
     }
 
+    public void addRewardForModel(String modelName, double reward) {
+        if(persistenceProvider == null) {
+            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+        }
+        String lastDecisionId = persistenceProvider.lastDecisionIdForModel(modelName);
+        if(Utils.isEmpty(lastDecisionId)) {
+            IMPLog.w(Tag, "add reward for [" + modelName + "], but lastDecisionId is empty");
+            return ;
+        }
+
+        addRewardForDecision(modelName, lastDecisionId, reward);
+    }
+
+    private void addRewardForDecision(String modelName, String decisionId, double reward) {
+        Map<String, Object> body = new HashMap<>();
+        body.put(EVENT_KEY, "Reward");
+        body.put(MODEL_KEY, modelName);
+        body.put(DECISION_ID_KEY, decisionId);
+        body.put(MESSAGE_ID_KEY, KSUID_GENERATOR.newKsuid().asString());
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(VALUE_KEY, reward);
+        body.put(PROPERTIES_KEY, properties);
+
+        postTrackingRequest(body);
+    }
+
     private void postTrackingRequest(Map<String, Object> body) {
         Map<String, String> headers = new HashMap<>();
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_JSON);
 
         body = new HashMap<>(body);
         body.put(TIMESTAMP_KEY, ISO_TIMESTAMP_FORMAT.format(new Date()));
-        body.put(MESSAGE_ID_KEY, UUID.randomUUID().toString());
 
         Map<String, Object> finalBody = body;
 
@@ -209,5 +251,20 @@ class DecisionTracker {
                 }
             }
         }.start();
+    }
+
+    private String createAndPersistDecisionIdForModel(String modelName) {
+        String decisionId = KSUID_GENERATOR.newKsuid().asString();
+        if(persistenceProvider != null) {
+            persistenceProvider.persistDecisionIdForModel(modelName, decisionId);
+        }
+        return decisionId;
+    }
+
+    private String lastDecisionIdOfModel(String modelName) {
+        if(persistenceProvider != null) {
+            return persistenceProvider.lastDecisionIdForModel(modelName);
+        }
+        return null;
     }
 }

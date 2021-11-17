@@ -259,6 +259,24 @@ public class DecisionModel {
     }
 
     /**
+     * Adds the reward value to the most recent Decision for this model name for this installation.
+     * The most recent Decision can be from a different DecisionModel instance or a previous session
+     * as long as they have the same model name. If no previous Decision is found, the reward will
+     * be ignored.
+     * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+     * @exception IllegalArgumentException in case of NaN or +-Infinity
+     * */
+    public void addReward(double reward) {
+        if(Double.isInfinite(reward) || Double.isNaN(reward)) {
+            throw new IllegalArgumentException("reward must not be NaN or infinity");
+        }
+
+        if(tracker != null) {
+            tracker.addRewardForModel(modelName, reward);
+        }
+    }
+
+    /**
      * This method is likely to be changed in the future. Try not to use it in your code.
      *
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
