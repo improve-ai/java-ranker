@@ -31,7 +31,7 @@ public class AppGivensProvider implements GivensProvider {
     private static final String Tag = "AppGivensProvider";
 
     private static final String APP_Given_Key_Country = "country";
-    private static final String APP_Given_Key_Language = "lang";
+    public static final String APP_Given_Key_Language = "lang";
     private static final String APP_Given_Key_Timezone_Offset = "tz";
     private static final String APP_Given_Key_Carrier = "carrier";
     private static final String APP_Given_Key_OS = "os";
@@ -93,12 +93,7 @@ public class AppGivensProvider implements GivensProvider {
 
     @Override
     public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, Object> givens) {
-        Map<String, Object> appGivens;
-        if(givens == null) {
-            appGivens = new HashMap<>();
-        } else {
-            appGivens = new HashMap(givens);
-        }
+        Map<String, Object> appGivens = new HashMap<>();
 
         appGivens.put(APP_Given_Key_Country, getCountry());
         appGivens.put(APP_Given_Key_Language, getLanguage());
@@ -129,6 +124,9 @@ public class AppGivensProvider implements GivensProvider {
         String decisionCountKey = AppGivensProviderUtils.getDecisionCountKeyOfModel(decisionModel.getModelName());
         int curDecisionCount = sp.getInt(decisionCountKey, 0);
         sp.edit().putInt(decisionCountKey, curDecisionCount+1).apply();
+
+        // If keys in givens overlap with keys in AppGivensProvider, keys in givens win
+        appGivens.putAll(givens);
 
         return appGivens;
     }
