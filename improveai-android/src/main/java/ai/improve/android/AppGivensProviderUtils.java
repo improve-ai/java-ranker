@@ -17,6 +17,10 @@ import ai.improve.log.IMPLog;
 public class AppGivensProviderUtils {
     public static final String Tag = "AppGivensProviderUtils";
 
+    private static final double MillisSecondsPerDay = 86400000.0;
+
+    public static final double SecondsPerDay = 86400.0;
+
     /**
      * Session start time is the moment when the first AppGivensProvider instance is created.
      * */
@@ -45,7 +49,7 @@ public class AppGivensProviderUtils {
     public static double getSinceSessionStart(Context context) {
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         long sessionStartTime = sp.getLong(SP_Key_Session_Start_Time, 0);
-        return (System.currentTimeMillis() - sessionStartTime) / 1000.0;
+        return (System.currentTimeMillis() - sessionStartTime) / MillisSecondsPerDay;
     }
 
     /**
@@ -55,20 +59,20 @@ public class AppGivensProviderUtils {
         if(sLastSessionStartTime == 0) {
             return 0;
         }
-        return (System.currentTimeMillis() - sLastSessionStartTime) / 1000.0;
+        return (System.currentTimeMillis() - sLastSessionStartTime) / MillisSecondsPerDay;
     }
 
     public static double getSinceBorn(Context context) {
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         long bornTime = sp.getLong(SP_Key_Born_Time, 0);
-        return (System.currentTimeMillis() - bornTime) / 1000.0;
+        return (System.currentTimeMillis() - bornTime) / MillisSecondsPerDay;
     }
 
     /**
      * @param model Build.MODEL
      * @return 0, if Build.MODEL is null or empty
      * */
-    public static int parseDeviceVersion(String model) {
+    public static double parseDeviceVersion(String model) {
         if (TextUtils.isEmpty(model)) {
             return 0;
         }
@@ -111,11 +115,11 @@ public class AppGivensProviderUtils {
             String[] versionArray = versionString.split("\\.");
             if (versionArray.length == 1) {
                 int major = Integer.parseInt(versionArray[0]);
-                return major * 1000;
+                return major;
             } else if (versionArray.length == 2) {
                 int major = Integer.parseInt(versionArray[0]);
                 int minor = Integer.parseInt(versionArray[1]);
-                return major * 1000 + minor;
+                return major + minor / 1000.0;
             }
         } catch (Throwable t){
             t.printStackTrace();
@@ -135,7 +139,7 @@ public class AppGivensProviderUtils {
         if(versionArray.length == 1) {
             try {
                 int major = Integer.parseInt(versionArray[0]);
-                return major * 1000;
+                return major;
             } catch (Throwable t){
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }
@@ -143,7 +147,7 @@ public class AppGivensProviderUtils {
             try {
                 int major = Integer.parseInt(versionArray[0]);
                 int minor = Integer.parseInt(versionArray[1]);
-                return major * 1000 + minor;
+                return major + minor/1000.0;
             } catch (Throwable t) {
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }
@@ -152,7 +156,7 @@ public class AppGivensProviderUtils {
                 int major = Integer.parseInt(versionArray[0]);
                 int minor = Integer.parseInt(versionArray[1]);
                 int build = Integer.parseInt(versionArray[2]);
-                return major * 1000 + minor + build/1000.0;
+                return major + minor/1000.0 + build/1000000.0;
             } catch (Throwable t) {
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }

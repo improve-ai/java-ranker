@@ -1,5 +1,6 @@
 package ai.improve.android;
 
+import static ai.improve.android.AppGivensProviderUtils.SecondsPerDay;
 import static ai.improve.android.Constants.Improve_SP_File_Name;
 
 import android.content.Context;
@@ -27,28 +28,27 @@ import ai.improve.improveai_android.BuildConfig;
 import ai.improve.provider.GivensProvider;
 
 public class AppGivensProvider implements GivensProvider {
-    private static final String Tag = "AppGivensProviderImp";
+    private static final String Tag = "AppGivensProvider";
 
     private static final String APP_Given_Key_Country = "country";
-    private static final String APP_Given_Key_Language = "language";
-    private static final String APP_Given_Key_Timezone_Offset = "timezone";
+    private static final String APP_Given_Key_Language = "lang";
+    private static final String APP_Given_Key_Timezone_Offset = "tz";
     private static final String APP_Given_Key_Carrier = "carrier";
     private static final String APP_Given_Key_OS = "os";
-    private static final String APP_Given_Key_OS_Version = "os_version";
+    private static final String APP_Given_Key_OS_Version = "osv";
     private static final String APP_Given_Key_Device = "device";
-    private static final String APP_Given_Key_Device_Version = "device_version";
+    private static final String APP_Given_Key_Device_Version = "devicev";
     private static final String APP_Given_Key_App = "app";
-    private static final String APP_Given_Key_App_Version = "app_version";
-    private static final String APP_Given_Key_Build_Version = "build_version";
-    private static final String APP_Given_Key_Improve_Version = "improve_version";
+    private static final String APP_Given_Key_App_Version = "appv";
+    private static final String APP_Given_Key_Improve_Version = "sdkv";
     private static final String APP_Given_Key_Screen_Pixels = "pixels";
-    private static final String APP_Given_Key_Week_Day = "week_day";
-    private static final String APP_Given_Key_Since_Midnight = "since_midnight";
-    private static final String APP_Given_Key_Since_Session_Start = "since_session_start";
-    private static final String APP_Given_Key_Since_Last_Session_Start = "since_last_session_start";
-    private static final String APP_Given_Key_Since_Born = "since_born";
-    private static final String APP_Given_Key_Session_Count = "session_count";
-    private static final String APP_Given_Key_Decision_Count = "decision_count";
+    private static final String APP_Given_Key_Week_Day = "weekday";
+    private static final String APP_Given_Key_Since_Midnight = "today";
+    private static final String APP_Given_Key_Since_Born = "day";
+    private static final String APP_Given_Key_Since_Session_Start = "since_session";
+    private static final String APP_Given_Key_Since_Last_Session_Start = "since_last_session";
+    private static final String APP_Given_Key_Session_Count = "sessions";
+    private static final String APP_Given_Key_Decision_Count = "decisions";
     private static final String App_Given_Key_Rewards = "rewards";
 
     // SharedPreference key
@@ -110,7 +110,6 @@ public class AppGivensProvider implements GivensProvider {
         appGivens.put(APP_Given_Key_Device_Version, getDeviceVersion());
         appGivens.put(APP_Given_Key_App, getApp());
         appGivens.put(APP_Given_Key_App_Version, getAppVersion(appContext));
-        appGivens.put(APP_Given_Key_Build_Version, getBuildVersion(appContext));
         appGivens.put(APP_Given_Key_Improve_Version, getImproveVersion());
 
         Point point = getScreenDimension(appContext);
@@ -183,7 +182,7 @@ public class AppGivensProvider implements GivensProvider {
     }
 
     private String getOS() {
-        return "android";
+        return "Android";
     }
 
     private double getOsVersion() {
@@ -230,16 +229,6 @@ public class AppGivensProvider implements GivensProvider {
         return 0;
     }
 
-    private double getBuildVersion(Context context) {
-        PackageInfo packageInfo;
-        try {
-            packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            return packageInfo.versionCode * 1000.0;
-        } catch (Exception e) {
-        }
-        return 0;
-    }
-
     private double getImproveVersion() {
         String version = BuildConfig.IMPROVE_AI_VERSION;
         return AppGivensProviderUtils.versionToInt(version);
@@ -279,36 +268,39 @@ public class AppGivensProvider implements GivensProvider {
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
         int seconds = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
-        double weekday = (int)weekDayMap.get(calendar.get(Calendar.DAY_OF_WEEK)) + seconds / 86400.0;
+        double weekday = (int)weekDayMap.get(calendar.get(Calendar.DAY_OF_WEEK)) + seconds / SecondsPerDay;
         return Math.round(weekday * 100000) / 100000.0;
     }
 
     /**
-     * @return Seconds since midnight with fractional millis
+     * @return fractional days
      * */
     private double getSinceMidnight() {
         Date date = new Date();
         double seconds = date.getHours() * 3600 + date.getMinutes() * 60 +
                 date.getSeconds() + (date.getTime() % 1000)/1000.0;
-        return seconds;
+        return Math.round(seconds / SecondsPerDay * 1000000) / 1000000.0;
     }
 
     /**
      * Session start time is the moment when the first AppGivensProvider instance is created.
      * */
     private double getSinceSessionStart() {
-        return AppGivensProviderUtils.getSinceSessionStart(appContext);
+        double t = AppGivensProviderUtils.getSinceSessionStart(appContext);
+        return Math.round(t * 1000000) / 1000000.0;
     }
 
     /**
      * @return 0, if there's no last session
      * */
     private double getSinceLastSessionStart() {
-        return AppGivensProviderUtils.getSinceLastSessionStart();
+        double t = AppGivensProviderUtils.getSinceLastSessionStart();
+        return Math.round(t * 1000000) / 1000000.0;
     }
 
     private double getSinceBorn() {
-        return AppGivensProviderUtils.getSinceBorn(appContext);
+        double t = AppGivensProviderUtils.getSinceBorn(appContext);
+        return Math.round(t * 1000000) / 1000000.0;
     }
 
     private int getSessionCount() {
