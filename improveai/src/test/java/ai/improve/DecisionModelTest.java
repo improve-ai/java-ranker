@@ -125,7 +125,31 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testDefaultTrackURL() throws MalformedURLException {
+    public void testTrackURL_Valid() {
+        DecisionModel decisionModel = new DecisionModel("hello", Track_URL);
+        assertEquals(Track_URL, decisionModel.getTrackURL());
+    }
+
+    @Test
+    public void testTrackURL_Null() {
+        DecisionModel decisionModel = new DecisionModel("hello", null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+    }
+
+    @Test
+    public void testTrackURL_Invalid() {
+        try {
+            new DecisionModel("hello", "");
+        } catch (Exception e) {
+            IMPLog.d(Tag, e.getMessage());
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testDefaultTrackURL() {
         assertNull(DecisionModel.defaultTrackURL);
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNull(decisionModel.getTrackURL());
@@ -135,15 +159,6 @@ public class DecisionModelTest {
         decisionModel = new DecisionModel("hello");
         assertNotNull(decisionModel.getTrackURL());
         assertEquals(Track_URL, decisionModel.getTrackURL());
-    }
-
-    @Test
-    public void testSetDefaultTrackURL() {
-
-    }
-
-    @Test
-    public void testLoad() {
     }
 
     @Test

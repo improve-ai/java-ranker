@@ -138,12 +138,12 @@ public class DecisionModel {
      *                  and the first character must be an alphanumeric one; Despite the rules above,
      *                  null is also a valid model name.
      * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be
-     *                tracked.
-     * @exception RuntimeException in case of an invalid modelName
+     *                 tracked.
+     * @exception IllegalArgumentException in case of an invalid modelName or an invalid trackURL
      */
     public DecisionModel(String modelName, String trackURL) {
         if(!isValidModelName(modelName)) {
-            throw new RuntimeException("invalid modelName: [" + modelName + "]");
+            throw new IllegalArgumentException("invalid modelName: [" + modelName + "]");
         }
         this.modelName = modelName;
 
