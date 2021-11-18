@@ -397,4 +397,16 @@ public class DecisionModelTest {
             assertTrue(scores.get(i) > scores.get(i+1));
         }
     }
+
+    @Test
+    public void testAddReward_non_Android() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(0.1);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
 }

@@ -49,6 +49,8 @@ public class DecisionModelTest {
 
     private static final String AssetModelFileName = "dummy_v6.xgb";
 
+    public static final String DefaultFailMessage = "A runtime exception should have been thrown, we should never have reached here";
+
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
         DecisionModel.defaultTrackURL = Track_URL;
@@ -465,5 +467,55 @@ public class DecisionModelTest {
 
     private Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getTargetContext();
+    }
+
+    @Test
+    public void testAddReward_Android() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        decisionModel.addReward(0.1);
+    }
+
+    @Test
+    public void testAddReward_Null_TrackURL() {
+        // Just to verify that a warning message is printed
+        DecisionModel decisionModel = new DecisionModel("hello", null);
+        decisionModel.addReward(0.1);
+    }
+
+    @Test
+    public void testSetTrackURL_Null() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNotNull(decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
+
+        decisionModel.setTrackURL(null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+    }
+
+    @Test
+    public void testSetTrackURL_Empty() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNotNull(decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
+
+        try {
+            decisionModel.setTrackURL("");
+        } catch (Exception e) {
+            IMPLog.e(Tag, e.getMessage());
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testSetTrackURL_Valid() {
+        DecisionModel decisionModel = new DecisionModel("hello", null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+
+        decisionModel.setTrackURL(Track_URL);
+        assertEquals(Track_URL, decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
     }
 }

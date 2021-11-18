@@ -123,14 +123,22 @@ public class DecisionModel {
         });
     }
 
+    /**
+     * It's an equivalent of DecisionModel(modelName, DecisionModel.defaultTrackURL)
+     * We suggest to have the defaultTrackURL set on startup before creating any DecisionModel
+     * instances.
+     * */
     public DecisionModel(String modelName) {
         this(modelName, defaultTrackURL);
     }
 
     /**
-     * @param modelName Length of modelName must be in range [1, 64]; Only alhpanumeric characters([a-zA-Z0-9]), '-', '.' and '_'
-     * are allowed in the modenName and the first character must be an alphnumeric one; nil is also a valid model name.
-     * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be tracked.
+     * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
+     *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
+     *                  and the first character must be an alphanumeric one; Despite the rules above,
+     *                  null is also a valid model name.
+     * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be
+     *                tracked.
      * @exception RuntimeException in case of an invalid modelName
      */
     public DecisionModel(String modelName, String trackURL) {
@@ -146,12 +154,20 @@ public class DecisionModel {
         return this.trackURL;
     }
 
+    /**
+     * @param trackURL url for decision tracking. If set as null, no decisions would be tracked.
+     * @throws IllegalArgumentException in case of in non-null invalid trackURL
+     * */
     public void setTrackURL(String trackURL) {
-        this.trackURL = trackURL;
-        if(!Utils.isEmpty(trackURL)) {
-            this.tracker = new DecisionTracker(trackURL);
-        } else {
+        if(trackURL == null) {
+            this.trackURL = null;
             this.tracker = null;
+        } else {
+            if(!Utils.isValidURL(trackURL)) {
+                throw new IllegalArgumentException("invalid trackURL: [" + trackURL + "]");
+            }
+            this.trackURL = trackURL;
+            this.tracker = new DecisionTracker(trackURL);
         }
     }
 
@@ -284,12 +300,13 @@ public class DecisionModel {
             throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
         }
 
-        if(tracker != null) {
-            tracker.addRewardForModel(modelName, reward);
-
-            // reward persisted would be used in AppGivensProvider later
-            persistenceProvider.addRewardForModel(modelName, reward);
+        if(tracker == null) {
+            String msg = String.format("trackURL of model(%s) not set, this reward won't be tracked", modelName);
+            IMPLog.w(Tag, msg);
+            return ;
         }
+
+        tracker.addRewardForModel(modelName, reward);
     }
 
     /**

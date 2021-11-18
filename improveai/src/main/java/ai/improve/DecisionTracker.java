@@ -212,6 +212,8 @@ class DecisionTracker {
         body.put(PROPERTIES_KEY, properties);
 
         postTrackingRequest(body);
+
+        persistenceProvider.addRewardForModel(modelName, reward);
     }
 
     private void postTrackingRequest(Map<String, Object> body) {
