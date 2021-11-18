@@ -265,6 +265,8 @@ public class DecisionModel {
      * The most recent Decision can be from a different DecisionModel instance or a previous session
      * as long as they have the same model name. If no previous Decision is found, the reward will
      * be ignored.
+     * This method should only be called on Android platform; Otherwise, a RuntimeException would
+     * be thrown.
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
      * @exception IllegalArgumentException in case of NaN or +-Infinity
      * */
@@ -273,7 +275,7 @@ public class DecisionModel {
             throw new IllegalArgumentException("reward must not be NaN or infinity");
         }
 
-        if(persistenceProvider == null) {
+        if(DecisionTracker.persistenceProvider == null) {
             throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
         }
 

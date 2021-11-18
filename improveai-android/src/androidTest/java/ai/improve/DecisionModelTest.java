@@ -29,7 +29,6 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-import ai.improve.DecisionModel;
 import ai.improve.log.IMPLog;
 
 import static ai.improve.DecisionTrackerTest.Track_URL;
@@ -42,7 +41,7 @@ import static java.lang.Math.pow;
 
 @RunWith(AndroidJUnit4.class)
 public class DecisionModelTest {
-    public static final String Tag = "IMPDecisionModelTest";
+    public static final String Tag = "DecisionModelTest";
 
     public static final String ModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
 

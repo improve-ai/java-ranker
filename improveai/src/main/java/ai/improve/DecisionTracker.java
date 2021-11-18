@@ -120,29 +120,6 @@ class DecisionTracker {
         postTrackingRequest(body);
     }
 
-
-    public void trackEvent(String eventName) {
-        trackEvent(eventName, null);
-    }
-
-    public void trackEvent(String eventName, Map<String, Object> properties) {
-        if(trackURL == null || trackURL.isEmpty()) {
-            IMPLog.w(Tag, "trackURL is empty or nil, event won't be tracked.");
-            return ;
-        }
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("type", "event");
-        if (eventName != null) {
-            body.put(EVENT_KEY, eventName);
-        }
-        if (properties != null) {
-            body.put(PROPERTIES_KEY, properties);
-        }
-
-        postTrackingRequest(body);
-    }
-
     protected void setBestVariant(Object variant, Map<String, Object> body) {
         body.put(DECISION_BEST_KEY, variant);
     }
@@ -209,14 +186,10 @@ class DecisionTracker {
             return ;
         }
 
-        addRewardForDecision(modelName, lastDecisionId, reward);
-    }
-
-    private void addRewardForDecision(String modelName, String decisionId, double reward) {
         Map<String, Object> body = new HashMap<>();
         body.put(EVENT_KEY, "Reward");
         body.put(MODEL_KEY, modelName);
-        body.put(DECISION_ID_KEY, decisionId);
+        body.put(DECISION_ID_KEY, lastDecisionId);
         body.put(MESSAGE_ID_KEY, KSUID_GENERATOR.newKsuid().asString());
 
         Map<String, Object> properties = new HashMap<>();
