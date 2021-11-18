@@ -19,6 +19,9 @@ public class Decision {
 
     private Object best;
 
+    // The message_id of the tracked decision
+    private String id;
+
     public Decision(DecisionModel model) {
         this.model = model;
     }
@@ -57,11 +60,11 @@ public class Decision {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = DecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    tracker.track(best, variants, allGivens, model.getModelName(), true);
+                    id = tracker.track(best, variants, allGivens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
                     best = ModelUtils.topScoringVariant(variants, scores);
-                    tracker.track(best, variants, allGivens, model.getModelName(), false);
+                    id = tracker.track(best, variants, allGivens, model.getModelName(), false);
                 }
             } else {
                 best = ModelUtils.topScoringVariant(variants, scores);
@@ -73,7 +76,7 @@ public class Decision {
             best = null;
             DecisionTracker tracker = model.getTracker();
             if(tracker != null) {
-                tracker.track(best, variants, allGivens, model.getModelName(), false);
+                id = tracker.track(best, variants, allGivens, model.getModelName(), false);
             } else {
                 IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
@@ -82,5 +85,20 @@ public class Decision {
         chosen = true;
 
         return best;
+    }
+
+    /**
+     * Adds the reward to a specific decision
+     * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+     * @exception IllegalArgumentException in case of NaN or +-Infinity
+     * */
+    public void addReward(double reward) {
+        if(id == null) {
+            if(model.getTracker() != null) {
+                IMPLog.w(Tag, "addReward() should not be called prior to get()");
+            }
+            return ;
+        }
+        model.addRewardForDecision(id, reward);
     }
 }

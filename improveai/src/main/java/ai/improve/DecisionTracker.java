@@ -81,16 +81,19 @@ class DecisionTracker {
         this.maxRunnersUp = maxRunnersUp >= 0 ? maxRunnersUp : 0;
     }
 
-    protected <T> void track(Object bestVariant, List<T> variants, Map<String, Object> givens,
+    /**
+     * @return the message_id of the tracked decision; null is returned in case of errors
+     * */
+    protected <T> String track(Object bestVariant, List<T> variants, Map<String, Object> givens,
                                  String modelName, boolean variantsRankedAndTrackRunnersUp) {
         if(modelName == null || modelName.isEmpty()) {
             IMPLog.e(Tag, "Improve.track error: modelName is empty or null");
-            return ;
+            return null;
         }
 
-        if(trackURL == null || trackURL.isEmpty()) {
+        if(Utils.isEmpty(trackURL)) {
             IMPLog.e(Tag, "Improve.track error: trackURL is empty or null");
-            return ;
+            return null;
         }
 
         String decisionId = createAndPersistDecisionIdForModel(modelName);
@@ -118,6 +121,8 @@ class DecisionTracker {
         setSampleVariant(variants, runnersUpCount, variantsRankedAndTrackRunnersUp, bestVariant, body);
 
         postTrackingRequest(body);
+
+        return decisionId;
     }
 
     protected void setBestVariant(Object variant, Map<String, Object> body) {
@@ -179,6 +184,9 @@ class DecisionTracker {
         }
     }
 
+    /**
+     * Adds reward for the last decision of a model
+     * */
     public void addRewardForModel(String modelName, double reward) {
         String lastDecisionId = persistenceProvider.lastDecisionIdForModel(modelName);
         if(Utils.isEmpty(lastDecisionId)) {
@@ -186,10 +194,17 @@ class DecisionTracker {
             return ;
         }
 
+        addRewardForDecision(modelName, lastDecisionId, reward);
+    }
+
+    /**
+     * Adds reward for a specific decision of a model
+     * */
+    public void addRewardForDecision(String modelName, String decisionId, double reward) {
         Map<String, Object> body = new HashMap<>();
         body.put(EVENT_KEY, "Reward");
         body.put(MODEL_KEY, modelName);
-        body.put(DECISION_ID_KEY, lastDecisionId);
+        body.put(DECISION_ID_KEY, decisionId);
         body.put(MESSAGE_ID_KEY, KSUID_GENERATOR.newKsuid().asString());
 
         Map<String, Object> properties = new HashMap<>();

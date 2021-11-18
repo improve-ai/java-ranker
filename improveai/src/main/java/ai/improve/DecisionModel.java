@@ -18,6 +18,7 @@ import ai.improve.encoder.FeatureEncoder;
 import ai.improve.log.IMPLog;
 import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelUtils;
+import ai.improve.util.Utils;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
@@ -147,7 +148,11 @@ public class DecisionModel {
 
     public void setTrackURL(String trackURL) {
         this.trackURL = trackURL;
-        this.tracker = new DecisionTracker(trackURL);
+        if(!Utils.isEmpty(trackURL)) {
+            this.tracker = new DecisionTracker(trackURL);
+        } else {
+            this.tracker = null;
+        }
     }
 
     public void setDefaultTrackURL(String trackURL) {
@@ -281,6 +286,26 @@ public class DecisionModel {
 
         if(tracker != null) {
             tracker.addRewardForModel(modelName, reward);
+
+            // reward persisted would be used in AppGivensProvider later
+            persistenceProvider.addRewardForModel(modelName, reward);
+        }
+    }
+
+    /**
+     * Adds the reward to a specific decision
+     * */
+    protected void addRewardForDecision(String decisionId, double reward) {
+        if(Double.isInfinite(reward) || Double.isNaN(reward)) {
+            throw new IllegalArgumentException("reward must not be NaN or infinity");
+        }
+
+        if(DecisionTracker.persistenceProvider == null) {
+            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+        }
+
+        if(tracker != null) {
+            tracker.addRewardForDecision(modelName, decisionId, reward);
 
             // reward persisted would be used in AppGivensProvider later
             persistenceProvider.addRewardForModel(modelName, reward);
