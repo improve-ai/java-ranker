@@ -11,8 +11,6 @@ import static ai.improve.DecisionTrackerTest.Track_URL;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,6 +20,7 @@ import java.util.Map;
 import java.util.Random;
 
 import ai.improve.log.IMPLog;
+import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelUtils;
 
 
@@ -37,6 +36,13 @@ public class DecisionModelTest {
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+    }
+
+    private class AlphaGivensProvider implements GivensProvider {
+        @Override
+        public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, Object> givens) {
+            return null;
+        }
     }
 
     @Test
@@ -423,5 +429,25 @@ public class DecisionModelTest {
             return ;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testGivensProvider_getter_setter() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNull(decisionModel.getGivensProvider());
+
+        GivensProvider givensProvider = new AlphaGivensProvider();
+
+        decisionModel.setGivensProvider(givensProvider);
+        assertNotNull(decisionModel.getGivensProvider());
+        assertEquals(givensProvider, decisionModel.getGivensProvider());
+
+        decisionModel.setGivensProvider(null);
+        assertNull(decisionModel.getGivensProvider());
+
+        DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
+        assertNull(decisionModel.getGivensProvider());
+
+        assertNotNull(new DecisionModel("hello").getGivensProvider());
     }
 }

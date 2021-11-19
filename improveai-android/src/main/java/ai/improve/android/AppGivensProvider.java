@@ -126,7 +126,9 @@ public class AppGivensProvider implements GivensProvider {
         sp.edit().putInt(decisionCountKey, curDecisionCount+1).apply();
 
         // If keys in givens overlap with keys in AppGivensProvider, keys in givens win
-        appGivens.putAll(givens);
+        if(givens != null) {
+            appGivens.putAll(givens);
+        }
 
         return appGivens;
     }

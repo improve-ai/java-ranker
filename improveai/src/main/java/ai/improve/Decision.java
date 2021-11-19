@@ -49,7 +49,7 @@ public class Decision {
             return best;
         }
 
-        Map allGivens = model.getGivensProvider().givensForModel(model, givens);
+        Map allGivens = model.combinedGivens(givens);
 
         List<Double> scores = model.score(variants, allGivens);
 

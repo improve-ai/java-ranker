@@ -1,7 +1,5 @@
 package ai.improve;
 
-import static ai.improve.DecisionTracker.persistenceProvider;
-
 import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.net.URL;
@@ -45,7 +43,7 @@ public class DecisionModel {
 
     private GivensProvider givensProvider;
 
-    public static GivensProvider defaultGivensProvider;
+    private static GivensProvider defaultGivensProvider;
 
     /**
      * WeakReference is used here to avoid Android activity leaks.
@@ -148,6 +146,8 @@ public class DecisionModel {
         this.modelName = modelName;
 
         setTrackURL(trackURL);
+
+        this.givensProvider = defaultGivensProvider;
     }
 
     public String getTrackURL() {
@@ -176,14 +176,18 @@ public class DecisionModel {
     }
 
     public GivensProvider getGivensProvider() {
-        return givensProvider != null ? givensProvider : defaultGivensProvider;
+        return givensProvider;
     }
 
     public void setGivensProvider(GivensProvider givensProvider) {
         this.givensProvider = givensProvider;
     }
 
-    protected static void setDefaultGivensProvider(GivensProvider givensProvider) {
+    protected static GivensProvider getDefaultGivensProvider() {
+        return defaultGivensProvider;
+    }
+
+    public static void setDefaultGivensProvider(GivensProvider givensProvider) {
         defaultGivensProvider = givensProvider;
     }
 
@@ -235,6 +239,15 @@ public class DecisionModel {
      * */
     public Decision given(Map<String, Object> givens) {
         return new Decision(this).given(givens);
+    }
+
+    protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
+        GivensProvider gp = getGivensProvider();
+        if(gp != null) {
+            return gp.givensForModel(this, givens);
+        } else {
+            return givens;
+        }
     }
 
     public <T> List<Double> score(List<T> variants) {
@@ -321,12 +334,13 @@ public class DecisionModel {
             throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
         }
 
-        if(tracker != null) {
-            tracker.addRewardForDecision(modelName, decisionId, reward);
-
-            // reward persisted would be used in AppGivensProvider later
-            persistenceProvider.addRewardForModel(modelName, reward);
+        if(tracker == null) {
+            String msg = String.format("trackURL of model(%s) not set, this reward won't be tracked", modelName);
+            IMPLog.w(Tag, msg);
+            return ;
         }
+
+        tracker.addRewardForDecision(modelName, decisionId, reward);
     }
 
     /**

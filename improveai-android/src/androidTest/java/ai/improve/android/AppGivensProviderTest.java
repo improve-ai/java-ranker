@@ -30,11 +30,19 @@ public class AppGivensProviderTest {
 
     @Test
     public void testOverlappingGivensKey() {
-        Map userGivens = new HashMap();
+        Map<String, Object> userGivens = new HashMap();
         userGivens.put(AppGivensProvider.APP_Given_Key_Language, "hi");
 
         Map givens = new AppGivensProvider(context).givensForModel(new DecisionModel("hello"), userGivens);
         assertNotNull(givens);
         assertEquals("hi", givens.get(AppGivensProvider.APP_Given_Key_Language));
+    }
+
+    @Test
+    public void testNullGivens() {
+        Map<String, Object> userGivens = null;
+        Map combinedGivens = new AppGivensProvider(context).givensForModel(new DecisionModel("hello"), userGivens);
+        assertNotNull(combinedGivens);
+        assertTrue(combinedGivens.size() > 0);
     }
 }
