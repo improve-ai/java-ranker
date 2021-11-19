@@ -14,6 +14,6 @@ public class SampleApplication extends Application {
     public void onCreate() {
         super.onCreate();
         IMPLog.d(Tag, "onCreate");
-        DecisionModel.defaultTrackURL = Track_URL;
+        DecisionModel.setDefaultTrackURL(Track_URL);
     }
 }

@@ -19,7 +19,7 @@ public class DecisionTrackerTest {
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        DecisionModel.defaultTrackURL = Track_URL;
+        DecisionModel.setDefaultTrackURL(Track_URL);
     }
 
     /**

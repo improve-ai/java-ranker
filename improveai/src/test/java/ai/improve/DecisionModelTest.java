@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 import static ai.improve.DecisionTrackerTest.Track_URL;
 
+import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -130,6 +131,43 @@ public class DecisionModelTest {
         assertEquals(l.size(), count);
     }
 
+    @org.junit.Test
+    public void testSetTrackURL_Null() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        Assert.assertNotNull(decisionModel.getTrackURL());
+        Assert.assertNotNull(decisionModel.getTracker());
+
+        decisionModel.setTrackURL(null);
+        Assert.assertNull(decisionModel.getTrackURL());
+        Assert.assertNull(decisionModel.getTracker());
+    }
+
+    @org.junit.Test
+    public void testSetTrackURL_Empty() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        Assert.assertNotNull(decisionModel.getTrackURL());
+        Assert.assertNotNull(decisionModel.getTracker());
+
+        try {
+            decisionModel.setTrackURL("");
+        } catch (Exception e) {
+            IMPLog.e(Tag, e.getMessage());
+            return ;
+        }
+        Assert.fail(DefaultFailMessage);
+    }
+
+    @org.junit.Test
+    public void testSetTrackURL_Valid() {
+        DecisionModel decisionModel = new DecisionModel("hello", null);
+        Assert.assertNull(decisionModel.getTrackURL());
+        Assert.assertNull(decisionModel.getTracker());
+
+        decisionModel.setTrackURL(Track_URL);
+        Assert.assertEquals(Track_URL, decisionModel.getTrackURL());
+        Assert.assertNotNull(decisionModel.getTracker());
+    }
+
     @Test
     public void testTrackURL_Valid() {
         DecisionModel decisionModel = new DecisionModel("hello", Track_URL);
@@ -156,15 +194,28 @@ public class DecisionModelTest {
 
     @Test
     public void testDefaultTrackURL() {
-        assertNull(DecisionModel.defaultTrackURL);
+        assertNull(DecisionModel.getDefaultTrackURL());
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNull(decisionModel.getTrackURL());
 
-        DecisionModel.defaultTrackURL = Track_URL;
+        DecisionModel.setDefaultTrackURL(Track_URL);
 
         decisionModel = new DecisionModel("hello");
         assertNotNull(decisionModel.getTrackURL());
         assertEquals(Track_URL, decisionModel.getTrackURL());
+    }
+
+    @Test
+    public void testSetDefaultTrackURL() {
+        DecisionModel.setDefaultTrackURL(null);
+        assertNull(DecisionModel.getDefaultTrackURL());
+
+        try {
+            DecisionModel.setDefaultTrackURL("");
+        } catch (Exception e) {
+            return;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

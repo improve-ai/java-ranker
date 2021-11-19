@@ -23,7 +23,7 @@ import biz.k11i.xgboost.util.FVec;
 public class DecisionModel {
     public static final String Tag = "DecisionModel";
 
-    public static String defaultTrackURL = null;
+    private static String sDefaultTrackURL = null;
 
     private final Object lock = new Object();
 
@@ -127,7 +127,7 @@ public class DecisionModel {
      * instances.
      * */
     public DecisionModel(String modelName) {
-        this(modelName, defaultTrackURL);
+        this(modelName, sDefaultTrackURL);
     }
 
     /**
@@ -171,8 +171,19 @@ public class DecisionModel {
         }
     }
 
-    public void setDefaultTrackURL(String trackURL) {
-        defaultTrackURL = trackURL;
+    public static String getDefaultTrackURL() {
+        return sDefaultTrackURL;
+    }
+
+    /**
+     * @param trackURL default trackURL for tracking decisions.
+     * @throws IllegalArgumentException if trackURL is nonnull and not a valid url
+     * */
+    public static void setDefaultTrackURL(String trackURL) {
+        if(trackURL != null && !Utils.isValidURL(trackURL)) {
+            throw new IllegalArgumentException("invalid trackURL: " + trackURL);
+        }
+        sDefaultTrackURL = trackURL;
     }
 
     public GivensProvider getGivensProvider() {
@@ -242,12 +253,7 @@ public class DecisionModel {
     }
 
     protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
-        GivensProvider gp = getGivensProvider();
-        if(gp != null) {
-            return gp.givensForModel(this, givens);
-        } else {
-            return givens;
-        }
+        return givensProvider == null ? givens : givensProvider.givensForModel(this, givens);
     }
 
     public <T> List<Double> score(List<T> variants) {

@@ -247,11 +247,4 @@ class DecisionTracker {
         }
         return decisionId;
     }
-
-    private String lastDecisionIdOfModel(String modelName) {
-        if(persistenceProvider != null) {
-            return persistenceProvider.lastDecisionIdForModel(modelName);
-        }
-        return null;
-    }
 }

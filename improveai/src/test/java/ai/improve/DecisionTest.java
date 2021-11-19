@@ -18,7 +18,7 @@ public class DecisionTest {
     @Before
     public void setUp() throws Exception {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        DecisionModel.defaultTrackURL = Track_URL;
+        DecisionModel.setDefaultTrackURL(Track_URL);
     }
 
     @Test

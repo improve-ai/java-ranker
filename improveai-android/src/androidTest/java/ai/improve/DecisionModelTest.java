@@ -53,7 +53,7 @@ public class DecisionModelTest {
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        DecisionModel.defaultTrackURL = Track_URL;
+        DecisionModel.setDefaultTrackURL(Track_URL);
     }
 
 //
@@ -483,39 +483,35 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testSetTrackURL_Null() {
-        DecisionModel decisionModel = new DecisionModel("hello");
-        assertNotNull(decisionModel.getTrackURL());
-        assertNotNull(decisionModel.getTracker());
-
-        decisionModel.setTrackURL(null);
-        assertNull(decisionModel.getTrackURL());
-        assertNull(decisionModel.getTracker());
-    }
-
-    @Test
-    public void testSetTrackURL_Empty() {
-        DecisionModel decisionModel = new DecisionModel("hello");
-        assertNotNull(decisionModel.getTrackURL());
-        assertNotNull(decisionModel.getTracker());
-
+    public void testAddReward_NaN() {
         try {
-            decisionModel.setTrackURL("");
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(Double.NaN);
         } catch (Exception e) {
-            IMPLog.e(Tag, e.getMessage());
             return ;
         }
         fail(DefaultFailMessage);
     }
 
     @Test
-    public void testSetTrackURL_Valid() {
-        DecisionModel decisionModel = new DecisionModel("hello", null);
-        assertNull(decisionModel.getTrackURL());
-        assertNull(decisionModel.getTracker());
+    public void testAddReward_Positive_Infinity() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(Double.POSITIVE_INFINITY);
+        } catch (Exception e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
 
-        decisionModel.setTrackURL(Track_URL);
-        assertEquals(Track_URL, decisionModel.getTrackURL());
-        assertNotNull(decisionModel.getTracker());
+    @Test
+    public void testAddReward_Negative_Infinity() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(Double.NEGATIVE_INFINITY);
+        } catch (Exception e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 }
