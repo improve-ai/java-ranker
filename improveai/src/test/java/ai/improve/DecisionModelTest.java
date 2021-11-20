@@ -12,6 +12,8 @@ import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +35,8 @@ import ai.improve.util.ModelUtils;
 public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
+    public static final String ModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
+
     public static final String DefaultFailMessage = "A runtime exception should have been thrown, we should never have reached here";
 
     static {
@@ -47,9 +51,13 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testModelName_null() throws IOException {
-        // null is a valid model name
-        new DecisionModel(null);
+    public void testModelName_null() {
+        try {
+            new DecisionModel(null);
+        } catch (Exception e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

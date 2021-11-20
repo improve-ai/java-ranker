@@ -133,8 +133,7 @@ public class DecisionModel {
     /**
      * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
      *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
-     *                  and the first character must be an alphanumeric one; Despite the rules above,
-     *                  null is also a valid model name.
+     *                  and the first character must be an alphanumeric one;
      * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be
      *                 tracked.
      * @exception IllegalArgumentException in case of an invalid modelName or an invalid trackURL
@@ -210,9 +209,7 @@ public class DecisionModel {
 
         this.predictor = predictor;
 
-        if(modelName == null) {
-            modelName = predictor.getModelMetadata().getModelName();
-        } else if(!modelName.equals(predictor.getModelMetadata().getModelName())){
+        if(!modelName.equals(predictor.getModelMetadata().getModelName())){
             IMPLog.w(Tag, "Model names don't match: current model name [" + modelName
                     + "], model name extracted [" + predictor.getModelMetadata().getModelName() +"], ["
                     + modelName + "] will be used.");
@@ -393,9 +390,6 @@ public class DecisionModel {
     }
 
     private boolean isValidModelName(String modelName) {
-        if(modelName == null) {
-            return true;
-        }
-        return modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
+        return modelName != null && modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
     }
 }

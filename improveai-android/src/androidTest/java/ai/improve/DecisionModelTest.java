@@ -92,16 +92,9 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testModelName_Null() throws IOException {
-        DecisionModel decisionModel = new DecisionModel(null).load(new URL(ModelURL));
-        assertEquals("songs-2.0", decisionModel.getModelName());
-    }
-
-    @Test
     public void testModelName() throws Exception {
         URL url = new URL(ModelURL);
         DecisionModel decisionModel = getDecisionModel("hello").load(url);
-        IMPLog.d(Tag, "modelName=" + decisionModel.getModelName());
         assertEquals("hello", decisionModel.getModelName());
     }
 
