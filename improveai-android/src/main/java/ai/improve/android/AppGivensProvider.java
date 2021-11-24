@@ -1,6 +1,7 @@
 package ai.improve.android;
 
 import static ai.improve.android.AppGivensProviderUtils.SecondsPerDay;
+import static ai.improve.android.AppGivensProviderUtils.setLastSessionStartTime;
 import static ai.improve.android.Constants.Improve_SP_File_Name;
 
 import android.content.Context;
@@ -46,7 +47,7 @@ public class AppGivensProvider implements GivensProvider {
     private static final String APP_Given_Key_Since_Midnight = "today";
     private static final String APP_Given_Key_Since_Born = "day";
     private static final String APP_Given_Key_Since_Session_Start = "since_session";
-    private static final String APP_Given_Key_Since_Last_Session_Start = "since_last_session";
+    public static final String APP_Given_Key_Since_Last_Session_Start = "since_last_session";
     private static final String APP_Given_Key_Session_Count = "sessions";
     private static final String APP_Given_Key_Decision_Count = "decisions";
     private static final String App_Given_Key_Rewards = "rewards";
@@ -113,7 +114,11 @@ public class AppGivensProvider implements GivensProvider {
         appGivens.put(APP_Given_Key_Week_Day, getDayOfWeek());
         appGivens.put(APP_Given_Key_Since_Midnight, getSinceMidnight());
         appGivens.put(APP_Given_Key_Since_Session_Start, getSinceSessionStart());
-        appGivens.put(APP_Given_Key_Since_Last_Session_Start, getSinceLastSessionStart());
+
+        if(AppGivensProviderUtils.getSinceLastSessionStart() > 0) {
+            appGivens.put(APP_Given_Key_Since_Last_Session_Start, getSinceLastSessionStart());
+        }
+
         appGivens.put(APP_Given_Key_Since_Born, getSinceBorn());
         appGivens.put(APP_Given_Key_Session_Count, getSessionCount());
         appGivens.put(APP_Given_Key_Decision_Count, getDecisionCount(decisionModel.getModelName()));
