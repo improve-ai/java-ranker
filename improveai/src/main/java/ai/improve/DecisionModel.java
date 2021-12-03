@@ -134,7 +134,7 @@ public class DecisionModel {
      * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
      *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
      *                  and the first character must be an alphanumeric one;
-     * @param trackURL url for tracking decisions. If trackURL is nil, no decisions would be
+     * @param trackURL url for tracking decisions. If trackURL is null, no decisions would be
      *                 tracked.
      * @exception IllegalArgumentException in case of an invalid modelName or an invalid trackURL
      */
@@ -305,7 +305,8 @@ public class DecisionModel {
      * This method should only be called on Android platform; Otherwise, a RuntimeException would
      * be thrown.
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
-     * @exception IllegalArgumentException in case of NaN or +-Infinity
+     * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
+     * @throws IllegalStateException Thrown if trackURL is null
      * */
     public void addReward(double reward) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
@@ -313,13 +314,14 @@ public class DecisionModel {
         }
 
         if(DecisionTracker.persistenceProvider == null) {
+            // TODO
+            // I can't think of an appropriate exception to throw here? Ideas?
+            // UnsupportedOperationException?
             throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
         }
 
         if(tracker == null) {
-            String msg = String.format("trackURL of model(%s) not set, this reward won't be tracked", modelName);
-            IMPLog.w(Tag, msg);
-            return ;
+            throw new IllegalStateException("trackURL can't be null when calling addReward()");
         }
 
         tracker.addRewardForModel(modelName, reward);
@@ -338,9 +340,7 @@ public class DecisionModel {
         }
 
         if(tracker == null) {
-            String msg = String.format("trackURL of model(%s) not set, this reward won't be tracked", modelName);
-            IMPLog.w(Tag, msg);
-            return ;
+            throw new IllegalStateException("trackURL can't be null when calling addReward()");
         }
 
         tracker.addRewardForDecision(modelName, decisionId, reward);

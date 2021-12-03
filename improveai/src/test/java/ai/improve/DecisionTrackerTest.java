@@ -32,7 +32,7 @@ import org.junit.jupiter.api.Test;
 public class DecisionTrackerTest {
     public static final String Tag = "IMPDecisionModelTest";
 
-    public static final String Track_URL = "https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track";
+    public static final String Track_URL = "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track";
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);

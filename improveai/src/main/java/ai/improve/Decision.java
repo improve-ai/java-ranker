@@ -90,15 +90,14 @@ public class Decision {
     /**
      * Adds the reward to a specific decision
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
-     * @exception IllegalArgumentException in case of NaN or +-Infinity
+     * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
+     * @throws IllegalStateException Thrown if the trackURL of underlying DecisionModel is null
      * */
     public void addReward(double reward) {
         if(id == null) {
-            if(model.getTracker() != null) {
-                IMPLog.w(Tag, "addReward() should not be called prior to get()");
-            }
-            return ;
+            throw new IllegalStateException("trackURL can't be null when calling addReward()");
         }
+
         model.addRewardForDecision(id, reward);
     }
 }

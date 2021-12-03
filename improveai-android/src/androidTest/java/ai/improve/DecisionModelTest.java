@@ -470,9 +470,14 @@ public class DecisionModelTest {
 
     @Test
     public void testAddReward_Null_TrackURL() {
-        // Just to verify that a warning message is printed
-        DecisionModel decisionModel = new DecisionModel("hello", null);
-        decisionModel.addReward(0.1);
+        try {
+            // Just to verify that a warning message is printed
+            DecisionModel decisionModel = new DecisionModel("hello", null);
+            decisionModel.addReward(0.1);
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test
@@ -480,7 +485,7 @@ public class DecisionModelTest {
         try {
             DecisionModel decisionModel = new DecisionModel("hello");
             decisionModel.addReward(Double.NaN);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ;
         }
         fail(DefaultFailMessage);
@@ -491,7 +496,7 @@ public class DecisionModelTest {
         try {
             DecisionModel decisionModel = new DecisionModel("hello");
             decisionModel.addReward(Double.POSITIVE_INFINITY);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ;
         }
         fail(DefaultFailMessage);
@@ -502,7 +507,7 @@ public class DecisionModelTest {
         try {
             DecisionModel decisionModel = new DecisionModel("hello");
             decisionModel.addReward(Double.NEGATIVE_INFINITY);
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             return ;
         }
         fail(DefaultFailMessage);
