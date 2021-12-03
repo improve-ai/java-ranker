@@ -92,6 +92,9 @@ public class Decision {
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
      * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
      * @throws IllegalStateException Thrown if the trackURL of underlying DecisionModel is null
+     * The id could be null when addReward() is called prior to get(), or less likely the system
+     * clock is so biased(beyond 2014~2150) that we can't generate a valid id(ksuid) when get()
+     * is called.
      * */
     public void addReward(double reward) {
         if(id == null) {

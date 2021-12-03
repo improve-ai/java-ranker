@@ -1,7 +1,5 @@
 package ai.improve;
 
-import com.github.ksuid.KsuidGenerator;
-
 import java.net.MalformedURLException;
 import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
@@ -12,6 +10,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
+import ai.improve.ksuid.KsuidGenerator;
 import ai.improve.log.IMPLog;
 import ai.improve.provider.PersistenceProvider;
 import ai.improve.util.HttpUtil;
@@ -51,7 +50,7 @@ class DecisionTracker {
 
     protected static PersistenceProvider persistenceProvider;
 
-    private static final KsuidGenerator KSUID_GENERATOR = new KsuidGenerator(new SecureRandom());
+    private static final KsuidGenerator KSUID_GENERATOR = new KsuidGenerator();
 
     /**
      * Hyperparameter that affects training speed and model performance.
@@ -109,6 +108,10 @@ class DecisionTracker {
         }
 
         String decisionId = createAndPersistDecisionIdForModel(modelName);
+        if(decisionId == null) {
+            IMPLog.e(Tag, "decisionId generated is null");
+            return null;
+        }
 
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, DECISION_TYPE);
@@ -213,11 +216,17 @@ class DecisionTracker {
      * Adds reward for a specific decision of a model
      * */
     public void addRewardForDecision(String modelName, String decisionId, double reward) {
+        String ksuid = KSUID_GENERATOR.next();
+        if(ksuid == null) {
+            IMPLog.w(Tag, "failed to generate ksuid");
+            return ;
+        }
+
         Map<String, Object> body = new HashMap<>();
         body.put(EVENT_KEY, "Reward");
         body.put(MODEL_KEY, modelName);
         body.put(DECISION_ID_KEY, decisionId);
-        body.put(MESSAGE_ID_KEY, KSUID_GENERATOR.newKsuid().asString());
+        body.put(MESSAGE_ID_KEY, KSUID_GENERATOR.next());
 
         Map<String, Object> properties = new HashMap<>();
         properties.put(VALUE_KEY, reward);
@@ -256,8 +265,8 @@ class DecisionTracker {
     }
 
     private String createAndPersistDecisionIdForModel(String modelName) {
-        String decisionId = KSUID_GENERATOR.newKsuid().asString();
-        if(persistenceProvider != null) {
+        String decisionId = KSUID_GENERATOR.next();
+        if(decisionId != null && persistenceProvider != null) {
             persistenceProvider.persistDecisionIdForModel(modelName, decisionId);
         }
         return decisionId;
