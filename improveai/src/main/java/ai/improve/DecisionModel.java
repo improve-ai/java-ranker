@@ -25,11 +25,15 @@ public class DecisionModel {
 
     private static String sDefaultTrackURL = null;
 
+    private static String sDefaultTrackApiKey = null;
+
     private final Object lock = new Object();
 
     private String modelName;
 
     private String trackURL;
+
+    private String trackApiKey;
 
     private DecisionTracker tracker;
 
@@ -44,6 +48,36 @@ public class DecisionModel {
     private GivensProvider givensProvider;
 
     private static GivensProvider defaultGivensProvider;
+
+    /**
+     * It's an equivalent of DecisionModel(modelName, defaultTrackURL, defaultTrackApiKey)
+     * We suggest to have the defaultTrackURL/defaultTrackApiKey set on startup before creating
+     * any DecisionModel instances.
+     * */
+    public DecisionModel(String modelName) {
+        this(modelName, sDefaultTrackURL, sDefaultTrackApiKey);
+    }
+
+    /**
+     * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
+     *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
+     *                  and the first character must be an alphanumeric one;
+     * @param trackURL url for tracking decisions. If trackURL is null, no decisions would be
+     *                 tracked. If trackURL is not a valid URL, an exception would be thrown.
+     * @param trackApiKey will be attached to the header fields of all the post request for tracking
+     * @throws IllegalArgumentException Thrown if an invalid modelName or an invalid trackURL
+     */
+    public DecisionModel(String modelName, String trackURL, String trackApiKey) {
+        if(!isValidModelName(modelName)) {
+            throw new IllegalArgumentException("invalid modelName: [" + modelName + "]");
+        }
+        this.modelName = modelName;
+        this.trackApiKey = trackApiKey;
+
+        setTrackURL(trackURL);
+
+        this.givensProvider = defaultGivensProvider;
+    }
 
     /**
      * WeakReference is used here to avoid Android activity leaks.
@@ -121,41 +155,13 @@ public class DecisionModel {
         });
     }
 
-    /**
-     * It's an equivalent of DecisionModel(modelName, DecisionModel.defaultTrackURL)
-     * We suggest to have the defaultTrackURL set on startup before creating any DecisionModel
-     * instances.
-     * */
-    public DecisionModel(String modelName) {
-        this(modelName, sDefaultTrackURL);
-    }
-
-    /**
-     * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
-     *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
-     *                  and the first character must be an alphanumeric one;
-     * @param trackURL url for tracking decisions. If trackURL is null, no decisions would be
-     *                 tracked.
-     * @exception IllegalArgumentException in case of an invalid modelName or an invalid trackURL
-     */
-    public DecisionModel(String modelName, String trackURL) {
-        if(!isValidModelName(modelName)) {
-            throw new IllegalArgumentException("invalid modelName: [" + modelName + "]");
-        }
-        this.modelName = modelName;
-
-        setTrackURL(trackURL);
-
-        this.givensProvider = defaultGivensProvider;
-    }
-
     public String getTrackURL() {
-        return this.trackURL;
+        return trackURL;
     }
 
     /**
      * @param trackURL url for decision tracking. If set as null, no decisions would be tracked.
-     * @throws IllegalArgumentException in case of in non-null invalid trackURL
+     * @throws IllegalArgumentException Thrown if trackURL is nonnull and not a valid URL.
      * */
     public void setTrackURL(String trackURL) {
         if(trackURL == null) {
@@ -166,7 +172,7 @@ public class DecisionModel {
                 throw new IllegalArgumentException("invalid trackURL: [" + trackURL + "]");
             }
             this.trackURL = trackURL;
-            this.tracker = new DecisionTracker(trackURL);
+            this.tracker = new DecisionTracker(trackURL, this.trackApiKey);
         }
     }
 
@@ -183,6 +189,25 @@ public class DecisionModel {
             throw new IllegalArgumentException("invalid trackURL: " + trackURL);
         }
         sDefaultTrackURL = trackURL;
+    }
+
+    public String getTrackApiKey() {
+        return trackApiKey;
+    }
+
+    public void setTrackApiKey(String trackApiKey) {
+        this.trackApiKey = trackApiKey;
+        if(tracker != null) {
+            tracker.setTrackApiKey(trackApiKey);
+        }
+    }
+
+    public String getDefaultTrackApiKey() {
+        return sDefaultTrackApiKey;
+    }
+
+    public static void setDefaultTrackApiKey(String defaultTrackApiKey) {
+        sDefaultTrackApiKey = defaultTrackApiKey;
     }
 
     public GivensProvider getGivensProvider() {

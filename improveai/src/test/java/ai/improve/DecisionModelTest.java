@@ -6,14 +6,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import static ai.improve.DecisionTrackerTest.Track_Api_Key;
 import static ai.improve.DecisionTrackerTest.Track_URL;
 
-import org.junit.Assert;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -41,6 +39,13 @@ public class DecisionModelTest {
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        DecisionModel.setDefaultTrackURL(Track_URL);
+        DecisionModel.setDefaultTrackApiKey(Track_Api_Key);
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        IMPLog.d(Tag, "setUp");
     }
 
     private class AlphaGivensProvider implements GivensProvider {
@@ -132,7 +137,6 @@ public class DecisionModelTest {
             try {
                 new DecisionModel(l.get(i));
             } catch (RuntimeException e) {
-                e.printStackTrace();
                 count++;
             }
         }
@@ -142,19 +146,19 @@ public class DecisionModelTest {
     @org.junit.Test
     public void testSetTrackURL_Null() {
         DecisionModel decisionModel = new DecisionModel("hello");
-        Assert.assertNotNull(decisionModel.getTrackURL());
-        Assert.assertNotNull(decisionModel.getTracker());
+        assertNotNull(decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
 
         decisionModel.setTrackURL(null);
-        Assert.assertNull(decisionModel.getTrackURL());
-        Assert.assertNull(decisionModel.getTracker());
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
     }
 
     @org.junit.Test
     public void testSetTrackURL_Empty() {
         DecisionModel decisionModel = new DecisionModel("hello");
-        Assert.assertNotNull(decisionModel.getTrackURL());
-        Assert.assertNotNull(decisionModel.getTracker());
+        assertNotNull(decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
 
         try {
             decisionModel.setTrackURL("");
@@ -162,29 +166,40 @@ public class DecisionModelTest {
             IMPLog.e(Tag, e.getMessage());
             return ;
         }
-        Assert.fail(DefaultFailMessage);
+        fail(DefaultFailMessage);
     }
 
     @org.junit.Test
     public void testSetTrackURL_Valid() {
-        DecisionModel decisionModel = new DecisionModel("hello", null);
-        Assert.assertNull(decisionModel.getTrackURL());
-        Assert.assertNull(decisionModel.getTracker());
+        DecisionModel decisionModel = new DecisionModel("hello", null, null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+        assertNull(decisionModel.getTrackApiKey());
 
         decisionModel.setTrackURL(Track_URL);
-        Assert.assertEquals(Track_URL, decisionModel.getTrackURL());
-        Assert.assertNotNull(decisionModel.getTracker());
+        assertEquals(Track_URL, decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
     }
 
     @Test
-    public void testTrackURL_Valid() {
-        DecisionModel decisionModel = new DecisionModel("hello", Track_URL);
+    public void testConstructor_default_url_and_api_key() {
+        DecisionModel decisionModel = new DecisionModel("hello");
         assertEquals(Track_URL, decisionModel.getTrackURL());
+        assertEquals(Track_Api_Key, decisionModel.getTrackApiKey());
+        assertEquals(Track_Api_Key, decisionModel.getTracker().getTrackApiKey());
+
+        decisionModel.setTrackApiKey(null);
+        assertNull(decisionModel.getTrackApiKey());
+        assertNull(decisionModel.getTracker().getTrackApiKey());
+
+        decisionModel.setTrackURL(null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
     }
 
     @Test
     public void testTrackURL_Null() {
-        DecisionModel decisionModel = new DecisionModel("hello", null);
+        DecisionModel decisionModel = new DecisionModel("hello", null, null);
         assertNull(decisionModel.getTrackURL());
         assertNull(decisionModel.getTracker());
     }
@@ -192,7 +207,7 @@ public class DecisionModelTest {
     @Test
     public void testTrackURL_Invalid() {
         try {
-            new DecisionModel("hello", "");
+            new DecisionModel("hello", "", null);
         } catch (Exception e) {
             IMPLog.d(Tag, e.getMessage());
             return ;
@@ -202,6 +217,8 @@ public class DecisionModelTest {
 
     @Test
     public void testDefaultTrackURL() {
+        DecisionModel.setDefaultTrackURL(null);
+
         assertNull(DecisionModel.getDefaultTrackURL());
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNull(decisionModel.getTrackURL());
@@ -277,7 +294,6 @@ public class DecisionModelTest {
         try {
             DecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -298,7 +314,6 @@ public class DecisionModelTest {
         try {
             DecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -355,7 +370,6 @@ public class DecisionModelTest {
         try {
             Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -379,7 +393,6 @@ public class DecisionModelTest {
         try {
             Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -484,7 +497,6 @@ public class DecisionModelTest {
             DecisionModel decisionModel = new DecisionModel("hello");
             decisionModel.addReward(0.1);
         } catch (Exception e) {
-            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);

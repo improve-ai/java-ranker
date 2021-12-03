@@ -27,7 +27,7 @@ public class HttpUtilTest {
 
     @Test
     public void testSerializeBody_null_variant() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = new DecisionTracker(Track_URL, null);
 
         Map<String, Object> body = new HashMap();
         body.put("variant", null);
@@ -37,7 +37,7 @@ public class HttpUtilTest {
 
     @Test
     public void testSerializeBody_null_leaf() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = new DecisionTracker(Track_URL, null);
 
         Map<String, Object> body = new HashMap();
 

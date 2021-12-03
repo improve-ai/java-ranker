@@ -37,6 +37,7 @@ class DecisionTracker {
     private static final String VALUE_KEY = "value";
 
 
+    private static final String TRACK_API_KEY_HEADER = "x-api-key";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
 
@@ -45,6 +46,8 @@ class DecisionTracker {
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
 
     private String trackURL;
+
+    private String trackApiKey;
 
     protected static PersistenceProvider persistenceProvider;
 
@@ -56,8 +59,9 @@ class DecisionTracker {
      * */
     private int maxRunnersUp = DEFAULT_MAX_RUNNERS_UP;
 
-    public DecisionTracker(String trackURL) {
+    public DecisionTracker(String trackURL, String trackApiKey) {
         this.trackURL = trackURL;
+        this.trackApiKey = trackApiKey;
         if(Utils.isEmpty(trackURL)) {
             // Just give a warning
             IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
@@ -79,6 +83,14 @@ class DecisionTracker {
      * */
     public void setMaxRunnersUp(int maxRunnersUp) {
         this.maxRunnersUp = maxRunnersUp >= 0 ? maxRunnersUp : 0;
+    }
+
+    protected String getTrackApiKey() {
+        return trackApiKey;
+    }
+
+    protected void setTrackApiKey(String trackApiKey) {
+        this.trackApiKey = trackApiKey;
     }
 
     /**
@@ -219,6 +231,9 @@ class DecisionTracker {
     private void postTrackingRequest(Map<String, Object> body) {
         Map<String, String> headers = new HashMap<>();
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+        if(trackApiKey != null) {
+            headers.put(TRACK_API_KEY_HEADER, trackApiKey);
+        }
 
         body = new HashMap<>(body);
         body.put(TIMESTAMP_KEY, ISO_TIMESTAMP_FORMAT.format(new Date()));

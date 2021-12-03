@@ -34,8 +34,14 @@ public class DecisionTrackerTest {
 
     public static final String Track_URL = "https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track";
 
+    public static final String Track_Api_Key = "track-api-key";
+
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+    }
+
+    private DecisionTracker newTracker() {
+        return new DecisionTracker(Track_URL, Track_Api_Key);
     }
 
     @Test
@@ -44,7 +50,7 @@ public class DecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -62,7 +68,7 @@ public class DecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -80,7 +86,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -101,7 +107,7 @@ public class DecisionTrackerTest {
         int loop = 10000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -122,7 +128,7 @@ public class DecisionTrackerTest {
         int loop = 1000000;
         int shouldTrackCount = 0;
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(0);
         ModelUtils.shouldtrackRunnersUp(variantCount, tracker.getMaxRunnersUp());
 
@@ -145,7 +151,7 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(0);
 
         int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -182,7 +188,7 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(2);
 
         int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -214,7 +220,7 @@ public class DecisionTrackerTest {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
 
         int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -235,7 +241,7 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
 
         int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -256,7 +262,7 @@ public class DecisionTrackerTest {
         variants.add("Hi");
         variants.add(null);
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(1);
 
         int runnersUpCount = tracker.topRunnersUp(variants, tracker.getMaxRunnersUp()).size();
@@ -277,7 +283,7 @@ public class DecisionTrackerTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
 
         int runnersUpCount = 0;
         String bestVariant = "hello, world!";
@@ -314,7 +320,7 @@ public class DecisionTrackerTest {
         variants.add("Hello, World!");
         variants.add("Hello, World!");
 
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
 
         int runnersUpCount = 0;
         String bestVariant = "Hello, World!";
@@ -341,7 +347,7 @@ public class DecisionTrackerTest {
      * */
     @Test
     public void testSetBestVariantNil() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
 
         Map<String, Object> body = new HashMap();
@@ -360,7 +366,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_Null_runner_up() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(2);
 
         List variants = Arrays.asList("foo", null, "bar");
@@ -371,7 +377,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_1_variant() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 1;
@@ -386,7 +392,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_2_variants() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 2;
@@ -401,7 +407,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_10_variants() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 10;
@@ -420,7 +426,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testTopRunnersUp_100_variants() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(50);
 
         int numOfVariants = 100;
@@ -439,7 +445,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testSetBestVariantNonNil() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         Map<String, Object> body = new HashMap();
         tracker.setBestVariant("hello", body);
         assertEquals("hello", body.get(DECISION_BEST_KEY));
@@ -447,7 +453,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testSetCount_2_variants() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         int numOfVariants = 2;
         List<Object> variants = new ArrayList<>();
         for(int i = 0; i < numOfVariants; i++) {
@@ -462,7 +468,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testSetCount_null_variants() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
 
         List<Object> variants = null;
 
@@ -474,7 +480,7 @@ public class DecisionTrackerTest {
 
     @Test
     public void testSetCount_empty_variants() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
 
         List<Object> variants = new ArrayList<>();
 
@@ -486,20 +492,15 @@ public class DecisionTrackerTest {
 
     @Test
     public void testSetMaxRunnersUp() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(10);
         assertEquals(10, tracker.getMaxRunnersUp());
     }
 
     @Test
     public void testSetMaxRunnersUp_NegativeValue() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL);
+        DecisionTracker tracker = newTracker();
         tracker.setMaxRunnersUp(-1);
         assertEquals(0, tracker.getMaxRunnersUp());
-    }
-
-    @Test
-    public void testTrackWithValidHistoryId() {
-        new DecisionTracker(Track_URL);
     }
 }

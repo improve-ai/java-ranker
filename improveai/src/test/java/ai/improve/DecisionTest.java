@@ -19,7 +19,7 @@ import org.junit.jupiter.api.Test;
 public class DecisionTest {
 
     @BeforeAll
-    public static void setUp() throws Exception {
+    public static void setUp() {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
         DecisionModel.setDefaultTrackURL(Track_URL);
     }

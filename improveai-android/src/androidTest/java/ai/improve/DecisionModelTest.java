@@ -472,7 +472,7 @@ public class DecisionModelTest {
     public void testAddReward_Null_TrackURL() {
         try {
             // Just to verify that a warning message is printed
-            DecisionModel decisionModel = new DecisionModel("hello", null);
+            DecisionModel decisionModel = new DecisionModel("hello", null, null);
             decisionModel.addReward(0.1);
         } catch (IllegalStateException e) {
             return ;
