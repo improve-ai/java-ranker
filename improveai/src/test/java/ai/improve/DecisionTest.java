@@ -54,21 +54,29 @@ public class DecisionTest {
         assertEquals(variants.get(0), variant);
     }
 
-    // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromNullVariants() {
-        List<Object> variants = new ArrayList<>();
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        assertNull(decision.chooseFrom(variants).get());
+        try {
+            List<Object> variants = new ArrayList<>();
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            assertNull(decision.chooseFrom(variants).get());
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
-    // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromEmptyVariants() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        assertNull(decision.chooseFrom(null).get());
+        try {
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            assertNull(decision.chooseFrom(null).get());
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

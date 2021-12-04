@@ -45,7 +45,7 @@ public class DecisionTrackerTest {
     @Test
     public void testTrackerNullVariants() {
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.chooseFrom(null).get();
+        decisionModel.chooseFrom(Arrays.asList(1, null)).get();
     }
 
     /**

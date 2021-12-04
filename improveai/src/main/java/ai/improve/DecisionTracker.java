@@ -93,6 +93,8 @@ class DecisionTracker {
     }
 
     /**
+     * Decision.get() throws an error if variants is empty or null. So it's safe to assume here
+     * that bestVariant is not null , and variants.size() > 0
      * @return the message_id of the tracked decision; null is returned in case of errors
      * */
     protected <T> String track(Object bestVariant, List<T> variants, Map<String, Object> givens,
@@ -145,11 +147,7 @@ class DecisionTracker {
     }
 
     protected <T> void setCount(List<T> variants, Map<String, Object> body) {
-        if(variants == null || variants.size() <= 0) {
-            body.put(COUNT_KEY, 1);
-        } else {
-            body.put(COUNT_KEY, variants.size());
-        }
+        body.put(COUNT_KEY, variants.size());
     }
 
     protected <T> List<T> topRunnersUp(List<T> ranked, int maxRunnersUp) {

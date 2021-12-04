@@ -354,14 +354,6 @@ public class DecisionTrackerTest {
         tracker.setBestVariant(null, body);
         assertTrue(body.containsKey(DECISION_BEST_KEY));
         assertEquals(new GsonBuilder().serializeNulls().create().toJson(body), "{\"variant\":null}");
-
-        Map<String, Object> root = new HashMap<>();
-        Map<String, Object> variant = new HashMap<>();
-        variant.put("theme", null);
-        variant.put("font", null);
-        variant.put("color", "#f0f0f0");
-        root.put("variant", variant);
-        IMPLog.d(Tag, new GsonBuilder().serializeNulls().create().toJson(root));
     }
 
     @Test
@@ -464,30 +456,6 @@ public class DecisionTrackerTest {
         tracker.setCount(variants, body);
 
         assertEquals(2, body.get(COUNT_KEY));
-    }
-
-    @Test
-    public void testSetCount_null_variants() {
-        DecisionTracker tracker = newTracker();
-
-        List<Object> variants = null;
-
-        Map<String, Object> body = new HashMap();
-        tracker.setCount(variants, body);
-
-        assertEquals(1, body.get(COUNT_KEY));
-    }
-
-    @Test
-    public void testSetCount_empty_variants() {
-        DecisionTracker tracker = newTracker();
-
-        List<Object> variants = new ArrayList<>();
-
-        Map<String, Object> body = new HashMap();
-        tracker.setCount(variants, body);
-
-        assertEquals(1, body.get(COUNT_KEY));
     }
 
     @Test

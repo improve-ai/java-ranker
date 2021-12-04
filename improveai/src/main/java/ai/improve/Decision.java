@@ -44,6 +44,11 @@ public class Decision {
         return this;
     }
 
+    /**
+     * Returns the chosen variant. The chosen variant will be memoized, so same value is returned
+     * on subsequent calls.
+     * @throws IllegalStateException Thrown if variants is null or empty.
+     * */
     public synchronized Object get() {
         if(chosen) {
             return best;
@@ -71,15 +76,7 @@ public class Decision {
                 IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
         } else {
-            // Unit test that "variant": null JSON is tracked on null or empty variants.
-            // "count" field should be 1
-            best = null;
-            DecisionTracker tracker = model.getTracker();
-            if(tracker != null) {
-                id = tracker.track(best, variants, allGivens, model.getModelName(), false);
-            } else {
-                IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
-            }
+            throw new IllegalStateException("variants to choose from can't be null or empty");
         }
 
         chosen = true;

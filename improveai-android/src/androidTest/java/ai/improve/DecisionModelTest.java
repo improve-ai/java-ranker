@@ -275,40 +275,6 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseFromAll() throws  Exception {
-        URL modelUrl = new URL(ModelURL);
-        Map<String, Object> given = new HashMap<>();
-        given.put("language", "cowboy");
-
-        // Choose from null
-        getDecisionModel("hello").load(modelUrl).chooseFrom(null).get();
-
-        // Choose from string
-        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
-
-        // Choose from boolean
-        getDecisionModel("hello").load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
-
-        // loadFromAsset
-//        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-//        DecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
-
-        DecisionModel model = new DecisionModel("greetings");
-        model.loadAsync(modelUrl, new DecisionModel.LoadListener() {
-            @Override
-            public void onLoad(DecisionModel decisionModel) {
-                assertNotNull(decisionModel);
-                decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
-            }
-
-            @Override
-            public void onError(IOException e) {
-                Log.d(Tag, "Error loading model: " + e.getLocalizedMessage());
-            }
-        });
-    }
-
-    @Test
     public void testChooseFrom() throws Exception {
         URL modelUrl = new URL(ModelURL);
         Map<String, Object> given = new HashMap<>();
