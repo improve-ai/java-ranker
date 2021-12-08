@@ -143,7 +143,7 @@ public class DecisionModelTest {
         assertEquals(l.size(), count);
     }
 
-    @org.junit.Test
+    @Test
     public void testSetTrackURL_Null() {
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNotNull(decisionModel.getTrackURL());

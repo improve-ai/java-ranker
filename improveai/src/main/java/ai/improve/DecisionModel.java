@@ -15,6 +15,7 @@ import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
 import ai.improve.log.IMPLog;
 import ai.improve.provider.GivensProvider;
+import ai.improve.util.ModelMap;
 import ai.improve.util.ModelUtils;
 import ai.improve.util.Utils;
 import ai.improve.xgbpredictor.ImprovePredictor;
@@ -48,6 +49,8 @@ public class DecisionModel {
     private GivensProvider givensProvider;
 
     private static GivensProvider defaultGivensProvider;
+
+    public final static ModelMap instances = new ModelMap();
 
     /**
      * It's an equivalent of DecisionModel(modelName, defaultTrackURL, defaultTrackApiKey)
