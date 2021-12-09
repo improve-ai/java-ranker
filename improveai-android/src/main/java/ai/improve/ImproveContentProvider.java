@@ -7,6 +7,8 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import ai.improve.android.AppGivensProvider;
+import ai.improve.android.Logger;
+import ai.improve.log.IMPLog;
 
 public class ImproveContentProvider extends ContentProvider {
     public static final String Tag = "ImproveContentProvider";
@@ -16,6 +18,8 @@ public class ImproveContentProvider extends ContentProvider {
     @Override
     public boolean onCreate() {
         sContext = getContext();
+
+        IMPLog.setLogger(new Logger());
 
         DecisionModel.setDefaultGivensProvider(new AppGivensProvider(sContext));
 
