@@ -22,8 +22,6 @@ public class IMPLog {
     }
 
     public static void d(String tag, String message) {
-        sLogger = getLogger();
-
         if(LOG_LEVEL_DEBUG >= sLogLevel) {
             if(sLogger != null) {
                 sLogger.d(Prefix+tag, message);
@@ -34,8 +32,6 @@ public class IMPLog {
     }
 
     public static void w(String tag, String message) {
-        sLogger = getLogger();
-
         if(LOG_LEVEL_WARN >= sLogLevel) {
             if(sLogger != null) {
                 sLogger.w(Prefix+tag, message);
@@ -46,8 +42,6 @@ public class IMPLog {
     }
 
     public static void e(String tag, String message) {
-        sLogger = getLogger();
-
         if(LOG_LEVEL_ERROR >= sLogLevel) {
             if(sLogger != null) {
                 sLogger.e(Prefix+tag, message);
@@ -57,28 +51,8 @@ public class IMPLog {
         }
     }
 
-    private static boolean runOnce = false;
-    private static Logger getLogger() {
-        if(!runOnce) {
-            runOnce = true;
-            sLogger = getAndroidLogger();
-        }
-        return sLogger;
-    }
-
-    private static Logger getAndroidLogger() {
-        try {
-            Class clz = Class.forName("ai.improve.android.Logger");
-            Logger logger = (Logger)clz.newInstance();
-            return logger;
-        } catch (InstantiationException e) {
-            // do nothing
-        } catch (IllegalAccessException e) {
-            // do nothing
-        } catch (ClassNotFoundException e) {
-            // do nothing
-        }
-        return null;
+    public static void setLogger(Logger logger) {
+        sLogger = logger;
     }
 
     public interface Logger {

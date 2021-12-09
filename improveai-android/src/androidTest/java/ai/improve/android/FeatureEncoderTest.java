@@ -1,7 +1,6 @@
 package ai.improve.android;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;

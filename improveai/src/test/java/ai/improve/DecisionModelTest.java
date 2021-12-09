@@ -6,6 +6,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import static ai.improve.DecisionTrackerTest.Track_Api_Key;
+import static ai.improve.DecisionTrackerTest.Track_URL;
+
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
@@ -17,6 +21,7 @@ import java.util.Map;
 import java.util.Random;
 
 import ai.improve.log.IMPLog;
+import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelUtils;
 
 
@@ -28,12 +33,214 @@ import ai.improve.util.ModelUtils;
 public class DecisionModelTest {
     public static final String Tag = "IMPDecisionModelTest";
 
+    public static final String ModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
+
+    public static final String DefaultFailMessage = "A runtime exception should have been thrown, we should never have reached here";
+
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        DecisionModel.setDefaultTrackURL(Track_URL);
+        DecisionModel.setDefaultTrackApiKey(Track_Api_Key);
+    }
+
+    @BeforeEach
+    public void setUp() throws Exception {
+        IMPLog.d(Tag, "setUp");
+    }
+
+    private class AlphaGivensProvider implements GivensProvider {
+        @Override
+        public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, Object> givens) {
+            return null;
+        }
     }
 
     @Test
-    public void testLoad() {
+    public void testModelName_null() {
+        try {
+            new DecisionModel(null);
+        } catch (Exception e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testModelName_empty() {
+        try {
+            new DecisionModel("");
+        } catch (RuntimeException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testModelName_Valid_Length() {
+        new DecisionModel("a");
+        new DecisionModel("abcde");
+
+        String s = "";
+        for(int i = 0; i < 64; ++i) {
+            s += "a";
+        }
+        assertEquals(64, s.length());
+        new DecisionModel(s);
+    }
+
+    @Test
+    public void testModelName_Invalid_Length() {
+        String s = "";
+
+        int length = 65;
+        for(int i = 0; i < length; ++i) {
+            s += "a";
+        }
+        assertEquals(length, s.length());
+
+        try {
+            new DecisionModel(s);
+        } catch (Exception e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testModelName_Valid_Character() {
+        List<String> l = Arrays.asList(
+                "a",
+                "a_",
+                "a.",
+                "a-",
+                "a1",
+                "3abb"
+        );
+        assertTrue(l.size() > 0);
+
+        for(int i = 0; i < l.size(); ++i) {
+            new DecisionModel(l.get(i));
+        }
+    }
+
+    @Test
+    public void testModelName_Invalid_Character() {
+        List<String> l = Arrays.asList(
+                "_a",
+                "a+",
+                "a\\",
+                ".a"
+        );
+
+        int count = 0;
+        for(int i = 0; i < l.size(); ++i) {
+            try {
+                new DecisionModel(l.get(i));
+            } catch (RuntimeException e) {
+                count++;
+            }
+        }
+        assertEquals(l.size(), count);
+    }
+
+    @Test
+    public void testSetTrackURL_Null() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNotNull(decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
+
+        decisionModel.setTrackURL(null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+    }
+
+    @org.junit.Test
+    public void testSetTrackURL_Empty() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNotNull(decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
+
+        try {
+            decisionModel.setTrackURL("");
+        } catch (Exception e) {
+            IMPLog.e(Tag, e.getMessage());
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @org.junit.Test
+    public void testSetTrackURL_Valid() {
+        DecisionModel decisionModel = new DecisionModel("hello", null, null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+        assertNull(decisionModel.getTrackApiKey());
+
+        decisionModel.setTrackURL(Track_URL);
+        assertEquals(Track_URL, decisionModel.getTrackURL());
+        assertNotNull(decisionModel.getTracker());
+    }
+
+    @Test
+    public void testConstructor_default_url_and_api_key() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertEquals(Track_URL, decisionModel.getTrackURL());
+        assertEquals(Track_Api_Key, decisionModel.getTrackApiKey());
+        assertEquals(Track_Api_Key, decisionModel.getTracker().getTrackApiKey());
+
+        decisionModel.setTrackApiKey(null);
+        assertNull(decisionModel.getTrackApiKey());
+        assertNull(decisionModel.getTracker().getTrackApiKey());
+
+        decisionModel.setTrackURL(null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+    }
+
+    @Test
+    public void testTrackURL_Null() {
+        DecisionModel decisionModel = new DecisionModel("hello", null, null);
+        assertNull(decisionModel.getTrackURL());
+        assertNull(decisionModel.getTracker());
+    }
+
+    @Test
+    public void testTrackURL_Invalid() {
+        try {
+            new DecisionModel("hello", "", null);
+        } catch (Exception e) {
+            IMPLog.d(Tag, e.getMessage());
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testDefaultTrackURL() {
+        DecisionModel.setDefaultTrackURL(null);
+
+        assertNull(DecisionModel.getDefaultTrackURL());
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNull(decisionModel.getTrackURL());
+
+        DecisionModel.setDefaultTrackURL(Track_URL);
+
+        decisionModel = new DecisionModel("hello");
+        assertNotNull(decisionModel.getTrackURL());
+        assertEquals(Track_URL, decisionModel.getTrackURL());
+    }
+
+    @Test
+    public void testSetDefaultTrackURL() {
+        DecisionModel.setDefaultTrackURL(null);
+        assertNull(DecisionModel.getDefaultTrackURL());
+
+        try {
+            DecisionModel.setDefaultTrackURL("");
+        } catch (Exception e) {
+            return;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test
@@ -87,7 +294,6 @@ public class DecisionModelTest {
         try {
             DecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -108,7 +314,6 @@ public class DecisionModelTest {
         try {
             DecisionModel.rank(variants, scores);
         } catch (IndexOutOfBoundsException e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -165,7 +370,6 @@ public class DecisionModelTest {
         try {
             Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -189,7 +393,6 @@ public class DecisionModelTest {
         try {
             Integer topVariant = (Integer) ModelUtils.topScoringVariant(variants, scores);
         } catch (Exception e) {
-            e.printStackTrace();
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -286,5 +489,36 @@ public class DecisionModelTest {
             IMPLog.d(Tag, "score["+i+"] = " + scores.get(i));
             assertTrue(scores.get(i) > scores.get(i+1));
         }
+    }
+
+    @Test
+    public void testAddReward_non_Android() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(0.1);
+        } catch (Exception e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testGivensProvider_getter_setter() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        assertNull(decisionModel.getGivensProvider());
+
+        GivensProvider givensProvider = new AlphaGivensProvider();
+
+        decisionModel.setGivensProvider(givensProvider);
+        assertNotNull(decisionModel.getGivensProvider());
+        assertEquals(givensProvider, decisionModel.getGivensProvider());
+
+        decisionModel.setGivensProvider(null);
+        assertNull(decisionModel.getGivensProvider());
+
+        DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
+        assertNull(decisionModel.getGivensProvider());
+
+        assertNotNull(new DecisionModel("hello").getGivensProvider());
     }
 }

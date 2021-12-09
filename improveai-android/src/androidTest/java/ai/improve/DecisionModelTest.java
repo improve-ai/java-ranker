@@ -29,11 +29,9 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
-import ai.improve.DecisionModel;
-import ai.improve.DecisionTracker;
 import ai.improve.log.IMPLog;
 
-import static ai.improve.DecisionTrackerTest.Tracker_Url;
+import static ai.improve.DecisionTrackerTest.Track_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -43,16 +41,19 @@ import static java.lang.Math.pow;
 
 @RunWith(AndroidJUnit4.class)
 public class DecisionModelTest {
-    public static final String Tag = "IMPDecisionModelTest";
+    public static final String Tag = "DecisionModelTest";
 
-    public static final String ModelURL = "http://192.168.1.101/dummy_v6.xgb";
+    public static final String ModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
 
-    private static final String CompressedModelURL = "http://192.168.1.101/dummy_v6.xgb.gz";
+    private static final String CompressedModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
 
     private static final String AssetModelFileName = "dummy_v6.xgb";
 
+    public static final String DefaultFailMessage = "A runtime exception should have been thrown, we should never have reached here";
+
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        DecisionModel.setDefaultTrackURL(Track_URL);
     }
 
 //
@@ -80,6 +81,10 @@ public class DecisionModelTest {
 //        semaphore.acquire();
 //    }
 
+    public DecisionModel getDecisionModel(String modelName) {
+        return new DecisionModel(modelName);
+    }
+
     @Test
     public void testModelNameWithoutLoadingModel() {
         DecisionModel decisionModel = new DecisionModel("music");
@@ -89,9 +94,8 @@ public class DecisionModelTest {
     @Test
     public void testModelName() throws Exception {
         URL url = new URL(ModelURL);
-        DecisionModel decisionModel = DecisionModel.load(url);
-        IMPLog.d(Tag, "modelName=" + decisionModel.getModelName());
-        assertEquals("dummy-model-0", decisionModel.getModelName());
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
+        assertEquals("hello", decisionModel.getModelName());
     }
 
     @Test
@@ -103,7 +107,7 @@ public class DecisionModelTest {
         variants.add("hi");
 
         URL url = new URL(ModelURL);
-        String greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
+        String greeting = (String) getDecisionModel("hello").load(url).chooseFrom(variants).get();
         IMPLog.d(Tag, "testGet, greeting=" + greeting);
         assertNotNull(greeting);
     }
@@ -146,7 +150,7 @@ public class DecisionModelTest {
     @Test
     public void testLoadGzipModel() throws Exception {
         URL url = new URL(CompressedModelURL);
-        DecisionModel decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -165,7 +169,7 @@ public class DecisionModelTest {
         String localModelFilePath = download(ModelURL);
         URL url = new File(localModelFilePath).toURI().toURL();
 
-        DecisionModel decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
         assertNotNull(decisionModel);
 
         List<Object> variants = new ArrayList<>();
@@ -185,8 +189,7 @@ public class DecisionModelTest {
 
         URL url = new File(localModelFilePath).toURI().toURL();
 
-        DecisionModel decisionModel = null;
-        decisionModel = DecisionModel.load(url);
+        DecisionModel decisionModel = getDecisionModel("hello").load(url);
 
         assertNotNull(decisionModel);
 
@@ -213,7 +216,7 @@ public class DecisionModelTest {
         String greeting = null;
         Exception loadException = null;
         try {
-            greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
+            greeting = (String) getDecisionModel("hello").load(url).chooseFrom(variants).get();
         } catch (Exception e) {
             loadException = e;
             e.printStackTrace();
@@ -236,7 +239,7 @@ public class DecisionModelTest {
                     variants.add("hi");
 
                     URL url = new URL(ModelURL);
-                    String greeting = (String) DecisionModel.load(url).chooseFrom(variants).get();
+                    String greeting = (String) getDecisionModel("hello").load(url).chooseFrom(variants).get();
                     IMPLog.d(Tag, "testGet, greeting=" + greeting);
                     assertNotNull(greeting);
 
@@ -272,58 +275,19 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseFromAll() throws  Exception {
-        URL modelUrl = new URL(ModelURL);
-        Map<String, Object> given = new HashMap<>();
-        given.put("language", "cowboy");
-
-        // Choose from null
-        DecisionModel.load(modelUrl).chooseFrom(null).get();
-
-
-        // Choose from string
-        DecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
-
-        // Choose from boolean
-        DecisionModel.load(modelUrl).given(given).chooseFrom(Arrays.asList(true, false)).get();
-
-        // loadFromAsset
-//        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-//        DecisionModel.loadFromAsset(appContext, AssetModelFileName).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
-
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
-        DecisionModel model = new DecisionModel("greetings");
-        model.trackWith(tracker);
-        model.loadAsync(modelUrl, new DecisionModel.LoadListener() {
-            @Override
-            public void onLoad(DecisionModel decisionModel) {
-                assertNotNull(decisionModel);
-                decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
-            }
-
-            @Override
-            public void onError(IOException e) {
-                Log.d(Tag, "Error loading model: " + e.getLocalizedMessage());
-            }
-        });
-    }
-
-    @Test
     public void testChooseFrom() throws Exception {
         URL modelUrl = new URL(ModelURL);
         Map<String, Object> given = new HashMap<>();
         given.put("language", "cowboy");
         // Choose from string
-        DecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
+        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
     }
 
     @Test
     public void testChooseFromVariantsWithNull() throws Exception {
         Semaphore semaphore = new Semaphore(0);
         URL modelUrl = new URL(ModelURL);
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url);
         DecisionModel model = new DecisionModel("greetings");
-        model.trackWith(tracker);
         model.loadAsync(modelUrl, new DecisionModel.LoadListener() {
             @Override
             public void onLoad(DecisionModel model) {
@@ -349,7 +313,7 @@ public class DecisionModelTest {
 
         URL url = new URL(ModelURL);
         try {
-            DecisionModel.load(url).chooseFrom(variants).get();
+            getDecisionModel("hello").load(url).chooseFrom(variants).get();
         } catch (Exception e) {
             IMPLog.e(Tag, ""+e.getMessage());
             e.printStackTrace();
@@ -378,7 +342,7 @@ public class DecisionModelTest {
         // are somehow stripped by Android aapt tool, so we have to remove
         // the '.gz' suffix to access it here.
         URL modelUrl = new URL("file:///android_asset/validate_models/" + path + "/model.xgb");
-        DecisionModel decisionModel = DecisionModel.load(modelUrl);
+        DecisionModel decisionModel = getDecisionModel("hello").load(modelUrl);
 
         // load testcase json
         InputStream inputStream = getContext().getAssets().open("validate_models/" + path + "/" + path + ".json");
@@ -462,5 +426,56 @@ public class DecisionModelTest {
 
     private Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getTargetContext();
+    }
+
+    @Test
+    public void testAddReward_Android() {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        decisionModel.addReward(0.1);
+    }
+
+    @Test
+    public void testAddReward_Null_TrackURL() {
+        try {
+            // Just to verify that a warning message is printed
+            DecisionModel decisionModel = new DecisionModel("hello", null, null);
+            decisionModel.addReward(0.1);
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddReward_NaN() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(Double.NaN);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddReward_Positive_Infinity() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(Double.POSITIVE_INFINITY);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddReward_Negative_Infinity() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("hello");
+            decisionModel.addReward(Double.NEGATIVE_INFINITY);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 }

@@ -2,6 +2,7 @@ package ai.improve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,11 +10,20 @@ import java.util.List;
 
 import ai.improve.log.IMPLog;
 
-import static ai.improve.DecisionTrackerTest.Tracker_Url;
+import static ai.improve.DecisionModelTest.DefaultFailMessage;
+import static ai.improve.DecisionTrackerTest.Track_URL;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class DecisionTest {
+
+    @BeforeAll
+    public static void setUp() {
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        DecisionModel.setDefaultTrackURL(Track_URL);
+    }
+
     @Test
     public void testGetWithoutModel() {
         List<Object> variants = new ArrayList<>();
@@ -23,13 +33,10 @@ public class DecisionTest {
         variants.add("hi");
         variants.add("Hello World!");
 
-        int loop = 10000;
         DecisionModel decisionModel = new DecisionModel("theme");
-        for(int i = 0; i < loop; i++) {
-            Decision decision = new Decision(decisionModel);
-            String greeting = (String) decision.chooseFrom(variants).get();
-            assertEquals(greeting, variants.get(0));
-        }
+        Decision decision = new Decision(decisionModel);
+        String greeting = (String) decision.chooseFrom(variants).get();
+        assertEquals(greeting, variants.get(0));
     }
 
     @Test
@@ -47,21 +54,29 @@ public class DecisionTest {
         assertEquals(variants.get(0), variant);
     }
 
-    // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromNullVariants() {
-        List<Object> variants = new ArrayList<>();
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        assertNull(decision.chooseFrom(variants).get());
+        try {
+            List<Object> variants = new ArrayList<>();
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            assertNull(decision.chooseFrom(variants).get());
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
-    // Unit test that null or empty variants returns null on get()
     @Test
     public void testChooseFromEmptyVariants() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        assertNull(decision.chooseFrom(null).get());
+        try {
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            assertNull(decision.chooseFrom(null).get());
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test
@@ -70,29 +85,75 @@ public class DecisionTest {
         variants.add("Hello, World!");
 
         DecisionModel decisionModel = new DecisionModel("theme");
-        decisionModel.trackWith(new DecisionTracker(Tracker_Url, "history_id"));
-
         Decision decision = new Decision(decisionModel);
         decision.chooseFrom(variants).get();
     }
 
-    /**
-     * Always pass
-     * Just a convenient method to test that an error log is printed when
-     * Decision.get() is called but tracker is not set for the model
-     * */
     @Test
-    public void testGetWithoutTracker() {
-        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        List<String> variants = Arrays.asList("hello", "hi");
-        DecisionModel decisionModel = new DecisionModel("theme");
-        decisionModel.chooseFrom(variants).get();
+    public void testAddReward_before_get() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            decision.addReward(0.1);
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
 
-        List emptyVariants = new ArrayList<>();
-        decisionModel.chooseFrom(emptyVariants).get();
+    @Test
+    public void testAddReward_nil_trackURL() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
 
-        DecisionTracker tracker = new DecisionTracker(Tracker_Url, "history_id");
-        decisionModel.trackWith(tracker);
-        decisionModel.chooseFrom(emptyVariants).get();
+            // set trackURL to null
+            decisionModel.setTrackURL(null);
+
+            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
+            decision.addReward(0.1);
+        } catch (IllegalStateException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddReward_NaN() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
+            decision.addReward(Double.NaN);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddReward_positive_infinity() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
+            decision.addReward(Double.POSITIVE_INFINITY);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddReward_negative_infinity() {
+        try {
+            DecisionModel decisionModel = new DecisionModel("theme");
+            Decision decision = new Decision(decisionModel);
+            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
+            decision.addReward(Double.NEGATIVE_INFINITY);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 }

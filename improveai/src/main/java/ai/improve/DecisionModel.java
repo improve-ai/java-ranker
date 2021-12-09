@@ -14,16 +14,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
 import ai.improve.log.IMPLog;
+import ai.improve.provider.GivensProvider;
+import ai.improve.util.ModelMap;
 import ai.improve.util.ModelUtils;
+import ai.improve.util.Utils;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
 public class DecisionModel {
     public static final String Tag = "DecisionModel";
 
+    private static String sDefaultTrackURL = null;
+
+    private static String sDefaultTrackApiKey = null;
+
     private final Object lock = new Object();
 
     private String modelName;
+
+    private String trackURL;
+
+    private String trackApiKey;
 
     private DecisionTracker tracker;
 
@@ -35,6 +46,42 @@ public class DecisionModel {
 
     protected boolean enableTieBreaker = true;
 
+    private GivensProvider givensProvider;
+
+    private static GivensProvider defaultGivensProvider;
+
+    public final static ModelMap instances = new ModelMap();
+
+    /**
+     * It's an equivalent of DecisionModel(modelName, defaultTrackURL, defaultTrackApiKey)
+     * We suggest to have the defaultTrackURL/defaultTrackApiKey set on startup before creating
+     * any DecisionModel instances.
+     * */
+    public DecisionModel(String modelName) {
+        this(modelName, sDefaultTrackURL, sDefaultTrackApiKey);
+    }
+
+    /**
+     * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
+     *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
+     *                  and the first character must be an alphanumeric one;
+     * @param trackURL url for tracking decisions. If trackURL is null, no decisions would be
+     *                 tracked. If trackURL is not a valid URL, an exception would be thrown.
+     * @param trackApiKey will be attached to the header fields of all the post request for tracking
+     * @throws IllegalArgumentException Thrown if an invalid modelName or an invalid trackURL
+     */
+    public DecisionModel(String modelName, String trackURL, String trackApiKey) {
+        if(!isValidModelName(modelName)) {
+            throw new IllegalArgumentException("invalid modelName: [" + modelName + "]");
+        }
+        this.modelName = modelName;
+        this.trackApiKey = trackApiKey;
+
+        setTrackURL(trackURL);
+
+        this.givensProvider = defaultGivensProvider;
+    }
+
     /**
      * WeakReference is used here to avoid Android activity leaks.
      * A sample activity "LeakTestActivity" is included in the sample project.
@@ -43,8 +90,7 @@ public class DecisionModel {
      */
     private Map<Integer, WeakReference<LoadListener>> listeners = new HashMap<>();
 
-    public static DecisionModel load(URL url) throws IOException {
-        DecisionModel decisionModel = new DecisionModel("");
+    public DecisionModel load(URL url) throws IOException {
         final IOException[] downloadException = {null};
         LoadListener listener = new LoadListener() {
             @Override
@@ -56,17 +102,17 @@ public class DecisionModel {
 
             @Override
             public void onError(IOException e) {
-                synchronized (decisionModel.lock) {
+                synchronized (DecisionModel.this.lock) {
                     downloadException[0] = e;
-                    decisionModel.lock.notifyAll();
+                    DecisionModel.this.lock.notifyAll();
                 }
             }
         };
 
-        decisionModel.loadAsync(url, listener);
-        synchronized (decisionModel.lock) {
+        loadAsync(url, listener);
+        synchronized (lock) {
             try {
-                decisionModel.lock.wait();
+                lock.wait();
             } catch (InterruptedException e) {
                 e.printStackTrace();
                 IMPLog.e(Tag, e.getLocalizedMessage());
@@ -77,7 +123,7 @@ public class DecisionModel {
             throw downloadException[0];
         }
 
-        return decisionModel;
+        return this;
     }
 
     /**
@@ -112,8 +158,75 @@ public class DecisionModel {
         });
     }
 
-    public DecisionModel(String modelName) {
-        this.modelName = modelName;
+    public String getTrackURL() {
+        return trackURL;
+    }
+
+    /**
+     * @param trackURL url for decision tracking. If set as null, no decisions would be tracked.
+     * @throws IllegalArgumentException Thrown if trackURL is nonnull and not a valid URL.
+     * */
+    public void setTrackURL(String trackURL) {
+        if(trackURL == null) {
+            this.trackURL = null;
+            this.tracker = null;
+        } else {
+            if(!Utils.isValidURL(trackURL)) {
+                throw new IllegalArgumentException("invalid trackURL: [" + trackURL + "]");
+            }
+            this.trackURL = trackURL;
+            this.tracker = new DecisionTracker(trackURL, this.trackApiKey);
+        }
+    }
+
+    public static String getDefaultTrackURL() {
+        return sDefaultTrackURL;
+    }
+
+    /**
+     * @param trackURL default trackURL for tracking decisions.
+     * @throws IllegalArgumentException if trackURL is nonnull and not a valid url
+     * */
+    public static void setDefaultTrackURL(String trackURL) {
+        if(trackURL != null && !Utils.isValidURL(trackURL)) {
+            throw new IllegalArgumentException("invalid trackURL: " + trackURL);
+        }
+        sDefaultTrackURL = trackURL;
+    }
+
+    public String getTrackApiKey() {
+        return trackApiKey;
+    }
+
+    public void setTrackApiKey(String trackApiKey) {
+        this.trackApiKey = trackApiKey;
+        if(tracker != null) {
+            tracker.setTrackApiKey(trackApiKey);
+        }
+    }
+
+    public String getDefaultTrackApiKey() {
+        return sDefaultTrackApiKey;
+    }
+
+    public static void setDefaultTrackApiKey(String defaultTrackApiKey) {
+        sDefaultTrackApiKey = defaultTrackApiKey;
+    }
+
+    public GivensProvider getGivensProvider() {
+        return givensProvider;
+    }
+
+    public void setGivensProvider(GivensProvider givensProvider) {
+        this.givensProvider = givensProvider;
+    }
+
+    protected static GivensProvider getDefaultGivensProvider() {
+        return defaultGivensProvider;
+    }
+
+    public static void setDefaultGivensProvider(GivensProvider givensProvider) {
+        defaultGivensProvider = givensProvider;
     }
 
     public synchronized void setModel(ImprovePredictor predictor) {
@@ -124,11 +237,11 @@ public class DecisionModel {
 
         this.predictor = predictor;
 
-        if((modelName != null && !modelName.isEmpty()) && !modelName.equals(predictor.getModelMetadata().getModelName())) {
-            IMPLog.w(Tag, "Model names don't match: Current model name [" + modelName
-                    + "], new model Name [" + predictor.getModelMetadata().getModelName() +"] will be used.");
+        if(!modelName.equals(predictor.getModelMetadata().getModelName())){
+            IMPLog.w(Tag, "Model names don't match: current model name [" + modelName
+                    + "], model name extracted [" + predictor.getModelMetadata().getModelName() +"], ["
+                    + modelName + "] will be used.");
         }
-        this.modelName = predictor.getModelMetadata().getModelName();
 
         featureEncoder = new FeatureEncoder(predictor.getModelMetadata().getModelSeed(),
                 predictor.getModelMetadata().getModelFeatureNames());
@@ -142,13 +255,8 @@ public class DecisionModel {
         return modelName;
     }
 
-    public DecisionTracker getTracker() {
+    protected DecisionTracker getTracker() {
         return tracker;
-    }
-
-    public DecisionModel trackWith(DecisionTracker tracker) {
-        this.tracker = tracker;
-        return this;
     }
 
     protected FeatureEncoder getFeatureEncoder() {
@@ -167,6 +275,10 @@ public class DecisionModel {
      * */
     public Decision given(Map<String, Object> givens) {
         return new Decision(this).given(givens);
+    }
+
+    protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
+        return givensProvider == null ? givens : givensProvider.givensForModel(this, givens);
     }
 
     public <T> List<Double> score(List<T> variants) {
@@ -214,6 +326,55 @@ public class DecisionModel {
     }
 
     /**
+     * Adds the reward value to the most recent Decision for this model name for this installation.
+     * The most recent Decision can be from a different DecisionModel instance or a previous session
+     * as long as they have the same model name. If no previous Decision is found, the reward will
+     * be ignored.
+     * This method should only be called on Android platform; Otherwise, a RuntimeException would
+     * be thrown.
+     * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+     * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
+     * @throws IllegalStateException Thrown if trackURL is null
+     * */
+    public void addReward(double reward) {
+        if(Double.isInfinite(reward) || Double.isNaN(reward)) {
+            throw new IllegalArgumentException("reward must not be NaN or infinity");
+        }
+
+        if(DecisionTracker.persistenceProvider == null) {
+            // TODO
+            // I can't think of an appropriate exception to throw here? Ideas?
+            // UnsupportedOperationException?
+            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+        }
+
+        if(tracker == null) {
+            throw new IllegalStateException("trackURL can't be null when calling addReward()");
+        }
+
+        tracker.addRewardForModel(modelName, reward);
+    }
+
+    /**
+     * Adds the reward to a specific decision
+     * */
+    protected void addRewardForDecision(String decisionId, double reward) {
+        if(Double.isInfinite(reward) || Double.isNaN(reward)) {
+            throw new IllegalArgumentException("reward must not be NaN or infinity");
+        }
+
+        if(DecisionTracker.persistenceProvider == null) {
+            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+        }
+
+        if(tracker == null) {
+            throw new IllegalStateException("trackURL can't be null when calling addReward()");
+        }
+
+        tracker.addRewardForDecision(modelName, decisionId, reward);
+    }
+
+    /**
      * This method is likely to be changed in the future. Try not to use it in your code.
      *
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
@@ -254,5 +415,9 @@ public class DecisionModel {
 
     private int getSeq() {
         return seq.getAndIncrement();
+    }
+
+    private boolean isValidModelName(String modelName) {
+        return modelName != null && modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
     }
 }

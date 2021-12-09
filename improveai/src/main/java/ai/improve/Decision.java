@@ -19,6 +19,9 @@ public class Decision {
 
     private Object best;
 
+    // The message_id of the tracked decision
+    private String id;
+
     public Decision(DecisionModel model) {
         this.model = model;
     }
@@ -41,12 +44,19 @@ public class Decision {
         return this;
     }
 
+    /**
+     * Returns the chosen variant. The chosen variant will be memoized, so same value is returned
+     * on subsequent calls.
+     * @throws IllegalStateException Thrown if variants is null or empty.
+     * */
     public synchronized Object get() {
         if(chosen) {
             return best;
         }
 
-        List<Double> scores = model.score(variants, givens);
+        Map allGivens = model.combinedGivens(givens);
+
+        List<Double> scores = model.score(variants, allGivens);
 
         if(variants != null && variants.size() > 0) {
             DecisionTracker tracker = model.getTracker();
@@ -55,30 +65,39 @@ public class Decision {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = DecisionModel.rank(variants, scores);
                     best = rankedVariants.get(0);
-                    tracker.track(best, variants, givens, model.getModelName(), true);
+                    id = tracker.track(best, variants, allGivens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
                     best = ModelUtils.topScoringVariant(variants, scores);
-                    tracker.track(best, variants, givens, model.getModelName(), false);
+                    id = tracker.track(best, variants, allGivens, model.getModelName(), false);
                 }
             } else {
                 best = ModelUtils.topScoringVariant(variants, scores);
                 IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
         } else {
-            // Unit test that "variant": null JSON is tracked on null or empty variants.
-            // "count" field should be 1
-            best = null;
-            DecisionTracker tracker = model.getTracker();
-            if(tracker != null) {
-                tracker.track(best, variants, givens, model.getModelName(), false);
-            } else {
-                IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
-            }
+            throw new IllegalStateException("variants to choose from can't be null or empty");
         }
 
         chosen = true;
 
         return best;
+    }
+
+    /**
+     * Adds the reward to a specific decision
+     * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
+     * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
+     * @throws IllegalStateException Thrown if the trackURL of underlying DecisionModel is null
+     * The id could be null when addReward() is called prior to get(), or less likely the system
+     * clock is so biased(beyond 2014~2150) that we can't generate a valid id(ksuid) when get()
+     * is called.
+     * */
+    public void addReward(double reward) {
+        if(id == null) {
+            throw new IllegalStateException("trackURL can't be null when calling addReward()");
+        }
+
+        model.addRewardForDecision(id, reward);
     }
 }

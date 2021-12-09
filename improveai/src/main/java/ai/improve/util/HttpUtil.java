@@ -79,7 +79,7 @@ public class HttpUtil {
                 connection.disconnect();
             }
         } catch (Exception e) {
-            IMPLog.e(Tag, "Error posting HTTP data");
+            IMPLog.e(Tag, "Error posting HTTP data, " + e);
         }
     }
 

@@ -1,8 +1,7 @@
 package ai.improve;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
+import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -10,14 +9,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
-import java.util.UUID;
 
+import ai.improve.ksuid.KsuidGenerator;
 import ai.improve.log.IMPLog;
+import ai.improve.provider.PersistenceProvider;
 import ai.improve.util.HttpUtil;
 import ai.improve.util.Utils;
 
-public class DecisionTracker {
-    public static final String Tag = "BaseDecisionTracker";
+class DecisionTracker {
+    public static final String Tag = "DecisionTracker";
 
     private static final String TYPE_KEY = "type";
 
@@ -32,21 +32,25 @@ public class DecisionTracker {
     private static final String MESSAGE_ID_KEY = "message_id";
     private static final String PROPERTIES_KEY = "properties";
     private static final String EVENT_KEY = "event";
+    private static final String DECISION_ID_KEY = "decision_id";
+    private static final String VALUE_KEY = "value";
 
 
+    private static final String TRACK_API_KEY_HEADER = "x-api-key";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
 
     private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
 
-
-    private static final String HISTORY_ID_KEY = "history_id";
-
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
 
-    private static String sHistoryId = "";
-
     private String trackURL;
+
+    private String trackApiKey;
+
+    protected static PersistenceProvider persistenceProvider;
+
+    private static final KsuidGenerator KSUID_GENERATOR = new KsuidGenerator();
 
     /**
      * Hyperparameter that affects training speed and model performance.
@@ -54,38 +58,17 @@ public class DecisionTracker {
      * */
     private int maxRunnersUp = DEFAULT_MAX_RUNNERS_UP;
 
-    /**
-     * Android only
-     * */
-    public DecisionTracker(String trackURL) {
-        this(trackURL, null);
-    }
-
-    /**
-     * History id must be set for non-Android platforms, so this is the only
-     * valid constructor method for them.
-     * */
-    public DecisionTracker(String trackURL, String historyId) {
+    public DecisionTracker(String trackURL, String trackApiKey) {
         this.trackURL = trackURL;
-
-        if(trackURL == null || trackURL.isEmpty()) {
-            // Just a warning
+        this.trackApiKey = trackApiKey;
+        if(Utils.isEmpty(trackURL)) {
+            // Just give a warning
             IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
         }
+    }
 
-        if(Utils.isAndroid()) {
-            String id = getHistoryId();
-            if(Utils.isEmpty(id)) {
-                throw new RuntimeException("Fatal error, history id must not be null or empty");
-            }
-            setHistoryId(id);
-        } else {
-            // history id must be set for non-Android platform
-            if(Utils.isEmpty(historyId)) {
-                throw new RuntimeException("Fatal error, history id must not be null or empty");
-            }
-            sHistoryId = historyId;
-        }
+    protected static void setPersistenceProvider(PersistenceProvider persistenceProvider) {
+        DecisionTracker.persistenceProvider = persistenceProvider;
     }
 
     public int getMaxRunnersUp() {
@@ -101,21 +84,41 @@ public class DecisionTracker {
         this.maxRunnersUp = maxRunnersUp >= 0 ? maxRunnersUp : 0;
     }
 
-    protected <T> void track(Object bestVariant, List<T> variants, Map<String, Object> givens,
+    protected String getTrackApiKey() {
+        return trackApiKey;
+    }
+
+    protected void setTrackApiKey(String trackApiKey) {
+        this.trackApiKey = trackApiKey;
+    }
+
+    /**
+     * Decision.get() throws an error if variants is empty or null. So it's safe to assume here
+     * that bestVariant is not null , and variants.size() > 0
+     * @return the message_id of the tracked decision; null is returned in case of errors
+     * */
+    protected <T> String track(Object bestVariant, List<T> variants, Map<String, Object> givens,
                                  String modelName, boolean variantsRankedAndTrackRunnersUp) {
         if(modelName == null || modelName.isEmpty()) {
             IMPLog.e(Tag, "Improve.track error: modelName is empty or null");
-            return ;
+            return null;
         }
 
-        if(trackURL == null || trackURL.isEmpty()) {
+        if(Utils.isEmpty(trackURL)) {
             IMPLog.e(Tag, "Improve.track error: trackURL is empty or null");
-            return ;
+            return null;
+        }
+
+        String decisionId = createAndPersistDecisionIdForModel(modelName);
+        if(decisionId == null) {
+            IMPLog.e(Tag, "decisionId generated is null");
+            return null;
         }
 
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, DECISION_TYPE);
         body.put(MODEL_KEY, modelName);
+        body.put(MESSAGE_ID_KEY, decisionId);
 
         setCount(variants, body);
 
@@ -135,50 +138,8 @@ public class DecisionTracker {
         setSampleVariant(variants, runnersUpCount, variantsRankedAndTrackRunnersUp, bestVariant, body);
 
         postTrackingRequest(body);
-    }
 
-
-    public void trackEvent(String eventName) {
-        trackEvent(eventName, null);
-    }
-
-    public void trackEvent(String eventName, Map<String, Object> properties) {
-        if(trackURL == null || trackURL.isEmpty()) {
-            IMPLog.w(Tag, "trackURL is empty or nil, event won't be tracked.");
-            return ;
-        }
-
-        Map<String, Object> body = new HashMap<>();
-        body.put("type", "event");
-        if (eventName != null) {
-            body.put(EVENT_KEY, eventName);
-        }
-        if (properties != null) {
-            body.put(PROPERTIES_KEY, properties);
-        }
-
-        postTrackingRequest(body);
-    }
-
-    public static void setHistoryId(String historyId) {
-        sHistoryId = historyId;
-    }
-
-    protected String getHistoryId() {
-        try {
-            Class clz = Class.forName("ai.improve.android.HistoryIdProviderImp");
-            Object o = clz.newInstance();
-
-            Method method = clz.getDeclaredMethod("getHistoryId");
-            String historyId = (String)method.invoke(o);
-            return historyId;
-        } catch (InstantiationException e) {
-        } catch (InvocationTargetException e) {
-        } catch (NoSuchMethodException e) {
-        } catch (IllegalAccessException e) {
-        } catch (ClassNotFoundException e) {
-        }
-        return "";
+        return decisionId;
     }
 
     protected void setBestVariant(Object variant, Map<String, Object> body) {
@@ -186,11 +147,7 @@ public class DecisionTracker {
     }
 
     protected <T> void setCount(List<T> variants, Map<String, Object> body) {
-        if(variants == null || variants.size() <= 0) {
-            body.put(COUNT_KEY, 1);
-        } else {
-            body.put(COUNT_KEY, variants.size());
-        }
+        body.put(COUNT_KEY, variants.size());
     }
 
     protected <T> List<T> topRunnersUp(List<T> ranked, int maxRunnersUp) {
@@ -240,19 +197,53 @@ public class DecisionTracker {
         }
     }
 
-    private void postTrackingRequest(Map<String, Object> body) {
-        if (sHistoryId == null || sHistoryId.isEmpty()) {
-            IMPLog.e(Tag, "historyId cannot be null");
-            return;
+    /**
+     * Adds reward for the last decision of a model
+     * */
+    public void addRewardForModel(String modelName, double reward) {
+        String lastDecisionId = persistenceProvider.lastDecisionIdForModel(modelName);
+        if(Utils.isEmpty(lastDecisionId)) {
+            IMPLog.w(Tag, "add reward for [" + modelName + "], but lastDecisionId is empty");
+            return ;
         }
 
+        addRewardForDecision(modelName, lastDecisionId, reward);
+    }
+
+    /**
+     * Adds reward for a specific decision of a model
+     * */
+    public void addRewardForDecision(String modelName, String decisionId, double reward) {
+        String ksuid = KSUID_GENERATOR.next();
+        if(ksuid == null) {
+            IMPLog.w(Tag, "failed to generate ksuid");
+            return ;
+        }
+
+        Map<String, Object> body = new HashMap<>();
+        body.put(EVENT_KEY, "Reward");
+        body.put(MODEL_KEY, modelName);
+        body.put(DECISION_ID_KEY, decisionId);
+        body.put(MESSAGE_ID_KEY, KSUID_GENERATOR.next());
+
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(VALUE_KEY, reward);
+        body.put(PROPERTIES_KEY, properties);
+
+        postTrackingRequest(body);
+
+        persistenceProvider.addRewardForModel(modelName, reward);
+    }
+
+    private void postTrackingRequest(Map<String, Object> body) {
         Map<String, String> headers = new HashMap<>();
         headers.put(CONTENT_TYPE_HEADER, APPLICATION_JSON);
+        if(trackApiKey != null) {
+            headers.put(TRACK_API_KEY_HEADER, trackApiKey);
+        }
 
         body = new HashMap<>(body);
         body.put(TIMESTAMP_KEY, ISO_TIMESTAMP_FORMAT.format(new Date()));
-        body.put(HISTORY_ID_KEY, sHistoryId);
-        body.put(MESSAGE_ID_KEY, UUID.randomUUID().toString());
 
         Map<String, Object> finalBody = body;
 
@@ -269,5 +260,13 @@ public class DecisionTracker {
                 }
             }
         }.start();
+    }
+
+    private String createAndPersistDecisionIdForModel(String modelName) {
+        String decisionId = KSUID_GENERATOR.next();
+        if(decisionId != null && persistenceProvider != null) {
+            persistenceProvider.persistDecisionIdForModel(modelName, decisionId);
+        }
+        return decisionId;
     }
 }
