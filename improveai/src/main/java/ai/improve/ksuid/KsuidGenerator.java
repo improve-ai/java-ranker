@@ -44,7 +44,11 @@ public class KsuidGenerator {
             return null;
         }
 
-        byte[] ksuidBytes = ByteBuffer.allocate(TOTAL_BYTES)
+        // Allocate an extra zero value byte in the first position, so that the unsigned 32bit UTC
+        // timestamp value((INT32_MAX, UINT32_MAX]) is not treated as negative value and thus being
+        // encoded as "000000000000000000000000000" by the base62 encoder
+        byte[] ksuidBytes = ByteBuffer.allocate(TOTAL_BYTES+1)
+                .put((byte)0)
                 .putInt((int)t)
                 .put(payload)
                 .array();

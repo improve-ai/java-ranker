@@ -31,7 +31,7 @@ public class KsuidTest {
     }
 
     @Test
-    public void testMinTimestamp_Minus_1() {
+    public void testMinTimestamp_minus_1() {
         long t = EPOCH - 1;
         byte[] payload = new byte[PAYLOAD_BYTES];
         KsuidGenerator ksuidGenerator = new KsuidGenerator();
@@ -39,7 +39,7 @@ public class KsuidTest {
     }
 
     @Test
-    public void testMinTimestamp_0() {
+    public void testMinTimestamp() {
         long t = EPOCH;
         byte[] payload = new byte[PAYLOAD_BYTES];
         KsuidGenerator ksuidGenerator = new KsuidGenerator();
@@ -47,7 +47,7 @@ public class KsuidTest {
     }
 
     @Test
-    public void testMinTimestamp_1() {
+    public void testMinTimestamp_plus_1() {
         long t = EPOCH + 1;
         byte[] payload = new byte[PAYLOAD_BYTES];
         KsuidGenerator ksuidGenerator = new KsuidGenerator();
@@ -55,7 +55,7 @@ public class KsuidTest {
     }
 
     @Test
-    public void testMaxTimestamp_Minus_1() {
+    public void testMaxTimestamp_minus_1() {
         long t = EPOCH + UINT32_MAX - 1;
         byte[] payload = new byte[PAYLOAD_BYTES];
         Arrays.fill(payload, (byte)255);
@@ -64,7 +64,7 @@ public class KsuidTest {
     }
 
     @Test
-    public void testMaxTimestamp_0() {
+    public void testMaxTimestamp() {
         long t = EPOCH + UINT32_MAX;
         byte[] payload = new byte[PAYLOAD_BYTES];
         Arrays.fill(payload, (byte)255);
@@ -73,7 +73,7 @@ public class KsuidTest {
     }
 
     @Test
-    public void testMaxTimestamp_1() {
+    public void testMaxTimestamp_plus_1() {
         long t = EPOCH + UINT32_MAX + 1;
         byte[] payload = new byte[PAYLOAD_BYTES];
         Arrays.fill(payload, (byte)255);
