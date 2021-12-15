@@ -11,6 +11,7 @@ import java.util.List;
 import ai.improve.log.IMPLog;
 
 import static ai.improve.DecisionModelTest.DefaultFailMessage;
+import static ai.improve.DecisionModelTest.Tag;
 import static ai.improve.DecisionTrackerTest.Track_URL;
 
 import org.junit.jupiter.api.BeforeAll;
@@ -55,7 +56,7 @@ public class DecisionTest {
     }
 
     @Test
-    public void testChooseFromNullVariants() {
+    public void testChooseFromEmptyVariants() {
         try {
             List<Object> variants = new ArrayList<>();
             DecisionModel decisionModel = new DecisionModel("theme");
@@ -68,7 +69,7 @@ public class DecisionTest {
     }
 
     @Test
-    public void testChooseFromEmptyVariants() {
+    public void testChooseFromNullVariants() {
         try {
             DecisionModel decisionModel = new DecisionModel("theme");
             Decision decision = new Decision(decisionModel);
@@ -77,6 +78,17 @@ public class DecisionTest {
             return ;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVariantsWithNull() {
+        List variants = new ArrayList();
+        variants.add(null);
+        variants.add("Hello");
+        variants.add("Hi");
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = new Decision(decisionModel);
+        assertNull(decision.chooseFrom(variants).get());
     }
 
     @Test
@@ -155,5 +167,41 @@ public class DecisionTest {
             return ;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_no_argument() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which();
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+
+    @Test
+    public void testWhich_1_argument_non_array() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(1);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_1_argument_array() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        decisionModel.which(Arrays.asList(1));
+    }
+
+    @Test
+    public void testWhich_multiple_arguments() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Object best = decisionModel.which(Arrays.asList(1, 2, 3), 2, 3, "hello");
+        IMPLog.d(Tag, "best is " + best);
     }
 }

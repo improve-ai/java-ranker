@@ -264,10 +264,33 @@ public class DecisionModel {
     }
 
     /**
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
+     * lists, maps, strings, numbers, nulls, and booleans.
      * @return an IMPDecision object
      * */
     public <T> Decision chooseFrom(List<T> variants) {
         return new Decision(this).chooseFrom(variants);
+    }
+
+    /**
+     * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
+     * directly.
+     * @param variants See chooseFrom().
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if variants is empty; or if there's only one variant
+     * and it's not a List.
+     * */
+    public Object which(Object... variants) {
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("should at least provide one variant.");
+        } else if(variants.length == 1) {
+            if(!(variants[0] instanceof List)) {
+                throw new IllegalArgumentException("If only one argument, it must be a List.");
+            }
+            return new Decision(this).chooseFrom((List)variants[0]).get();
+        } else {
+            return new Decision(this).chooseFrom(Arrays.asList(variants)).get();
+        }
     }
 
     /**
