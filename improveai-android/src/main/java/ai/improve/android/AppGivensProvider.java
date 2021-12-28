@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import ai.improve.DecisionModel;
+import ai.improve.constants.BuildProperties;
 import ai.improve.improveai_android.BuildConfig;
 import ai.improve.provider.GivensProvider;
 
@@ -235,7 +236,7 @@ public class AppGivensProvider implements GivensProvider {
     }
 
     private double getImproveVersion() {
-        String version = BuildConfig.IMPROVE_AI_VERSION;
+        String version = BuildProperties.getSDKVersion();
         return AppGivensProviderUtils.versionToInt(version);
     }
 

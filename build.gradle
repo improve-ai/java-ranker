@@ -37,29 +37,10 @@ allprojects {
         google()
         jcenter()
     }
-
-    group = GROUP
-    version = VERSION_NAME
 }
 
 
 ext {
-    versionCode = Integer.parseInt(VERSION_CODE)
-    versionName = VERSION_NAME
-
-    minSdkVersion = 14
-    minSdkVersionWear = 23
-    targetSdkVersion = 30
-    compileSdkVersion = 30
-
-    sourceCompatibilityVersion = JavaVersion.VERSION_1_8
-    targetCompatibilityVersion = JavaVersion.VERSION_1_8
-
-    preDexLibraries = false
-
-    multiDexEnabled = true
+    pomGroupID = 'ai.improve'
+    sdkVersion = '7.0.0'
 }
-
-ext.deps = [
-        supportAnnotations: 'androidx.annotation:annotation:1.1.0'
-]
