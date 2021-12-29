@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -19,12 +18,18 @@ public class ModelDownloader {
 
     private URL url;
 
+    private static ModelLoader assetModelLoader;
+
     public ModelDownloader(URL url) {
         this.url = url;
     }
 
     public static void download(URL url, ModelDownloadListener listener) {
         new ModelDownloader(url).downloadInternal(listener);
+    }
+
+    public static void setAssetModelLoader(ModelLoader loader) {
+        assetModelLoader = loader;
     }
 
     private void downloadInternal(ModelDownloadListener listener) {
@@ -49,14 +54,15 @@ public class ModelDownloader {
                             listener.onFinish(predictor, null);
                         }
                     } else if(urlString.startsWith("file:///android_asset")) {
+                        // Only Android would reach here
+                        // When running in pure Java, new URL("file:///android_asset/") is interpreted
+                        // as new URL("file:/android_asset").
                         try {
                             String path = urlString.substring("file:///android_asset/".length());
-                            Class<?> clz = Class.forName("ai.improve.android.AssetModelLoader");
-                            Method method = clz.getMethod("loadFromAsset", String.class);
                             if(urlString.endsWith(".gz")) {
-                                inputStream = new GZIPInputStream((InputStream) method.invoke(null, path));
+                                inputStream = new GZIPInputStream(assetModelLoader.load(path));
                             } else {
-                                inputStream = (InputStream) method.invoke(null, path);
+                                inputStream = assetModelLoader.load(path);
                             }
                             ImprovePredictor predictor = new ImprovePredictor(inputStream);
                             if(listener != null) {

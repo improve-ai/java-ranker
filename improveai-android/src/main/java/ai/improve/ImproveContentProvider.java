@@ -7,7 +7,9 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import ai.improve.android.AppGivensProvider;
+import ai.improve.android.AssetModelLoader;
 import ai.improve.android.Logger;
+import ai.improve.downloader.ModelDownloader;
 import ai.improve.log.IMPLog;
 
 public class ImproveContentProvider extends ContentProvider {
@@ -24,6 +26,8 @@ public class ImproveContentProvider extends ContentProvider {
         DecisionModel.setDefaultGivensProvider(new AppGivensProvider(sContext));
 
         DecisionTracker.setPersistenceProvider(new AndroidPersistenceProvider(sContext));
+
+        ModelDownloader.setAssetModelLoader(new AssetModelLoader());
 
         return true;
     }

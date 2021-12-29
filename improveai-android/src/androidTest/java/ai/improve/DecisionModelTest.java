@@ -478,4 +478,10 @@ public class DecisionModelTest {
         }
         fail(DefaultFailMessage);
     }
+
+    @Test
+    public void testLoadFromAsssets() throws IOException {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        decisionModel.load(new URL("file:///android_asset/dummy_v6.xgb"));
+    }
 }
