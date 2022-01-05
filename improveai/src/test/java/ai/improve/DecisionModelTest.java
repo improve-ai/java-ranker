@@ -560,6 +560,67 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testWhich_null_argument() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(null);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_no_argument() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which();
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_1_argument_non_array() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(1);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_1_argument_array() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        decisionModel.which(Arrays.asList(1));
+    }
+
+    @Test
+    public void testWhich_1_argument_map() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic"));
+        variants.put("color", Arrays.asList("#000000"));
+        variants.put("size", 3);
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Object best = decisionModel.which(variants);
+        assertEquals(new HashMap<String, Object>(){{
+            put("font", "Italic");
+            put("color", "#000000");
+            put("size", 3);
+        }}, best);
+    }
+
+    @Test
+    public void testWhich_multiple_arguments() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Object best = decisionModel.which(Arrays.asList(1, 2, 3), 2, 3, "hello");
+        IMPLog.d(Tag, "best is " + best);
+    }
+
+    @Test
     public void testScoreWithoutLoadingModel() {
         int size = 100;
 

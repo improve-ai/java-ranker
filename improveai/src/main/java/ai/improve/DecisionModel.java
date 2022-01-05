@@ -333,18 +333,26 @@ public class DecisionModel {
      * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
      * directly.
      * @param variants See chooseFrom().
+     *                 When the only argument is an NSArray, it's equivalent to calling
+     *                 chooseFrom(firstVariant).get();
+     *                 When the only argument is an NSDictionary, it's equivalent to calling
+     *                 chooseMultiVariate(firstVariant).get();
+     *                 When there are two or more arguments, all the arguments would form a
+     *                 list and be passed to chooseFrom();
      * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants is empty; or if there's only one variant
-     * and it's not a List.
+     * @throws IllegalArgumentException Thrown if variants is null or empty; or if there's only one
+     * variant and it's not a List or Map.
      * */
     public Object which(Object... variants) {
-        if(variants.length <= 0) {
+        if(variants == null || variants.length <= 0) {
             throw new IllegalArgumentException("should at least provide one variant.");
         } else if(variants.length == 1) {
-            if(!(variants[0] instanceof List)) {
-                throw new IllegalArgumentException("If only one argument, it must be a List.");
+            if(variants[0] instanceof List) {
+                return chooseFrom((List)variants[0]).get();
+            } else if(variants[0] instanceof Map) {
+                return chooseMultiVariate((Map)variants[0]).get();
             }
-            return new Decision(this).chooseFrom((List)variants[0]).get();
+            throw new IllegalArgumentException("If only one argument, it must be a List or Map");
         } else {
             return new Decision(this).chooseFrom(Arrays.asList(variants)).get();
         }
