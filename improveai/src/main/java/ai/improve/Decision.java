@@ -26,6 +26,10 @@ public class Decision {
         this.model = model;
     }
 
+    public List<?> getVariants() {
+        return variants;
+    }
+
     public <T> Decision chooseFrom(List<T> variants) {
         if(chosen) {
             IMPLog.e(Tag, "variant already chosen, ignoring variants");

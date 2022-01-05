@@ -471,6 +471,95 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseMultiVariate_null_variants() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(null);
+        assertNotNull(decision);
+    }
+
+    @Test
+    public void testChooseMultiVariate_empty_variants() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(new HashMap<>());
+        assertNotNull(decision);
+    }
+
+    @Test
+    public void testChooseMultiVariate_1_variant() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(variants);
+        List expected = Arrays.asList(
+                new HashMap<String, String>(){{
+                    put("font", "Italic");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Bold");
+                }});
+        assertTrue(expected.equals(decision.getVariants()));
+    }
+
+    @Test
+    public void testChooseMultiVariate_2_variants() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        variants.put("color", Arrays.asList("#000000", "#ffffff"));
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(variants);
+        List expected = Arrays.asList(
+                new HashMap<String, String>(){{
+                    put("font", "Italic");
+                    put("color", "#000000");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Italic");
+                    put("color", "#ffffff");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Bold");
+                    put("color", "#000000");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Bold");
+                    put("color", "#ffffff");
+                }});
+        assertEquals(expected, decision.getVariants());
+    }
+
+    @Test
+    public void testChooseMultiVariate_3_variants() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        variants.put("color", Arrays.asList("#000000", "#ffffff"));
+        variants.put("size", 3);
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(variants);
+        List expected = Arrays.asList(
+                new HashMap<String, Object>(){{
+                    put("font", "Italic");
+                    put("color", "#000000");
+                    put("size", 3);
+                }},
+                new HashMap<String, Object>(){{
+                    put("font", "Italic");
+                    put("color", "#ffffff");
+                    put("size", 3);
+                }},
+                new HashMap<String, Object>(){{
+                    put("font", "Bold");
+                    put("color", "#000000");
+                    put("size", 3);
+                }},
+                new HashMap<String, Object>(){{
+                    put("font", "Bold");
+                    put("color", "#ffffff");
+                    put("size", 3);
+                }});
+        assertEquals(expected, decision.getVariants());
+    }
+
+    @Test
     public void testScoreWithoutLoadingModel() {
         int size = 100;
 
