@@ -354,7 +354,7 @@ public class DecisionModel {
             }
             throw new IllegalArgumentException("If only one argument, it must be a List or Map");
         } else {
-            return new Decision(this).chooseFrom(Arrays.asList(variants)).get();
+            return chooseFrom(Arrays.asList(variants)).get();
         }
     }
 
