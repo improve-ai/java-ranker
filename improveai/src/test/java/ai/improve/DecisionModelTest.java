@@ -471,6 +471,156 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseMultiVariate_null_variants() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(null);
+        assertNotNull(decision);
+    }
+
+    @Test
+    public void testChooseMultiVariate_empty_variants() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(new HashMap<>());
+        assertNotNull(decision);
+    }
+
+    @Test
+    public void testChooseMultiVariate_1_variant() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(variants);
+        List expected = Arrays.asList(
+                new HashMap<String, String>(){{
+                    put("font", "Italic");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Bold");
+                }});
+        assertTrue(expected.equals(decision.getVariants()));
+    }
+
+    @Test
+    public void testChooseMultiVariate_2_variants() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        variants.put("color", Arrays.asList("#000000", "#ffffff"));
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(variants);
+        List expected = Arrays.asList(
+                new HashMap<String, String>(){{
+                    put("font", "Italic");
+                    put("color", "#000000");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Italic");
+                    put("color", "#ffffff");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Bold");
+                    put("color", "#000000");
+                }},
+                new HashMap<String, String>(){{
+                    put("font", "Bold");
+                    put("color", "#ffffff");
+                }});
+        assertEquals(expected, decision.getVariants());
+    }
+
+    @Test
+    public void testChooseMultiVariate_3_variants() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        variants.put("color", Arrays.asList("#000000", "#ffffff"));
+        variants.put("size", 3);
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseMultiVariate(variants);
+        List expected = Arrays.asList(
+                new HashMap<String, Object>(){{
+                    put("font", "Italic");
+                    put("color", "#000000");
+                    put("size", 3);
+                }},
+                new HashMap<String, Object>(){{
+                    put("font", "Italic");
+                    put("color", "#ffffff");
+                    put("size", 3);
+                }},
+                new HashMap<String, Object>(){{
+                    put("font", "Bold");
+                    put("color", "#000000");
+                    put("size", 3);
+                }},
+                new HashMap<String, Object>(){{
+                    put("font", "Bold");
+                    put("color", "#ffffff");
+                    put("size", 3);
+                }});
+        assertEquals(expected, decision.getVariants());
+    }
+
+    @Test
+    public void testWhich_null_argument() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(null);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_no_argument() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which();
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_1_argument_non_array() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(1);
+        } catch (IllegalArgumentException e) {
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_1_argument_array() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        decisionModel.which(Arrays.asList(1));
+    }
+
+    @Test
+    public void testWhich_1_argument_map() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic"));
+        variants.put("color", Arrays.asList("#000000"));
+        variants.put("size", 3);
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Object best = decisionModel.which(variants);
+        assertEquals(new HashMap<String, Object>(){{
+            put("font", "Italic");
+            put("color", "#000000");
+            put("size", 3);
+        }}, best);
+    }
+
+    @Test
+    public void testWhich_multiple_arguments() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Object best = decisionModel.which(Arrays.asList(1, 2, 3), 2, 3, "hello");
+        IMPLog.d(Tag, "best is " + best);
+    }
+
+    @Test
     public void testScoreWithoutLoadingModel() {
         int size = 100;
 

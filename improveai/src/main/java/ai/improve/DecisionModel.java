@@ -273,23 +273,88 @@ public class DecisionModel {
     }
 
     /**
+     * This method is an alternative of chooseFrom(). An example here might be more expressive:
+     * chooseMutilVariate({"style":["bold", "italic", "size":[3, 5]})
+     *       is equivalent to
+     * chooseFrom([
+     *      {"style":"bold", "size":3},
+     *      {"style":"italic", "size":3},
+     *      {"style":"bold", "size":5},
+     *      {"style":"italic", "size":5},
+     * ])
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
+     * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
+     * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
+     * @return An IMPDecision object to be lazily evaluated.
+     * */
+    public Decision chooseMultiVariate(Map<String, ?> variants) {
+        if(variants == null || variants.size() <= 0) {
+            // Let it pass here.
+            // Exception would be thrown later when calling get()
+            return chooseFrom(null);
+        }
+
+        List allKeys = new ArrayList();
+
+        List<List> categories = new ArrayList();
+        for(Map.Entry<String, ?> entry : variants.entrySet()) {
+            if(entry.getValue() instanceof List) {
+                categories.add((List)entry.getValue());
+            } else {
+                categories.add(Arrays.asList(entry.getValue()));
+            }
+            allKeys.add(entry.getKey());
+        }
+
+        List<Map> combinations = new ArrayList();
+        for(int i = 0; i < categories.size(); ++i) {
+            List category = categories.get(i);
+            List<Map> newCombinations = new ArrayList();
+            for(int m = 0; m < category.size(); ++m) {
+                if(combinations.size() == 0) {
+                    Map newVariant = new HashMap();
+                    newVariant.put(allKeys.get(i), category.get(m));
+                    newCombinations.add(newVariant);
+                } else {
+                    for(int n = 0; n < combinations.size(); ++n) {
+                        Map newVariant = new HashMap(combinations.get(n));
+                        newVariant.put(allKeys.get(i), category.get(m));
+                        newCombinations.add(newVariant);
+                    }
+                }
+            }
+            combinations = newCombinations;
+        }
+
+        return chooseFrom(combinations);
+    }
+
+    /**
      * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
      * directly.
      * @param variants See chooseFrom().
+     *                 When the only argument is an NSArray, it's equivalent to calling
+     *                 chooseFrom(firstVariant).get();
+     *                 When the only argument is an NSDictionary, it's equivalent to calling
+     *                 chooseMultiVariate(firstVariant).get();
+     *                 When there are two or more arguments, all the arguments would form a
+     *                 list and be passed to chooseFrom();
      * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants is empty; or if there's only one variant
-     * and it's not a List.
+     * @throws IllegalArgumentException Thrown if variants is null or empty; or if there's only one
+     * variant and it's not a List or Map.
      * */
     public Object which(Object... variants) {
-        if(variants.length <= 0) {
+        if(variants == null || variants.length <= 0) {
             throw new IllegalArgumentException("should at least provide one variant.");
         } else if(variants.length == 1) {
-            if(!(variants[0] instanceof List)) {
-                throw new IllegalArgumentException("If only one argument, it must be a List.");
+            if(variants[0] instanceof List) {
+                return chooseFrom((List)variants[0]).get();
+            } else if(variants[0] instanceof Map) {
+                return chooseMultiVariate((Map)variants[0]).get();
             }
-            return new Decision(this).chooseFrom((List)variants[0]).get();
+            throw new IllegalArgumentException("If only one argument, it must be a List or Map");
         } else {
-            return new Decision(this).chooseFrom(Arrays.asList(variants)).get();
+            return chooseFrom(Arrays.asList(variants)).get();
         }
     }
 
