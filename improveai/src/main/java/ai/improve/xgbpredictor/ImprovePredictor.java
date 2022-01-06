@@ -55,7 +55,6 @@ public class ImprovePredictor implements Serializable {
         } else {
             base_score = mparam.base_score;
         }
-//        modelMetadata = new ModelMetadata(reader);
 
         modelMetadata = new ModelMetadata(reader);
     }

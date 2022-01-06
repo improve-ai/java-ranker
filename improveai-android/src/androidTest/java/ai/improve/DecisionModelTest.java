@@ -1,7 +1,6 @@
 package ai.improve;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -141,7 +140,48 @@ public class DecisionModelTest {
 
             @Override
             public void onError(IOException e) {
+                fail("onError should not be called while loading an valid model");
+            }
+        });
+        semaphore.acquire();
+    }
+
+    @Test
+    public void testLoadAsync_invalid_model_file() throws MalformedURLException, InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        URL url = new URL("file:///android_asset/dummy_outdated.xgb");
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.loadAsync(url, new DecisionModel.LoadListener() {
+            @Override
+            public void onLoad(DecisionModel model) {
+                fail("onLoad should not be called for an invalid model");
+                semaphore.release();
+            }
+
+            @Override
+            public void onError(IOException e) {
                 assertNotNull(e);
+                semaphore.release();
+            }
+        });
+        semaphore.acquire();
+    }
+
+    @Test
+    public void testLoadAsync_url_not_exist() throws MalformedURLException, InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        URL url = new URL("http://127.0.0.1/not/exist/model.xgb");
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.loadAsync(url, new DecisionModel.LoadListener() {
+            @Override
+            public void onLoad(DecisionModel model) {
+                fail("onLoad should not be called");
+                semaphore.release();
+            }
+
+            @Override
+            public void onError(IOException e) {
+                semaphore.release();
             }
         });
         semaphore.acquire();

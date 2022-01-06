@@ -57,22 +57,15 @@ public class ModelDownloader {
                         // Only Android would reach here
                         // When running in pure Java, new URL("file:///android_asset/") is interpreted
                         // as new URL("file:/android_asset").
-                        try {
-                            String path = urlString.substring("file:///android_asset/".length());
-                            if(urlString.endsWith(".gz")) {
-                                inputStream = new GZIPInputStream(assetModelLoader.load(path));
-                            } else {
-                                inputStream = assetModelLoader.load(path);
-                            }
-                            ImprovePredictor predictor = new ImprovePredictor(inputStream);
-                            if(listener != null) {
-                                listener.onFinish(predictor, null);
-                            }
-                        } catch (Exception e) {
-                            IMPLog.e(Tag, "model download exception: " + e.getMessage());
-                            if(listener != null) {
-                                listener.onFinish(null, new IOException(e.getMessage()));
-                            }
+                        String path = urlString.substring("file:///android_asset/".length());
+                        if(urlString.endsWith(".gz")) {
+                            inputStream = new GZIPInputStream(assetModelLoader.load(path));
+                        } else {
+                            inputStream = assetModelLoader.load(path);
+                        }
+                        ImprovePredictor predictor = new ImprovePredictor(inputStream);
+                        if(listener != null) {
+                            listener.onFinish(predictor, null);
                         }
                     } else {
                         // local model files
@@ -97,6 +90,11 @@ public class ModelDownloader {
                         listener.onFinish(null, e);
                     }
                 } catch (URISyntaxException e) {
+                    IMPLog.e(Tag, "model download exception: " + e.getMessage());
+                    if(listener != null) {
+                        listener.onFinish(null, new IOException(e.getMessage()));
+                    }
+                } catch (Throwable e){
                     IMPLog.e(Tag, "model download exception: " + e.getMessage());
                     if(listener != null) {
                         listener.onFinish(null, new IOException(e.getMessage()));
