@@ -1,7 +1,6 @@
 package ai.improve;
 
 import java.net.MalformedURLException;
-import java.security.SecureRandom;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
@@ -20,8 +19,9 @@ class DecisionTracker {
     public static final String Tag = "DecisionTracker";
 
     private static final String TYPE_KEY = "type";
-
     private static final String DECISION_TYPE = "decision";
+    private static final String REWARD_TYPE = "decision";
+
     private static final String MODEL_KEY = "model";
     public static final String DECISION_BEST_KEY = "variant";
     public static final String COUNT_KEY = "count";
@@ -30,10 +30,8 @@ class DecisionTracker {
     public static final String SAMPLE_VARIANT_KEY = "sample";
     private static final String TIMESTAMP_KEY = "timestamp";
     private static final String MESSAGE_ID_KEY = "message_id";
-    private static final String PROPERTIES_KEY = "properties";
-    private static final String EVENT_KEY = "event";
     private static final String DECISION_ID_KEY = "decision_id";
-    private static final String VALUE_KEY = "value";
+    private static final String REWARD_KEY = "reward";
 
 
     private static final String TRACK_API_KEY_HEADER = "x-api-key";
@@ -221,14 +219,11 @@ class DecisionTracker {
         }
 
         Map<String, Object> body = new HashMap<>();
-        body.put(EVENT_KEY, "Reward");
+        body.put(TYPE_KEY, REWARD_TYPE);
         body.put(MODEL_KEY, modelName);
         body.put(DECISION_ID_KEY, decisionId);
-        body.put(MESSAGE_ID_KEY, KSUID_GENERATOR.next());
-
-        Map<String, Object> properties = new HashMap<>();
-        properties.put(VALUE_KEY, reward);
-        body.put(PROPERTIES_KEY, properties);
+        body.put(MESSAGE_ID_KEY, ksuid);
+        body.put(REWARD_KEY, reward);
 
         postTrackingRequest(body);
 
