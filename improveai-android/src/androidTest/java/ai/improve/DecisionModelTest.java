@@ -320,7 +320,7 @@ public class DecisionModelTest {
         Map<String, Object> given = new HashMap<>();
         given.put("language", "cowboy");
         // Choose from string
-        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
+        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
     }
 
     @Test

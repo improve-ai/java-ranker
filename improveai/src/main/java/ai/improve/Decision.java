@@ -11,13 +11,25 @@ public class Decision {
 
     private DecisionModel model;
 
-    private List<?> variants;
+    protected List<?> variants;
 
     private Map<String, Object> givens;
 
-    private boolean chosen;
+    protected Map<String, Object> allGivens;
 
-    private Object best;
+    protected List<Double> scores;
+
+    protected int chosen;
+
+    /**
+     * A decision should be tracked only once when calling get(). A boolean here may
+     * be more appropriate in the first glance. But I find it hard to unit test
+     * that it's tracked only once with a boolean value in multi-thread mode. So I'm
+     * using an int here with 0 as 'untracked', and anything else as 'tracked'.
+     * */
+    protected int tracked;
+
+    protected Object best;
 
     // The message_id of the tracked decision
     private String id;
@@ -26,70 +38,90 @@ public class Decision {
         this.model = model;
     }
 
-    public List<?> getVariants() {
-        return variants;
-    }
-
-    public <T> Decision chooseFrom(List<T> variants) {
-        if(chosen) {
+    /**
+     * @return Returns self for chaining. The chosen variant will be memoized and returned directly
+     * in subsequent calls of get() and peek().
+     * @throws IllegalArgumentException Thrown if the variants to choose from is empty or nil
+     * */
+    public synchronized  <T> Decision chooseFrom(List<T> variants) {
+        if(chosen != 0) {
             IMPLog.e(Tag, "variant already chosen, ignoring variants");
-        } else {
-            this.variants = variants;
+            return this;
         }
+
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants to choose from can't be null or empty");
+        }
+
+        this.variants = variants;
+
+        allGivens = model.combinedGivens(givens);
+
+        scores = model.score(variants, allGivens);
+
+        best = ModelUtils.topScoringVariant(variants, scores);
+
+        chosen++;
+
         return this;
     }
 
-    public Decision given(Map<String, Object> givens) {
-        if(chosen) {
+    public Map<String, Object>getGivens() {
+        return givens;
+    }
+
+    public synchronized void setGivens(Map<String, Object> givens) {
+        if(chosen != 0) {
             IMPLog.e(Tag, "variant already chosen, ignoring givens");
-        } else {
-            this.givens = givens;
+            return ;
         }
-        return this;
+        this.givens = givens;
     }
 
     /**
-     * Returns the chosen variant. The chosen variant will be memoized, so same value is returned
-     * on subsequent calls.
+     * Same as get() except that peek won't track the decision.
+     * @return Returns the chosen variant memoized.
+     * @throws IllegalStateException Thrown if called before chooseFrom()
+     */
+    public Object peek() {
+        if(chosen == 0) {
+            throw new IllegalStateException("peek() must be called after chooseFrom()");
+        }
+        return best;
+    }
+
+    /**
+     * Get the chosen variant and track the decision. The decision would be tracked only once.
+     * @return Returns the chosen variant memoized.
      * @throws IllegalStateException Thrown if variants is null or empty.
      * */
     public synchronized Object get() {
-        if(chosen) {
-            return best;
+        if(chosen == 0) {
+            throw new IllegalStateException("get() must be called after chooseFrom()");
         }
 
-        Map allGivens = model.combinedGivens(givens);
-
-        List<Double> scores = model.score(variants, allGivens);
-
-        if(variants != null && variants.size() > 0) {
+        if(tracked == 0) {
             DecisionTracker tracker = model.getTracker();
-            if(tracker != null) {
-                if(ModelUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
+            if (tracker != null) {
+                if (ModelUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = DecisionModel.rank(variants, scores);
-                    best = rankedVariants.get(0);
-                    id = tracker.track(best, variants, allGivens, model.getModelName(), true);
+                    id = tracker.track(best, rankedVariants, allGivens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
-                    best = ModelUtils.topScoringVariant(variants, scores);
                     id = tracker.track(best, variants, allGivens, model.getModelName(), false);
                 }
+                tracked++;
             } else {
-                best = ModelUtils.topScoringVariant(variants, scores);
                 IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
-        } else {
-            throw new IllegalStateException("variants to choose from can't be null or empty");
         }
-
-        chosen = true;
 
         return best;
     }
 
     /**
-     * Adds the reward to a specific decision
+     * Adds a reward that only applies to this specific decision. Must be called after get().
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
      * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
      * @throws IllegalStateException Thrown if the trackURL of underlying DecisionModel is null
@@ -99,9 +131,9 @@ public class Decision {
      * */
     public void addReward(double reward) {
         if(id == null) {
-            throw new IllegalStateException("trackURL can't be null when calling addReward()");
+            throw new IllegalStateException("id can't be null. Make sure that addReward() is " +
+                    "called after get(); and the trackURL is set in the DecisionModel.");
         }
-
         model.addRewardForDecision(id, reward);
     }
 }

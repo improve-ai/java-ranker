@@ -266,7 +266,7 @@ public class DecisionModel {
     /**
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
      * lists, maps, strings, numbers, nulls, and booleans.
-     * @return an IMPDecision object
+     * @return an IMPDecision object.
      * */
     public <T> Decision chooseFrom(List<T> variants) {
         return new Decision(this).chooseFrom(variants);
@@ -274,7 +274,7 @@ public class DecisionModel {
 
     /**
      * This method is an alternative of chooseFrom(). An example here might be more expressive:
-     * chooseMutilVariate({"style":["bold", "italic", "size":[3, 5]})
+     * chooseMutilVariate({"style":["bold", "italic"], "size":[3, 5]})
      *       is equivalent to
      * chooseFrom([
      *      {"style":"bold", "size":3},
@@ -285,7 +285,7 @@ public class DecisionModel {
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
      * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
      * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
-     * @return An IMPDecision object to be lazily evaluated.
+     * @return An IMPDecision object.
      * */
     public Decision chooseMultiVariate(Map<String, ?> variants) {
         if(variants == null || variants.size() <= 0) {
@@ -362,7 +362,9 @@ public class DecisionModel {
      * @return an IMPDecision object
      * */
     public Decision given(Map<String, Object> givens) {
-        return new Decision(this).given(givens);
+        Decision decision = new Decision(this);
+        decision.setGivens(givens);
+        return decision;
     }
 
     protected Map<String, Object> combinedGivens(Map<String, Object> givens) {

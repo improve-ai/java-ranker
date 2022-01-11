@@ -497,7 +497,7 @@ public class DecisionModelTest {
                 new HashMap<String, String>(){{
                     put("font", "Bold");
                 }});
-        assertTrue(expected.equals(decision.getVariants()));
+        assertTrue(expected.equals(decision.variants));
     }
 
     @Test
@@ -524,7 +524,7 @@ public class DecisionModelTest {
                     put("font", "Bold");
                     put("color", "#ffffff");
                 }});
-        assertEquals(expected, decision.getVariants());
+        assertEquals(expected, decision.variants);
     }
 
     @Test
@@ -556,7 +556,7 @@ public class DecisionModelTest {
                     put("color", "#ffffff");
                     put("size", 3);
                 }});
-        assertEquals(expected, decision.getVariants());
+        assertEquals(expected, decision.variants);
     }
 
     @Test
