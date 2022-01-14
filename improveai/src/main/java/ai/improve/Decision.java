@@ -85,7 +85,7 @@ public class Decision {
      */
     public Object peek() {
         if(chosen == 0) {
-            throw new IllegalStateException("peek() must be called after chooseFrom()");
+            throw new IllegalStateException("peek() should not be called prior to chooseFrom()");
         }
         return best;
     }
@@ -97,7 +97,7 @@ public class Decision {
      * */
     public synchronized Object get() {
         if(chosen == 0) {
-            throw new IllegalStateException("get() must be called after chooseFrom()");
+            throw new IllegalStateException("get() should not be called prior to chooseFrom()");
         }
 
         if(tracked == 0) {
@@ -121,7 +121,8 @@ public class Decision {
     }
 
     /**
-     * Adds a reward that only applies to this specific decision. Must be called after get().
+     * Adds a reward that only applies to this specific decision. This method should not be called
+     * prior to get().
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
      * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
      * @throws IllegalStateException Thrown if the trackURL of underlying DecisionModel is null

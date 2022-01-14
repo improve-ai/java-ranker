@@ -1,10 +1,8 @@
 package ai.improve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
@@ -111,6 +109,7 @@ public class DecisionTest {
     public void testChooseFrom_choose_only_once() throws InterruptedException {
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = new Decision(decisionModel);
+        assertEquals(0, decision.chosen);
 
         int loop = 100;
         for(int i = 0; i < loop; ++i) {
