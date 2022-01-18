@@ -2,14 +2,11 @@ package ai.improve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,128 +30,10 @@ public class DecisionTest {
     }
 
     @Test
-    public void testSetGivens() {
-        Map givens = new HashMap<String, Object>(){{
-            put("language", "cowboy");
-        }};
-
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.given(givens);
-        assertEquals(givens, decision.getGivens());
-    }
-
-    @Test
-    public void testGivens_set_after_chooseFrom() {
-        Map givens = new HashMap<String, Object>(){{
-            put("language", "cowboy");
-        }};
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseFrom(variants());
-        assertNull(decision.getGivens());
-        decision.setGivens(givens);
-        assertNull(decision.getGivens());
-    }
-
-    @Test
-    public void testChooseFrom() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        assertNull(decision.best);
-        assertEquals(0, decision.chosen);
-        assertNull(decision.allGivens);
-        assertNull(decision.scores);
-        decision.chooseFrom(variants());
-        assertNotNull(decision.best);
-        assertEquals(1, decision.chosen);
-        assertNotNull(decision.allGivens);
-        assertNotNull(decision.scores);
-    }
-
-    @Test
-    public void testChooseFrom_empty_variants() {
-        try {
-            DecisionModel decisionModel = new DecisionModel("theme");
-            Decision decision = new Decision(decisionModel);
-            decision.chooseFrom(new ArrayList<>());
-        } catch (IllegalArgumentException e) {
-            return ;
-        }
-        fail(DefaultFailMessage);
-    }
-
-    @Test
-    public void testChooseFrom_null_variants() {
-        try {
-            DecisionModel decisionModel = new DecisionModel("theme");
-            Decision decision = new Decision(decisionModel);
-            decision.chooseFrom(null);
-        } catch (IllegalArgumentException e) {
-            return ;
-        }
-        fail(DefaultFailMessage);
-    }
-
-    @Test
-    public void testChooseFrom_null_variant() {
-        List variants = new ArrayList();
-        variants.add(null);
-        variants.add("Hello");
-        variants.add("Hi");
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        assertNull(decision.chooseFrom(variants).get());
-    }
-
-    @Test
-    public void testChooseFrom_choose_only_once() throws InterruptedException {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        assertEquals(0, decision.chosen);
-
-        int loop = 100;
-        for(int i = 0; i < loop; ++i) {
-            new Thread(){
-                @Override
-                public void run() {
-                    decision.chooseFrom(variants());
-                }
-            }.start();
-        }
-        Thread.sleep(1000);
-        assertEquals(1, decision.chosen);
-    }
-
-    @Test
-    public void testPeek_before_chooseFrom() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        try {
-            decision.peek();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            return ;
-        }
-        fail(DefaultFailMessage);
-    }
-
-    @Test
     public void testPeek() {
         DecisionModel decisionModel = new DecisionModel("theme");
         Object best = decisionModel.chooseFrom(variants()).peek();
         assertNotNull(best);
-    }
-
-    @Test
-    public void testGet_before_chooseFrom() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        try {
-            decision.get();
-        } catch (IllegalStateException e) {
-            e.printStackTrace();
-            return ;
-        }
-        fail(DefaultFailMessage);
     }
 
     @Test
@@ -200,7 +79,7 @@ public class DecisionTest {
     }
 
     @Test
-    public void testGetWithoutModel() {
+    public void testGet_without_loading_model() {
         List<Object> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
@@ -209,8 +88,8 @@ public class DecisionTest {
         variants.add("Hello World!");
 
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = new Decision(decisionModel);
-        String greeting = (String) decision.chooseFrom(variants).get();
+        Decision decision = decisionModel.chooseFrom(variants);
+        String greeting = (String) decision.get();
         assertEquals(greeting, variants.get(0));
     }
 
@@ -228,16 +107,15 @@ public class DecisionTest {
 
     @Test
     public void testAddReward_nil_trackURL() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        decisionModel.setTrackURL(null);
+        Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
+        // set trackURL to null
+        decision.get();
         try {
-            DecisionModel decisionModel = new DecisionModel("theme");
-            Decision decision = new Decision(decisionModel);
-
-            // set trackURL to null
-            decisionModel.setTrackURL(null);
-
-            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
             decision.addReward(0.1);
         } catch (IllegalStateException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);
@@ -247,10 +125,11 @@ public class DecisionTest {
     public void testAddReward_NaN() {
         try {
             DecisionModel decisionModel = new DecisionModel("theme");
-            Decision decision = new Decision(decisionModel);
-            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
+            Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
+            decision.get();
             decision.addReward(Double.NaN);
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);
@@ -258,12 +137,13 @@ public class DecisionTest {
 
     @Test
     public void testAddReward_positive_infinity() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
+        decision.get();
         try {
-            DecisionModel decisionModel = new DecisionModel("theme");
-            Decision decision = new Decision(decisionModel);
-            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
             decision.addReward(Double.POSITIVE_INFINITY);
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);
@@ -271,12 +151,13 @@ public class DecisionTest {
 
     @Test
     public void testAddReward_negative_infinity() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
+        decision.get();
         try {
-            DecisionModel decisionModel = new DecisionModel("theme");
-            Decision decision = new Decision(decisionModel);
-            decision.chooseFrom(Arrays.asList(1, 2, 3)).get();
             decision.addReward(Double.NEGATIVE_INFINITY);
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);

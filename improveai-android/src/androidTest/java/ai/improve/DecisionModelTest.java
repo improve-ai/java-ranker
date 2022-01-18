@@ -419,7 +419,7 @@ public class DecisionModelTest {
                 if(givens.isNull(i)) {
                     scores = decisionModel.score(toList(variants));
                 } else {
-                    scores = decisionModel.score(toList(variants), toMap(givens.getJSONObject(i)));
+                    scores = decisionModel.given(toMap(givens.getJSONObject(i))).score(toList(variants));
                 }
                 JSONArray expectedScores = expectedOutputs.getJSONObject(i).getJSONArray("scores");
                 assertEquals(scores.size(), expectedScores.length());

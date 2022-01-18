@@ -13,13 +13,11 @@ public class Decision {
 
     protected List<?> variants;
 
-    private Map<String, Object> givens;
+    protected Map<String, Object> givens;
 
     protected Map<String, Object> allGivens;
 
     protected List<Double> scores;
-
-    protected int chosen;
 
     /**
      * A decision should be tracked only once when calling get(). A boolean here may
@@ -34,48 +32,8 @@ public class Decision {
     // The message_id of the tracked decision
     private String id;
 
-    public Decision(DecisionModel model) {
+    protected Decision(DecisionModel model) {
         this.model = model;
-    }
-
-    /**
-     * @return Returns self for chaining. The chosen variant will be memoized and returned directly
-     * in subsequent calls of get() and peek().
-     * @throws IllegalArgumentException Thrown if the variants to choose from is empty or nil
-     * */
-    public synchronized  <T> Decision chooseFrom(List<T> variants) {
-        if(chosen != 0) {
-            IMPLog.e(Tag, "variant already chosen, ignoring variants");
-            return this;
-        }
-
-        if(variants == null || variants.size() <= 0) {
-            throw new IllegalArgumentException("variants to choose from can't be null or empty");
-        }
-
-        this.variants = variants;
-
-        allGivens = model.combinedGivens(givens);
-
-        scores = model.score(variants, allGivens);
-
-        best = ModelUtils.topScoringVariant(variants, scores);
-
-        chosen++;
-
-        return this;
-    }
-
-    public Map<String, Object>getGivens() {
-        return givens;
-    }
-
-    public synchronized void setGivens(Map<String, Object> givens) {
-        if(chosen != 0) {
-            IMPLog.e(Tag, "variant already chosen, ignoring givens");
-            return ;
-        }
-        this.givens = givens;
     }
 
     /**
@@ -84,9 +42,6 @@ public class Decision {
      * @throws IllegalStateException Thrown if called before chooseFrom()
      */
     public Object peek() {
-        if(chosen == 0) {
-            throw new IllegalStateException("peek() should not be called prior to chooseFrom()");
-        }
         return best;
     }
 
@@ -96,10 +51,6 @@ public class Decision {
      * @throws IllegalStateException Thrown if variants is null or empty.
      * */
     public synchronized Object get() {
-        if(chosen == 0) {
-            throw new IllegalStateException("get() should not be called prior to chooseFrom()");
-        }
-
         if(tracked == 0) {
             DecisionTracker tracker = model.getTracker();
             if (tracker != null) {
@@ -116,7 +67,6 @@ public class Decision {
                 IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
             }
         }
-
         return best;
     }
 

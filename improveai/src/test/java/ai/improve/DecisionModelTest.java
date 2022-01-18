@@ -576,10 +576,36 @@ public class DecisionModelTest {
         try {
             decisionModel.which();
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);
     }
+
+    @Test
+    public void testWhich_empty_map() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(new HashMap<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_empty_list() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(new ArrayList<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
 
     @Test
     public void testWhich_1_argument_non_array() {
