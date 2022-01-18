@@ -264,17 +264,18 @@ public class DecisionModel {
     }
 
     /**
-     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries,
-     * lists, maps, strings, numbers, nulls, and booleans.
-     * @return an IMPDecision object
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                booleans.
+     * @return an IMPDecision object.
      * */
     public <T> Decision chooseFrom(List<T> variants) {
-        return new Decision(this).chooseFrom(variants);
+        return new DecisionContext(this, null).chooseFrom(variants);
     }
 
     /**
      * This method is an alternative of chooseFrom(). An example here might be more expressive:
-     * chooseMutilVariate({"style":["bold", "italic", "size":[3, 5]})
+     * chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
      *       is equivalent to
      * chooseFrom([
      *      {"style":"bold", "size":3},
@@ -282,61 +283,25 @@ public class DecisionModel {
      *      {"style":"bold", "size":5},
      *      {"style":"italic", "size":5},
      * ])
-     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity like chooseFrom().
-     * The value of the dictionary is expected to be an NSArray. If not, it would be treated as an one-element NSArray anyway.
-     * So chooseMutilVariate({"style":["bold", "italic", "size":3}) is equivalent to chooseMutilVariate({"style":["bold", "italic", "size":[3]})
-     * @return An IMPDecision object to be lazily evaluated.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity
+     *                 like chooseFrom(). The value of the dictionary is expected to be a List.
+     *                 If not, it would be treated as an one-element List anyway. So
+     *                 chooseMultiVariate({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                 chooseMultiVariate({"style":["bold", "italic"], "size":[3]})
+     * @return An IMPDecision object.
      * */
     public Decision chooseMultiVariate(Map<String, ?> variants) {
-        if(variants == null || variants.size() <= 0) {
-            // Let it pass here.
-            // Exception would be thrown later when calling get()
-            return chooseFrom(null);
-        }
-
-        List allKeys = new ArrayList();
-
-        List<List> categories = new ArrayList();
-        for(Map.Entry<String, ?> entry : variants.entrySet()) {
-            if(entry.getValue() instanceof List) {
-                categories.add((List)entry.getValue());
-            } else {
-                categories.add(Arrays.asList(entry.getValue()));
-            }
-            allKeys.add(entry.getKey());
-        }
-
-        List<Map> combinations = new ArrayList();
-        for(int i = 0; i < categories.size(); ++i) {
-            List category = categories.get(i);
-            List<Map> newCombinations = new ArrayList();
-            for(int m = 0; m < category.size(); ++m) {
-                if(combinations.size() == 0) {
-                    Map newVariant = new HashMap();
-                    newVariant.put(allKeys.get(i), category.get(m));
-                    newCombinations.add(newVariant);
-                } else {
-                    for(int n = 0; n < combinations.size(); ++n) {
-                        Map newVariant = new HashMap(combinations.get(n));
-                        newVariant.put(allKeys.get(i), category.get(m));
-                        newCombinations.add(newVariant);
-                    }
-                }
-            }
-            combinations = newCombinations;
-        }
-
-        return chooseFrom(combinations);
+        return new DecisionContext(this, null).chooseMultiVariate(variants);
     }
 
     /**
      * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
      * directly.
      * @param variants See chooseFrom().
-     *                 When the only argument is an NSArray, it's equivalent to calling
-     *                 chooseFrom(firstVariant).get();
-     *                 When the only argument is an NSDictionary, it's equivalent to calling
-     *                 chooseMultiVariate(firstVariant).get();
+     *                 When the only argument is a List, it's equivalent to calling
+     *                 chooseFrom(variants).get();
+     *                 When the only argument is a Map, it's equivalent to calling
+     *                 chooseMultiVariate(variants).get();
      *                 When there are two or more arguments, all the arguments would form a
      *                 list and be passed to chooseFrom();
      * @return Returns the chosen variant
@@ -344,25 +309,14 @@ public class DecisionModel {
      * variant and it's not a List or Map.
      * */
     public Object which(Object... variants) {
-        if(variants == null || variants.length <= 0) {
-            throw new IllegalArgumentException("should at least provide one variant.");
-        } else if(variants.length == 1) {
-            if(variants[0] instanceof List) {
-                return chooseFrom((List)variants[0]).get();
-            } else if(variants[0] instanceof Map) {
-                return chooseMultiVariate((Map)variants[0]).get();
-            }
-            throw new IllegalArgumentException("If only one argument, it must be a List or Map");
-        } else {
-            return chooseFrom(Arrays.asList(variants)).get();
-        }
+        return new DecisionContext(this, null).which(variants);
     }
 
     /**
      * @return an IMPDecision object
      * */
-    public Decision given(Map<String, Object> givens) {
-        return new Decision(this).given(givens);
+    public DecisionContext given(Map<String, Object> givens) {
+        return new DecisionContext(this, givens);
     }
 
     protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
@@ -370,7 +324,7 @@ public class DecisionModel {
     }
 
     public <T> List<Double> score(List<T> variants) {
-        return this.score(variants, null);
+        return this.scoreInternal(variants, null);
     }
 
     /**
@@ -384,7 +338,7 @@ public class DecisionModel {
      * @return a list of double scores.
      *
      * */
-    public <T> List<Double> score(List<T> variants, Map<String, ?> givens) {
+    protected  <T> List<Double> scoreInternal(List<T> variants, Map<String, ?> givens) {
         List<Double> result = new ArrayList<>();
 
         if(variants == null || variants.size() <= 0) {
@@ -414,15 +368,14 @@ public class DecisionModel {
     }
 
     /**
+     * This method should only be called on Android platform.
      * Adds the reward value to the most recent Decision for this model name for this installation.
      * The most recent Decision can be from a different DecisionModel instance or a previous session
      * as long as they have the same model name. If no previous Decision is found, the reward will
      * be ignored.
-     * This method should only be called on Android platform; Otherwise, a RuntimeException would
-     * be thrown.
-     * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
-     * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
-     * @throws IllegalStateException Thrown if trackURL is null
+     * @param reward the reward to add. Must not be NaN, or Infinity.
+     * @throws IllegalArgumentException Thrown if `reward` is NaN or Infinity
+     * @throws IllegalStateException Thrown if trackURL is null, or called on non-Android platform.
      * */
     public void addReward(double reward) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
@@ -430,10 +383,7 @@ public class DecisionModel {
         }
 
         if(DecisionTracker.persistenceProvider == null) {
-            // TODO
-            // I can't think of an appropriate exception to throw here? Ideas?
-            // UnsupportedOperationException?
-            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+            throw new IllegalStateException("DecisionModel.addReward() is only available on Android.");
         }
 
         if(tracker == null) {

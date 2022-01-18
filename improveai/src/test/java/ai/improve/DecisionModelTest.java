@@ -497,7 +497,7 @@ public class DecisionModelTest {
                 new HashMap<String, String>(){{
                     put("font", "Bold");
                 }});
-        assertTrue(expected.equals(decision.getVariants()));
+        assertTrue(expected.equals(decision.variants));
     }
 
     @Test
@@ -524,7 +524,7 @@ public class DecisionModelTest {
                     put("font", "Bold");
                     put("color", "#ffffff");
                 }});
-        assertEquals(expected, decision.getVariants());
+        assertEquals(expected, decision.variants);
     }
 
     @Test
@@ -556,14 +556,14 @@ public class DecisionModelTest {
                     put("color", "#ffffff");
                     put("size", 3);
                 }});
-        assertEquals(expected, decision.getVariants());
+        assertEquals(expected, decision.variants);
     }
 
     @Test
     public void testWhich_null_argument() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.which(null);
+            decisionModel.which((Object)null);
         } catch (IllegalArgumentException e) {
             return ;
         }
@@ -576,10 +576,36 @@ public class DecisionModelTest {
         try {
             decisionModel.which();
         } catch (IllegalArgumentException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);
     }
+
+    @Test
+    public void testWhich_empty_map() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(new HashMap<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhich_empty_list() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.which(new ArrayList<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
 
     @Test
     public void testWhich_1_argument_non_array() {
@@ -643,10 +669,11 @@ public class DecisionModelTest {
 
     @Test
     public void testAddReward_non_Android() {
+        DecisionModel decisionModel = new DecisionModel("hello");
         try {
-            DecisionModel decisionModel = new DecisionModel("hello");
             decisionModel.addReward(0.1);
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);

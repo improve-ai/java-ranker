@@ -58,6 +58,6 @@ public class DecisionTrackerTest {
         givens.put("font", 12);
         givens.put("color", "#ffffff");
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(givens).get();
+        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
     }
 }

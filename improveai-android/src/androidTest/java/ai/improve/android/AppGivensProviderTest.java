@@ -23,6 +23,7 @@ import static ai.improve.android.Constants.Improve_SP_File_Name;
 
 @RunWith(AndroidJUnit4.class)
 public class AppGivensProviderTest {
+    public static final String Tag = "AppGivensProviderTest";
 
     private Context context;
 
@@ -40,6 +41,7 @@ public class AppGivensProviderTest {
         Map givens = new AppGivensProvider(context).givensForModel(new DecisionModel("hello"), userGivens);
         assertNotNull(givens);
         assertEquals("hi", givens.get(AppGivensProvider.APP_Given_Key_Language));
+        IMPLog.d(Tag, "givens: " + givens);
     }
 
     @Test
