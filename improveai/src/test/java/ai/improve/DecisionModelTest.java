@@ -563,7 +563,7 @@ public class DecisionModelTest {
     public void testWhich_null_argument() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.which(null);
+            decisionModel.which((Object)null);
         } catch (IllegalArgumentException e) {
             return ;
         }
@@ -669,10 +669,11 @@ public class DecisionModelTest {
 
     @Test
     public void testAddReward_non_Android() {
+        DecisionModel decisionModel = new DecisionModel("hello");
         try {
-            DecisionModel decisionModel = new DecisionModel("hello");
             decisionModel.addReward(0.1);
-        } catch (Exception e) {
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);

@@ -368,15 +368,14 @@ public class DecisionModel {
     }
 
     /**
+     * This method should only be called on Android platform.
      * Adds the reward value to the most recent Decision for this model name for this installation.
      * The most recent Decision can be from a different DecisionModel instance or a previous session
      * as long as they have the same model name. If no previous Decision is found, the reward will
      * be ignored.
-     * This method should only be called on Android platform; Otherwise, a RuntimeException would
-     * be thrown.
-     * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
-     * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
-     * @throws IllegalStateException Thrown if trackURL is null
+     * @param reward the reward to add. Must not be NaN, or Infinity.
+     * @throws IllegalArgumentException Thrown if `reward` is NaN or Infinity
+     * @throws IllegalStateException Thrown if trackURL is null, or called on non-Android platform.
      * */
     public void addReward(double reward) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
@@ -384,10 +383,7 @@ public class DecisionModel {
         }
 
         if(DecisionTracker.persistenceProvider == null) {
-            // TODO
-            // I can't think of an appropriate exception to throw here? Ideas?
-            // UnsupportedOperationException?
-            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+            throw new IllegalStateException("DecisionModel.addReward() is only available on Android.");
         }
 
         if(tracker == null) {
