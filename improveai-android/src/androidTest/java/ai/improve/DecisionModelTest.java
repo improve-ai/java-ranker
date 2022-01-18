@@ -32,6 +32,7 @@ import ai.improve.log.IMPLog;
 
 import static ai.improve.DecisionTrackerTest.Track_URL;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -523,5 +524,46 @@ public class DecisionModelTest {
     public void testLoadFromAsssets() throws IOException {
         DecisionModel decisionModel = new DecisionModel("hello");
         decisionModel.load(new URL("file:///android_asset/dummy_v6.xgb"));
+    }
+
+    @Test
+    public void testScore_consistent_encoding() throws IOException {
+        int loop = 10;
+        for(int i = 0; i < loop; ++i) {
+            String path = "1000_list_of_numeric_variants_20_same_nested_givens_binary_reward";
+            URL modelUrl = new URL("file:///android_asset/validate_models/" + path + "/model.xgb");
+            DecisionModel decisionModel = getDecisionModel("hello").load(modelUrl);
+            assertNotNull(decisionModel);
+
+            List variants = Arrays.asList(1.0, 2);
+            Map child = new HashMap() {{
+                put("d", Arrays.asList(0.0, 1.2, 2));
+                put("e", true);
+                put("f", "AsD");
+            }};
+            Map givens = new HashMap() {{
+                put("a", "b");
+                put("c", child);
+            }};
+
+            // first call of model.score()
+            List<Double> scores_1 = decisionModel.given(givens).score(Arrays.asList(variants, variants));
+            assertEquals(2, scores_1.size());
+            assertEquals(scores_1.get(0), scores_1.get(1), 0.000001);
+            IMPLog.d(Tag, "score 1: " + scores_1 + ", diff=" + (scores_1.get(0) - scores_1.get(1)));
+
+            // second call of model.score()
+            List<Double> scores_2 = decisionModel.given(givens).score(Arrays.asList(variants, variants));
+            assertEquals(2, scores_2.size());
+            assertEquals(scores_2.get(0), scores_2.get(1), 0.000001);
+            IMPLog.d(Tag, "score 2: " + scores_1 + ", diff=" + (scores_2.get(0) - scores_2.get(1)));
+
+            // Scores of the first and second call should differ because of the random noise
+            // in the FeatureEncoder. However, if the noises happens to be very close to each
+            // other, the scores can be very similar as well, and the following assertion might
+            // fail.
+            assertNotEquals(scores_1.get(0), scores_2.get(0), 0.000001);
+            IMPLog.d(Tag, "score diff: " + (scores_1.get(0) - scores_2.get(0)));
+        }
     }
 }
