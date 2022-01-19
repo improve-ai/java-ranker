@@ -15,8 +15,6 @@ public class Decision {
 
     protected Map<String, Object> givens;
 
-    protected Map<String, Object> allGivens;
-
     protected List<Double> scores;
 
     /**
@@ -57,10 +55,10 @@ public class Decision {
                 if (ModelUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
                     // the more variants there are, the less frequently this is called
                     List<Object> rankedVariants = DecisionModel.rank(variants, scores);
-                    id = tracker.track(best, rankedVariants, allGivens, model.getModelName(), true);
+                    id = tracker.track(best, rankedVariants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort
-                    id = tracker.track(best, variants, allGivens, model.getModelName(), false);
+                    id = tracker.track(best, variants, givens, model.getModelName(), false);
                 }
                 tracked++;
             } else {
