@@ -3,7 +3,6 @@ package ai.improve.android;
 import static ai.improve.android.AppGivensProvider.SP_Key_Born_Time;
 import static ai.improve.android.AppGivensProvider.SP_Key_Decision_Count;
 import static ai.improve.android.AppGivensProvider.SP_Key_Model_Reward;
-import static ai.improve.android.AppGivensProvider.SP_Key_Session_Start_Time;
 import static ai.improve.android.Constants.Improve_SP_File_Name;
 
 import android.content.Context;
@@ -30,9 +29,8 @@ public class AppGivensProviderUtils {
         return sp.getInt(decisionCountKey, 0);
     }
 
-    public static double getSinceSessionStart(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
-        long sessionStartTime = sp.getLong(SP_Key_Session_Start_Time, 0);
+    public static double getSinceSessionStart() {
+        long sessionStartTime = ImproveContentProvider.getSessionStartTime();
         return (System.currentTimeMillis() - sessionStartTime) / MillisSecondsPerDay;
     }
 

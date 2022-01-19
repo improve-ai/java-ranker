@@ -52,33 +52,20 @@ public class AppGivensProvider implements GivensProvider {
 
     // SharedPreference key
     public static final String SP_Key_Born_Time = "born_time";
-    public static final String SP_Key_Session_Start_Time = "session_start_time";
     public static final String SP_Key_Decision_Count = "decision_count-%s";
     public static final String SP_Key_Model_Reward = "rewards-%s";
 
     private Context appContext;
 
-    private static boolean runOnce = false;
-
     public AppGivensProvider(Context context) {
         appContext = context.getApplicationContext();
-        runOnceInSession(context);
     }
 
-    private static synchronized void runOnceInSession(Context context) {
-        if(!runOnce) {
-            runOnce = true;
-
-            SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
-
-            // set born time
-            long bornTime = sp.getLong(SP_Key_Born_Time, 0);
-            if(bornTime == 0) {
-                sp.edit().putLong(SP_Key_Born_Time, System.currentTimeMillis()).apply();
-            }
-
-            // save current session start time
-            sp.edit().putLong(SP_Key_Session_Start_Time, System.currentTimeMillis()).apply();
+    public static void setBornTime(Context context) {
+        SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
+        long bornTime = sp.getLong(SP_Key_Born_Time, 0);
+        if(bornTime == 0) {
+            sp.edit().putLong(SP_Key_Born_Time, System.currentTimeMillis()).apply();
         }
     }
 
@@ -271,7 +258,7 @@ public class AppGivensProvider implements GivensProvider {
      * Session start time is the moment when the first AppGivensProvider instance is created.
      * */
     private double getSinceSessionStart() {
-        double t = AppGivensProviderUtils.getSinceSessionStart(appContext);
+        double t = AppGivensProviderUtils.getSinceSessionStart();
         return Math.round(t * 1000000) / 1000000.0;
     }
 

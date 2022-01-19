@@ -17,9 +17,15 @@ public class ImproveContentProvider extends ContentProvider {
 
     private static Context sContext;
 
+    private static long sSessionStartTime; // millisecond
+
     @Override
     public boolean onCreate() {
         sContext = getContext();
+
+        sSessionStartTime = System.currentTimeMillis();
+
+        AppGivensProvider.setBornTime(sContext);
 
         IMPLog.setLogger(new Logger());
 
@@ -34,6 +40,10 @@ public class ImproveContentProvider extends ContentProvider {
 
     public static Context getAppContext() {
         return sContext;
+    }
+
+    public static long getSessionStartTime() {
+        return sSessionStartTime;
     }
 
     @Override
