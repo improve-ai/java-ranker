@@ -28,7 +28,7 @@ public class Decision {
     protected Object best;
 
     // The message_id of the tracked decision
-    private String id;
+    protected String id;
 
     protected Decision(DecisionModel model) {
         this.model = model;

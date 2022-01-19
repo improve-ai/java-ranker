@@ -199,7 +199,7 @@ class DecisionTracker {
      * Adds reward for the last decision of a model
      * */
     public void addRewardForModel(String modelName, double reward) {
-        String lastDecisionId = persistenceProvider.lastDecisionIdForModel(modelName);
+        String lastDecisionId = lastDecisionIdOfModel(modelName);
         if(Utils.isEmpty(lastDecisionId)) {
             IMPLog.w(Tag, "add reward for [" + modelName + "], but lastDecisionId is empty");
             return ;
@@ -263,5 +263,9 @@ class DecisionTracker {
             persistenceProvider.persistDecisionIdForModel(modelName, decisionId);
         }
         return decisionId;
+    }
+
+    protected String lastDecisionIdOfModel(String modelName) {
+        return persistenceProvider.lastDecisionIdForModel(modelName);
     }
 }
