@@ -38,10 +38,21 @@ public class AppGivensProviderTest {
         Map<String, Object> userGivens = new HashMap();
         userGivens.put(AppGivensProvider.APP_Given_Key_Language, "hi");
 
-        Map givens = new AppGivensProvider(context).givensForModel(new DecisionModel("hello"), userGivens);
-        assertNotNull(givens);
-        assertEquals("hi", givens.get(AppGivensProvider.APP_Given_Key_Language));
-        IMPLog.d(Tag, "givens: " + givens);
+        DecisionModel decisionModel = new DecisionModel("hello");
+        AppGivensProvider appGivensProvider = new AppGivensProvider(context);
+
+        Map allGivens = appGivensProvider.givensForModel(decisionModel, null);
+        IMPLog.d(Tag, "allGivens: " + allGivens);
+
+        // assert that APP_Given_Key_Language exists in AppGivensProvider givens
+        assertNotNull(allGivens.get(AppGivensProvider.APP_Given_Key_Language));
+        assertNotEquals("hi", allGivens.get(AppGivensProvider.APP_Given_Key_Language));
+
+        allGivens = appGivensProvider.givensForModel(decisionModel, userGivens);
+        IMPLog.d(Tag, "allGivens: " + allGivens);
+
+        // assert that user givens wins in case of overlapping
+        assertEquals("hi", allGivens.get(AppGivensProvider.APP_Given_Key_Language));
     }
 
     @Test
