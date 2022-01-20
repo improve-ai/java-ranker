@@ -64,13 +64,25 @@ public class AppGivensProviderTest {
     }
 
     @Test
-    public void testAddReward() {
+    public void testAddReward_decision() {
         String modelName = "hello";
         DecisionModel decisionModel = new DecisionModel(modelName);
         Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
         decision.get();
         double oldTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
         decision.addReward(0.1);
+        double newTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
+        assertEquals(oldTotalRewardsOfModel+0.1, newTotalRewardsOfModel, 0.0000000001);
+        IMPLog.d(Tag, "old reward: " + oldTotalRewardsOfModel +
+                ", new reward: " + newTotalRewardsOfModel);
+    }
+
+    @Test
+    public void testAddReward_decisionModel() {
+        String modelName = "hello";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        double oldTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
+        decisionModel.addReward(0.1);
         double newTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
         assertEquals(oldTotalRewardsOfModel+0.1, newTotalRewardsOfModel, 0.0000000001);
         IMPLog.d(Tag, "old reward: " + oldTotalRewardsOfModel +
