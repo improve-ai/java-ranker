@@ -552,6 +552,12 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testScore_valid() {
+        DecisionModel decisionModel = getDecisionModel("hello");
+        decisionModel.score(Arrays.asList(1, 2, 3));
+    }
+
+    @Test
     public void testScore_consistent_encoding() throws IOException {
         int loop = 10;
         for(int i = 0; i < loop; ++i) {

@@ -424,9 +424,8 @@ public class DecisionModelTest {
     @Test
     public void testGiven() {
         Map<String, Object> given = new HashMap<>();
-        List<Object> variants = new ArrayList<>();
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.given(given).chooseFrom(variants);
+        decisionModel.given(given);
     }
 
     @Test
@@ -473,15 +472,25 @@ public class DecisionModelTest {
     @Test
     public void testChooseMultiVariate_null_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(null);
-        assertNotNull(decision);
+        try {
+            decisionModel.chooseMultiVariate(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test
     public void testChooseMultiVariate_empty_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(new HashMap<>());
-        assertNotNull(decision);
+        try {
+            decisionModel.chooseMultiVariate(new HashMap<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test
@@ -694,7 +703,7 @@ public class DecisionModelTest {
         assertNull(decisionModel.getGivensProvider());
 
         DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
-        assertNull(decisionModel.getGivensProvider());
+        assertNotNull(decisionModel.getGivensProvider());
 
         assertNotNull(new DecisionModel("hello").getGivensProvider());
     }

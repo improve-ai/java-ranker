@@ -48,6 +48,7 @@ public class DecisionModel {
 
     private GivensProvider givensProvider;
 
+    // Currently only set on Android; null on other platform
     private static GivensProvider defaultGivensProvider;
 
     public final static ModelMap instances = new ModelMap();
@@ -213,18 +214,16 @@ public class DecisionModel {
         sDefaultTrackApiKey = defaultTrackApiKey;
     }
 
+    // TODO: defaultGivensProvider is returned anyway even if setGivensProvider(null) is called.
     public GivensProvider getGivensProvider() {
-        return givensProvider;
+        return givensProvider != null ? givensProvider : defaultGivensProvider;
     }
 
     public void setGivensProvider(GivensProvider givensProvider) {
         this.givensProvider = givensProvider;
     }
 
-    protected static GivensProvider getDefaultGivensProvider() {
-        return defaultGivensProvider;
-    }
-
+    // Currently only called on Android platform
     public static void setDefaultGivensProvider(GivensProvider givensProvider) {
         defaultGivensProvider = givensProvider;
     }
@@ -320,7 +319,8 @@ public class DecisionModel {
     }
 
     protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
-        return givensProvider == null ? givens : givensProvider.givensForModel(this, givens);
+        GivensProvider provider = getGivensProvider();
+        return provider == null ? givens : provider.givensForModel(this, givens);
     }
 
     /**
@@ -333,7 +333,7 @@ public class DecisionModel {
      * @return scores of the variants
      */
     public <T> List<Double> score(List<T> variants) {
-        return this.scoreInternal(variants, null);
+        return scoreInternal(variants, combinedGivens(null));
     }
 
     /**
@@ -353,6 +353,8 @@ public class DecisionModel {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
+
+        IMPLog.d(Tag, "givens: " + givens);
 
         if(predictor == null) {
             // When tracking a decision like this:
