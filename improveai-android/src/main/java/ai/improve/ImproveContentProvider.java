@@ -12,6 +12,13 @@ import ai.improve.android.Logger;
 import ai.improve.downloader.ModelDownloader;
 import ai.improve.log.IMPLog;
 
+/**
+ * ImproveContentProvider is declared in the AndroidManifest.xml.
+ * The onCreate method is called for all registered content providers on the application main
+ * thread at application launch time. So it's a perfect spot to initialize Android only stuff
+ * here.
+ * @ref https://developer.android.com/reference/android/content/ContentProvider#onCreate()
+ */
 public class ImproveContentProvider extends ContentProvider {
     public static final String Tag = "ImproveContentProvider";
 
@@ -23,6 +30,7 @@ public class ImproveContentProvider extends ContentProvider {
     public boolean onCreate() {
         sContext = getContext();
 
+        // True app launch time
         sSessionStartTime = System.currentTimeMillis();
 
         AppGivensProvider.setBornTime(sContext);

@@ -61,6 +61,7 @@ public class AppGivensProviderTest {
         Map combinedGivens = new AppGivensProvider(context).givensForModel(new DecisionModel("hello"), userGivens);
         assertNotNull(combinedGivens);
         assertTrue(combinedGivens.size() > 0);
+        IMPLog.d(Tag, "givens" + combinedGivens);
     }
 
     @Test
