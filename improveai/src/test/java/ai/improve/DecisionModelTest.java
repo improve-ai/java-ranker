@@ -647,7 +647,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testScoreWithoutLoadingModel() {
+    public void testScore_without_loading_model() {
         int size = 100;
 
         List variants = new ArrayList();

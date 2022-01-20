@@ -528,6 +528,30 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testScore_null_variants() {
+        DecisionModel decisionModel = getDecisionModel("hello");
+        try {
+            decisionModel.score(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testScore_empty_variants() {
+        DecisionModel decisionModel = getDecisionModel("hello");
+        try {
+            decisionModel.score(new ArrayList<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testScore_consistent_encoding() throws IOException {
         int loop = 10;
         for(int i = 0; i < loop; ++i) {

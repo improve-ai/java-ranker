@@ -88,11 +88,7 @@ public class DecisionContext {
     }
 
     /**
-     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
-     *                 including nested dictionaries,
-     *  arrays, strings, numbers, nulls, and booleans.
-     * @throws IllegalArgumentException Thrown if variants is nil or empty.
-     * @return scores of the variants
+     * @see ai.improve.DecisionModel#score(List)
      */
     public <T> List<Double> score(List<T> variants) {
         Map allGivens = decisionModel.combinedGivens(givens);

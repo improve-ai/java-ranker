@@ -1,5 +1,6 @@
 package ai.improve;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
@@ -143,5 +144,40 @@ public class DecisionContextTest {
         DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         Object best = decisionContext.which(1, 2, 3);
         assertNotNull(best);
+    }
+
+    @Test
+    public void testScore_null_variants() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
+        try {
+            decisionContext.score(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testScore_empty_variants() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
+        try {
+            decisionContext.score(new ArrayList<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testScore_valid() {
+        List variants = Arrays.asList(1, 2, 3);
+        DecisionModel decisionModel = new DecisionModel("theme");
+        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
+        List<Double> scores = decisionContext.score(variants);
+        assertEquals(variants.size(), scores.size());
     }
 }

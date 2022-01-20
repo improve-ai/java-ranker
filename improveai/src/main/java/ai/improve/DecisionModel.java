@@ -323,26 +323,35 @@ public class DecisionModel {
         return givensProvider == null ? givens : givensProvider.givensForModel(this, givens);
     }
 
+    /**
+     * If this method is called before the model is loaded, or errors occurred
+     * while loading the model file, a randomly generated list of descending
+     * Gaussian scores is returned.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @return scores of the variants
+     */
     public <T> List<Double> score(List<T> variants) {
         return this.scoreInternal(variants, null);
     }
 
     /**
-     * Returns a list of double scores. If variants is null or empty, an empty
-     * list is returned.
-     *
      * If this method is called before the model is loaded, or errors occurred
      * while loading the model file, a randomly generated list of descending
      * Gaussian scores is returned.
-     *
-     * @return a list of double scores.
-     *
-     * */
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
+     * @param givens Additional context info that will be used with each of the variants to
+     *               calculate the score, including the givens passed in through
+     *               DecisionModel.given(givens) and the givens provided by the AppGivensProvider or
+     *               other custom GivensProvider.
+     * @throws IllegalArgumentException Thrown if variants is null or empty
+     * @return scores of the variants
+     */
     protected  <T> List<Double> scoreInternal(List<T> variants, Map<String, ?> givens) {
-        List<Double> result = new ArrayList<>();
-
         if(variants == null || variants.size() <= 0) {
-            return result;
+            throw new IllegalArgumentException("variants can't be null or empty");
         }
 
         if(predictor == null) {
@@ -353,6 +362,7 @@ public class DecisionModel {
             return ModelUtils.generateDescendingGaussians(variants.size());
         }
 
+        List<Double> result = new ArrayList<>();
         List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
         for (FVec fvec : encodedFeatures) {
             if(enableTieBreaker) {
