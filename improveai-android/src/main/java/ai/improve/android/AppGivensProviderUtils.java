@@ -5,6 +5,7 @@ import static ai.improve.android.AppGivensProvider.SP_Key_Decision_Count;
 import static ai.improve.android.AppGivensProvider.SP_Key_Model_Reward;
 import static ai.improve.android.Constants.Improve_SP_File_Name;
 
+import android.app.Presentation;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
@@ -151,17 +152,24 @@ public class AppGivensProviderUtils {
         return Double.longBitsToDouble(sp.getLong(key, 0));
     }
 
+    public static double roundedRewardOfModel(String modelName) {
+        double reward = rewardOfModel(modelName);
+        return Math.round(reward * 100000) / 1000000.0;
+    }
+
     public static double rewardsPerDecision(String modelName) {
         Context context = ImproveContentProvider.getAppContext();
         int decisionCount = getDecisionCount(context, modelName);
         double rewards = rewardOfModel(modelName);
-        return decisionCount == 0 ? 0 : (rewards / decisionCount);
+        double result = decisionCount == 0 ? 0 : (rewards / decisionCount);
+        return Math.round(result * 1000000) / 1000000.0;
     }
 
     public static double decisionsPerDay(String modelName) {
         Context context = ImproveContentProvider.getAppContext();
         int decisionCount = getDecisionCount(context, modelName);
         double days = getSinceBorn(context);
-        return decisionCount / days;
+        double result =  decisionCount / days;
+        return Math.round(result * 1000000) / 1000000.0;
     }
 }

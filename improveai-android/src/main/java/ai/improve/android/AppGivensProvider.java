@@ -90,7 +90,7 @@ public class AppGivensProvider implements GivensProvider {
         appGivens.put(APP_Givens_Key_Since_Session_Start, getSinceSessionStart());
         appGivens.put(APP_Givens_Key_Since_Born, getSinceBorn());
         appGivens.put(APP_Givens_Key_Decision_Count, getDecisionCount(decisionModel.getModelName()));
-        appGivens.put(App_Givens_Key_Rewards, AppGivensProviderUtils.rewardOfModel(decisionModel.getModelName()));
+        appGivens.put(App_Givens_Key_Rewards, AppGivensProviderUtils.roundedRewardOfModel(decisionModel.getModelName()));
         appGivens.put(App_Givens_Key_Rewards_Per_Decision, AppGivensProviderUtils.rewardsPerDecision(decisionModel.getModelName()));
         appGivens.put(App_Givens_Key_Decisions_Per_Day, AppGivensProviderUtils.decisionsPerDay(decisionModel.getModelName()));
 

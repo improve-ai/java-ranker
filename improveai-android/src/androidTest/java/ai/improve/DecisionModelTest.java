@@ -473,7 +473,7 @@ public class DecisionModelTest {
     public void testAddReward_Android() {
         DecisionModel decisionModel = new DecisionModel("hello");
         decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Hi World")).get();
-        decisionModel.addReward(0.1);
+        decisionModel.addReward(1/3.0);
     }
 
     @Test
