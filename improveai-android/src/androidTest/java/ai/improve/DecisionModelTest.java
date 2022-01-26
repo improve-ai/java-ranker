@@ -597,4 +597,41 @@ public class DecisionModelTest {
             IMPLog.d(Tag, "score diff: " + (scores_1.get(0) - scores_2.get(0)));
         }
     }
+
+    @Test
+    public void testA_2_Z_Model() throws IOException, JSONException {
+        for(int k = 0; k < 100; ++k) {
+            URL modelUrl = new URL("file:///android_asset/a_z_model/model.xgb");
+            DecisionModel decisionModel = new DecisionModel("a-z");
+            decisionModel.load(modelUrl);
+
+            Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            InputStream inputStream = appContext.getAssets().open("a_z_model/a_z.json");
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
+            inputStream.close();
+
+            String content = new String(buffer);
+            JSONObject root = new JSONObject(content);
+            JSONObject testCase = root.getJSONObject("test_case");
+
+            double noise = testCase.getDouble("noise");
+            decisionModel.getFeatureEncoder().noise = noise;
+            IMPLog.d(Tag, "noise: " + noise);
+
+            List variants = toList(testCase.getJSONArray("variants"));
+            IMPLog.d(Tag, "variants: " + variants);
+            assertEquals(26, variants.size());
+
+            List expectedScores = toList(root.getJSONArray("expected_output").getJSONObject(0).getJSONArray("scores"));
+            assertEquals(26, expectedScores.size());
+
+            List<Double> scores = decisionModel.score(variants);
+            IMPLog.d(Tag, "scores: " + scores);
+
+            for (int i = 0; i < 26; ++i) {
+                assertEquals((double) expectedScores.get(i), scores.get(i), 0.000002);
+            }
+        }
+    }
 }
