@@ -54,7 +54,7 @@ public class Decision {
             if (tracker != null) {
                 if (ModelUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
                     // the more variants there are, the less frequently this is called
-                    List<Object> rankedVariants = DecisionModel.rank(variants, scores);
+                    List<?> rankedVariants = DecisionModel.rank(variants, scores);
                     id = tracker.track(best, rankedVariants, givens, model.getModelName(), true);
                 } else {
                     // faster and more common path, avoids array sort

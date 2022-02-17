@@ -83,19 +83,9 @@ public class ModelDownloader {
                             listener.onFinish(predictor, null);
                         }
                     }
-                }
-                catch (IOException e) {
-                    IMPLog.e(Tag, "model download exception: " + e.getMessage());
-                    if(listener != null) {
-                        listener.onFinish(null, e);
-                    }
-                } catch (URISyntaxException e) {
-                    IMPLog.e(Tag, "model download exception: " + e.getMessage());
-                    if(listener != null) {
-                        listener.onFinish(null, new IOException(e.getMessage()));
-                    }
-                } catch (Throwable e){
-                    IMPLog.e(Tag, "model download exception: " + e.getMessage());
+                } catch (Throwable e) {
+                    e.printStackTrace();
+                    IMPLog.e(Tag, url + ", model download exception: " + e.getMessage());
                     if(listener != null) {
                         listener.onFinish(null, new IOException(e.getMessage()));
                     }

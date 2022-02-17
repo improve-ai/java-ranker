@@ -430,7 +430,7 @@ public class DecisionModel {
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
      * @return a list of the variants ranked from best to worst by scores
      * */
-    public static <T> List<Object> rank(List<T> variants, List<Double> scores) {
+    public static <T> List<T> rank(List<T> variants, List<Double> scores) {
         // check the size of variants and scores, and use the bigger one so that
         // an IndexOutOfBoundOfException would be thrown later
         int size = variants.size();
@@ -449,7 +449,7 @@ public class DecisionModel {
             }
         });
 
-        List<Object> result = new ArrayList<>(variants.size());
+        List<T> result = new ArrayList<T>(variants.size());
         for(int i = 0; i < indices.length; ++i) {
             result.add(variants.get(indices[i]));
         }
