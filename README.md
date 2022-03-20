@@ -1,16 +1,15 @@
 # Improve AI for Android
 
-## Fast AI Decisions for Android
+## AI Decisions in Java
 
-
-It's like an AI *if/then* statement. Quickly make decisions that maximize revenue, performance, user retention, or any other metric.
+Lift revenue, performance, user retention, or any other metric with fast AI decisions. It's like an AI if/then statement.
 
 ## Installation
-
-Improve is available through [CocoaPods](http://cocoapods.org). To install, add the following line to your Podfile:
-
-```ruby
-pod "Improve"
+Include the dependency in your *app/build.gradle* file.
+```gradle
+dependencies {
+    implementation 'ai.improve:improveai-android:7.0.0'
+}
 ```
 
 ### Hello World (for Cowboys)!
@@ -18,7 +17,8 @@ pod "Improve"
 What is the best greeting?
 
 ```Java
-IMPDecisionModel.load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(Map.of("language", "cowboy")).get();
+new DecisionModel("greeting").load(modelUrl)
+.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(Map.of("language", "cowboy")).get();
 ```
 
 *greeting* should result in *Howdy World* assuming it performs best when *language* is *cowboy*.
@@ -36,7 +36,7 @@ decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
 
 Dynamically enable feature flags for best performance...
 
-```
+```Java
 featureFlag = decisionModel.given(deviceAttributes).chooseFrom(Arrays.asList(true, false)).get()
 ```
 
@@ -52,9 +52,9 @@ Improve learns to use the attributes of each key and value in a complex variant 
 
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.
 
-## Models
+## Decision Models
 
-A *DecisionModel* contains the AI decision logic, analogous to a large number of *if/then* statements.
+A *Decision Model* contains the AI decision logic, analogous to a large number of *if/then* statements.  Decision models are continuously trained by the Improve AI Gym based on previous decisions, so they automatically improve over time.
 
 Models are thread-safe and a single model can be used for multiple decisions.
 
@@ -62,10 +62,7 @@ Models are thread-safe and a single model can be used for multiple decisions.
 
 ```Java
 // Load model from https URLs
-product = IMPDecisionModel.load(modelUrl).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
-
-// Load model from assets
-product = IMPDecisionModel.loadFromAsset(context, "filename").chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
+product = new DecisionModel("clothing").load(modelUrl).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
 ```
 
 Models can be loaded from the assets or from https URLs.
@@ -75,18 +72,16 @@ Models can be loaded from the assets or from https URLs.
 Asynchronous model loading allows decisions to be made at any point, even before the model is loaded.  If the model isn't yet loaded or fails to load, the first variant will be returned as the decision.
 
 ```Java
-IMPDecisionTracker tracker = new IMPDecisionTracker(appContext, "trackUrl");
-IMPDecisionModel model = new IMPDecisionModel("greetings");
-model.setTracker(tracker);
-model.loadAsync(modelUrl, new IMPDecisionModel.IMPDecisionModelLoadListener() {
+DecisionModel decisionModel = new DecisionModel("greetings");
+decisionModel.loadAsync(modelUrl, new DecisionModel.DecisionModelLoadListener() {
     @Override
-    public void onFinish(IMPDecisionModel model, Exception e) {
-        if(e != null) {
-            Log.d("Tag", "Error loading model: " + e.getLocalizedMessage());
-        } else {
-            // the model is ready to go
-            model.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
-        }
+    public void onLoad(DecisionModel decisionModel) {
+        // the model is ready to go
+        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
+    }
+
+    @Override
+    public void onError(IOException e) {
     }
 });
 
@@ -104,29 +99,23 @@ The magic of Improve AI is it's learning process, whereby models continuously im
 Set a *DecisionTracker* on the *DecisionModel* to automatically track decisions and enable learning.  A single *DecisionTracker* instance can be shared by multiple models.
 
 ```Java
-IMPDecisionTracker tracker = new IMPDecisionTracker(appContext, "trackerUrl"); // trackUrl is obtained from your Gym configuration
-int fontSize = (Integer)IMPDecisionModel.load(modelUrl).track(tracker).chooseFrom(Arrays.asList(12, 16, 20)).get();
+DecisionModel.setDefaultTrackURL(trackURL) // trackUrl is obtained from your Gym configuration
+
+// When a new DecisionModel instance is created, it's trackURL is set to DecisionModel.defaultTrackURL
+fontSize = new DecisionModel("fontSizes").load(modelUrl).chooseFrom(12, 16, 20).get()
 ```
 
 The decision is lazily evaluated and then automatically tracked as being causal upon calling *get()*.
 
 For this reason, wait to call *get()* until the decision will actually be used.
 
-### Tracking Events
+### Tracking Rewards
 
 Events are the mechanism by which decisions are rewarded or penalized.  In most cases these will mirror the normal analytics events that your app tracks and can be integrated with any event tracking singletons in your app.
 
 ```Java
-tracker.trackEvent("Purchased", Map.of("product_id", 8, "value", 19.99));
+decisionModel.addReward(19.99)
 ```
-
-Like most analytics packages, *track* takes an *event* name and an optional *properties* dictionary.  The only property with special significance is *value*, which indicates a reward value for decisions that lead to that event.  
-
-If *value* is ommitted then the default reward value of an event is *0.001*.
-
-By default, each decision is rewarded the total value of all events that occur within 48 hours of the decision.
-
-Assuming a typical app where user retention and engagement are valuable, we recommend tracking all of your analytics events with the *DecisionTracker*.  You can customize the rewards assignment logic later in the Improve AI Gym.
 
 ## Privacy
 

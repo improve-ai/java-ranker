@@ -3,10 +3,9 @@ package ai.improve.android;
 import static ai.improve.android.AppGivensProvider.SP_Key_Born_Time;
 import static ai.improve.android.AppGivensProvider.SP_Key_Decision_Count;
 import static ai.improve.android.AppGivensProvider.SP_Key_Model_Reward;
-import static ai.improve.android.AppGivensProvider.SP_Key_Session_Count;
-import static ai.improve.android.AppGivensProvider.SP_Key_Session_Start_Time;
 import static ai.improve.android.Constants.Improve_SP_File_Name;
 
+import android.app.Presentation;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
@@ -21,21 +20,6 @@ public class AppGivensProviderUtils {
 
     public static final double SecondsPerDay = 86400.0;
 
-    /**
-     * Session start time is the moment when the first AppGivensProvider instance is created.
-     * */
-    private static long sLastSessionStartTime = 0;
-
-    public static void setLastSessionStartTime(long lastSessionStartTime) {
-        sLastSessionStartTime = lastSessionStartTime;
-    }
-
-    public static int getSessionCount(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
-        int count = sp.getInt(SP_Key_Session_Count, 0);
-        return count - 1 >= 0 ? count - 1 : 0;
-    }
-
     public static String getDecisionCountKeyOfModel(String modelName) {
         return String.format(SP_Key_Decision_Count, modelName);
     }
@@ -46,20 +30,9 @@ public class AppGivensProviderUtils {
         return sp.getInt(decisionCountKey, 0);
     }
 
-    public static double getSinceSessionStart(Context context) {
-        SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
-        long sessionStartTime = sp.getLong(SP_Key_Session_Start_Time, 0);
+    public static double getSinceSessionStart() {
+        long sessionStartTime = ImproveContentProvider.getSessionStartTime();
         return (System.currentTimeMillis() - sessionStartTime) / MillisSecondsPerDay;
-    }
-
-    /**
-     * @return 0, if there's no last session
-     * */
-    public static double getSinceLastSessionStart() {
-        if(sLastSessionStartTime == 0) {
-            return 0;
-        }
-        return (System.currentTimeMillis() - sLastSessionStartTime) / MillisSecondsPerDay;
     }
 
     public static double getSinceBorn(Context context) {
@@ -169,7 +142,7 @@ public class AppGivensProviderUtils {
         String key = String.format(SP_Key_Model_Reward, modelName);
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         double curReward = Double.longBitsToDouble(sp.getLong(key, 0));
-        sp.edit().putLong(key, Double.doubleToLongBits(curReward + reward));
+        sp.edit().putLong(key, Double.doubleToLongBits(curReward + reward)).apply();
     }
 
     public static double rewardOfModel(String modelName) {
@@ -177,5 +150,26 @@ public class AppGivensProviderUtils {
         String key = String.format(SP_Key_Model_Reward, modelName);
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         return Double.longBitsToDouble(sp.getLong(key, 0));
+    }
+
+    public static double roundedRewardOfModel(String modelName) {
+        double reward = rewardOfModel(modelName);
+        return Math.round(reward * 100000) / 1000000.0;
+    }
+
+    public static double rewardsPerDecision(String modelName) {
+        Context context = ImproveContentProvider.getAppContext();
+        int decisionCount = getDecisionCount(context, modelName);
+        double rewards = rewardOfModel(modelName);
+        double result = decisionCount == 0 ? 0 : (rewards / decisionCount);
+        return Math.round(result * 1000000) / 1000000.0;
+    }
+
+    public static double decisionsPerDay(String modelName) {
+        Context context = ImproveContentProvider.getAppContext();
+        int decisionCount = getDecisionCount(context, modelName);
+        double days = getSinceBorn(context);
+        double result =  decisionCount / days;
+        return Math.round(result * 1000000) / 1000000.0;
     }
 }

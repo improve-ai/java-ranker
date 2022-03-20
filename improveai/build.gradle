@@ -18,3 +18,20 @@ dependencies {
 test {
     useJUnitPlatform()
 }
+
+// Generate a BuildProperties Java class
+task generateJava {
+    ext.outputDir = "$buildDir/generated/java"
+    doLast {
+        mkdir "$outputDir/ai/improve/constants"
+        file("$outputDir/ai/improve/constants/BuildProperties.java").text =
+                """|package ai.improve.constants;
+               |public class BuildProperties {
+               |    public static String getSDKVersion() { return "${rootProject.ext.sdkVersion}"; }
+               |}""".stripMargin()
+    }
+}
+compileJava.dependsOn generateJava
+sourceSets.main.java.srcDir generateJava.outputDir
+
+apply from: '../publish.gradle'

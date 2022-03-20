@@ -57,13 +57,7 @@ final class Base62 {
         final int size = (int) ceil((bytes.length * BYTE_BITS) / DIGIT_BITS);
         final StringBuilder sb = new StringBuilder(size);
 
-        // Allocate an extra zero value byte in the first position, so that the unsigned 32bit UTC
-        // timestamp value is not treated as negative value an thus being encoded as
-        // "000000000000000000000000000"
-        byte[] b = new byte[bytes.length+1];
-        System.arraycopy(bytes, 0, b, 1, bytes.length);
-
-        BigInteger value = new BigInteger(b);
+        BigInteger value = new BigInteger(bytes);
         while (value.compareTo(ZERO) > 0) {
             final BigInteger[] quotientAndRemainder = value.divideAndRemainder(BASE);
             sb.append(BASE_62_CHARACTERS[abs(quotientAndRemainder[1].intValue())]);

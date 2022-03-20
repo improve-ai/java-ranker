@@ -48,6 +48,7 @@ public class DecisionModel {
 
     private GivensProvider givensProvider;
 
+    // Currently only set on Android; null on other platform
     private static GivensProvider defaultGivensProvider;
 
     public final static ModelMap instances = new ModelMap();
@@ -213,18 +214,16 @@ public class DecisionModel {
         sDefaultTrackApiKey = defaultTrackApiKey;
     }
 
+    // TODO: defaultGivensProvider is returned anyway even if setGivensProvider(null) is called.
     public GivensProvider getGivensProvider() {
-        return givensProvider;
+        return givensProvider != null ? givensProvider : defaultGivensProvider;
     }
 
     public void setGivensProvider(GivensProvider givensProvider) {
         this.givensProvider = givensProvider;
     }
 
-    protected static GivensProvider getDefaultGivensProvider() {
-        return defaultGivensProvider;
-    }
-
+    // Currently only called on Android platform
     public static void setDefaultGivensProvider(GivensProvider givensProvider) {
         defaultGivensProvider = givensProvider;
     }
@@ -264,44 +263,98 @@ public class DecisionModel {
     }
 
     /**
-     * @return an IMPDecision object
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                booleans.
+     * @return an IMPDecision object.
      * */
     public <T> Decision chooseFrom(List<T> variants) {
-        return new Decision(this).chooseFrom(variants);
+        return new DecisionContext(this, null).chooseFrom(variants);
+    }
+
+    /**
+     * This method is an alternative of chooseFrom(). An example here might be more expressive:
+     * chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
+     *       is equivalent to
+     * chooseFrom([
+     *      {"style":"bold", "size":3},
+     *      {"style":"italic", "size":3},
+     *      {"style":"bold", "size":5},
+     *      {"style":"italic", "size":5},
+     * ])
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity
+     *                 like chooseFrom(). The value of the dictionary is expected to be a List.
+     *                 If not, it would be treated as an one-element List anyway. So
+     *                 chooseMultiVariate({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                 chooseMultiVariate({"style":["bold", "italic"], "size":[3]})
+     * @return An IMPDecision object.
+     * */
+    public Decision chooseMultiVariate(Map<String, ?> variants) {
+        return new DecisionContext(this, null).chooseMultiVariate(variants);
+    }
+
+    /**
+     * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
+     * directly.
+     * @param variants See chooseFrom().
+     *                 When the only argument is a List, it's equivalent to calling
+     *                 chooseFrom(variants).get();
+     *                 When the only argument is a Map, it's equivalent to calling
+     *                 chooseMultiVariate(variants).get();
+     *                 When there are two or more arguments, all the arguments would form a
+     *                 list and be passed to chooseFrom();
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if variants is null or empty; or if there's only one
+     * variant and it's not a List or Map.
+     * */
+    public Object which(Object... variants) {
+        return new DecisionContext(this, null).which(variants);
     }
 
     /**
      * @return an IMPDecision object
      * */
-    public Decision given(Map<String, Object> givens) {
-        return new Decision(this).given(givens);
+    public DecisionContext given(Map<String, Object> givens) {
+        return new DecisionContext(this, givens);
     }
 
     protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
-        return givensProvider == null ? givens : givensProvider.givensForModel(this, givens);
-    }
-
-    public <T> List<Double> score(List<T> variants) {
-        return this.score(variants, null);
+        GivensProvider provider = getGivensProvider();
+        return provider == null ? givens : provider.givensForModel(this, givens);
     }
 
     /**
-     * Returns a list of double scores. If variants is null or empty, an empty
-     * list is returned.
-     *
      * If this method is called before the model is loaded, or errors occurred
      * while loading the model file, a randomly generated list of descending
      * Gaussian scores is returned.
-     *
-     * @return a list of double scores.
-     *
-     * */
-    public <T> List<Double> score(List<T> variants, Map<String, ?> givens) {
-        List<Double> result = new ArrayList<>();
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @return scores of the variants
+     */
+    public <T> List<Double> score(List<T> variants) {
+        return scoreInternal(variants, combinedGivens(null));
+    }
 
+    /**
+     * If this method is called before the model is loaded, or errors occurred
+     * while loading the model file, a randomly generated list of descending
+     * Gaussian scores is returned.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
+     * @param givens Additional context info that will be used with each of the variants to
+     *               calculate the score, including the givens passed in through
+     *               DecisionModel.given(givens) and the givens provided by the AppGivensProvider or
+     *               other custom GivensProvider.
+     * @throws IllegalArgumentException Thrown if variants is null or empty
+     * @return scores of the variants
+     */
+    protected  <T> List<Double> scoreInternal(List<T> variants, Map<String, ?> givens) {
         if(variants == null || variants.size() <= 0) {
-            return result;
+            throw new IllegalArgumentException("variants can't be null or empty");
         }
+
+        IMPLog.d(Tag, "givens: " + givens);
 
         if(predictor == null) {
             // When tracking a decision like this:
@@ -311,6 +364,7 @@ public class DecisionModel {
             return ModelUtils.generateDescendingGaussians(variants.size());
         }
 
+        List<Double> result = new ArrayList<>();
         List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
         for (FVec fvec : encodedFeatures) {
             if(enableTieBreaker) {
@@ -326,15 +380,14 @@ public class DecisionModel {
     }
 
     /**
+     * This method should only be called on Android platform.
      * Adds the reward value to the most recent Decision for this model name for this installation.
      * The most recent Decision can be from a different DecisionModel instance or a previous session
      * as long as they have the same model name. If no previous Decision is found, the reward will
      * be ignored.
-     * This method should only be called on Android platform; Otherwise, a RuntimeException would
-     * be thrown.
-     * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
-     * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
-     * @throws IllegalStateException Thrown if trackURL is null
+     * @param reward the reward to add. Must not be NaN, or Infinity.
+     * @throws IllegalArgumentException Thrown if `reward` is NaN or Infinity
+     * @throws IllegalStateException Thrown if trackURL is null, or called on non-Android platform.
      * */
     public void addReward(double reward) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
@@ -342,10 +395,7 @@ public class DecisionModel {
         }
 
         if(DecisionTracker.persistenceProvider == null) {
-            // TODO
-            // I can't think of an appropriate exception to throw here? Ideas?
-            // UnsupportedOperationException?
-            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+            throw new IllegalStateException("DecisionModel.addReward() is only available on Android.");
         }
 
         if(tracker == null) {
@@ -380,7 +430,7 @@ public class DecisionModel {
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
      * @return a list of the variants ranked from best to worst by scores
      * */
-    public static <T> List<Object> rank(List<T> variants, List<Double> scores) {
+    public static <T> List<T> rank(List<T> variants, List<Double> scores) {
         // check the size of variants and scores, and use the bigger one so that
         // an IndexOutOfBoundOfException would be thrown later
         int size = variants.size();
@@ -399,7 +449,7 @@ public class DecisionModel {
             }
         });
 
-        List<Object> result = new ArrayList<>(variants.size());
+        List<T> result = new ArrayList<T>(variants.size());
         for(int i = 0; i < indices.length; ++i) {
             result.add(variants.get(indices[i]));
         }

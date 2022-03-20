@@ -1,5 +1,6 @@
 package ai.improve.xgbpredictor;
 
+import ai.improve.log.IMPLog;
 import biz.k11i.xgboost.util.ModelReader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -61,15 +62,18 @@ public class ModelMetadata {
     }
 
     private void parseMetadata(String value) {
-        JsonObject root = JsonParser.parseString(value).getAsJsonObject().getAsJsonObject("json");
-        modelName = root.get("model_name").getAsString();
-        modelSeed = root.get("model_seed").getAsLong();
+        try {
+            JsonObject root = JsonParser.parseString(value).getAsJsonObject().getAsJsonObject("json");
+            modelName = root.get("model_name").getAsString();
+            modelSeed = root.get("model_seed").getAsLong();
 
-        JsonArray featuresArray = root.get("feature_names").getAsJsonArray();
-        modelFeatureNames = new ArrayList<>(featuresArray.size());
-        for(int i = 0; i < featuresArray.size(); ++i) {
-            modelFeatureNames.add(featuresArray.get(i).getAsString());
+            JsonArray featuresArray = root.get("feature_names").getAsJsonArray();
+            modelFeatureNames = new ArrayList<>(featuresArray.size());
+            for (int i = 0; i < featuresArray.size(); ++i) {
+                modelFeatureNames.add(featuresArray.get(i).getAsString());
+            }
+        } catch (Throwable t) {
+            throw new IllegalArgumentException("Improve failed to parse the model metadata. Looks like the model being loaded is invalid.");
         }
-
     }
 }

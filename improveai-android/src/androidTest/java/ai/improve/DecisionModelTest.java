@@ -1,7 +1,6 @@
 package ai.improve;
 
 import android.content.Context;
-import android.util.Log;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -33,6 +32,7 @@ import ai.improve.log.IMPLog;
 
 import static ai.improve.DecisionTrackerTest.Track_URL;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -141,7 +141,48 @@ public class DecisionModelTest {
 
             @Override
             public void onError(IOException e) {
+                fail("onError should not be called while loading an valid model");
+            }
+        });
+        semaphore.acquire();
+    }
+
+    @Test
+    public void testLoadAsync_invalid_model_file() throws MalformedURLException, InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        URL url = new URL("file:///android_asset/dummy_outdated.xgb");
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.loadAsync(url, new DecisionModel.LoadListener() {
+            @Override
+            public void onLoad(DecisionModel model) {
+                fail("onLoad should not be called for an invalid model");
+                semaphore.release();
+            }
+
+            @Override
+            public void onError(IOException e) {
                 assertNotNull(e);
+                semaphore.release();
+            }
+        });
+        semaphore.acquire();
+    }
+
+    @Test
+    public void testLoadAsync_url_not_exist() throws MalformedURLException, InterruptedException {
+        Semaphore semaphore = new Semaphore(0);
+        URL url = new URL("http://127.0.0.1/not/exist/model.xgb");
+        DecisionModel decisionModel = new DecisionModel("music");
+        decisionModel.loadAsync(url, new DecisionModel.LoadListener() {
+            @Override
+            public void onLoad(DecisionModel model) {
+                fail("onLoad should not be called");
+                semaphore.release();
+            }
+
+            @Override
+            public void onError(IOException e) {
+                semaphore.release();
             }
         });
         semaphore.acquire();
@@ -280,7 +321,7 @@ public class DecisionModelTest {
         Map<String, Object> given = new HashMap<>();
         given.put("language", "cowboy");
         // Choose from string
-        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(given).get();
+        getDecisionModel("hello").load(modelUrl).chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
     }
 
     @Test
@@ -379,7 +420,7 @@ public class DecisionModelTest {
                 if(givens.isNull(i)) {
                     scores = decisionModel.score(toList(variants));
                 } else {
-                    scores = decisionModel.score(toList(variants), toMap(givens.getJSONObject(i)));
+                    scores = decisionModel.given(toMap(givens.getJSONObject(i))).score(toList(variants));
                 }
                 JSONArray expectedScores = expectedOutputs.getJSONObject(i).getJSONArray("scores");
                 assertEquals(scores.size(), expectedScores.length());
@@ -431,7 +472,8 @@ public class DecisionModelTest {
     @Test
     public void testAddReward_Android() {
         DecisionModel decisionModel = new DecisionModel("hello");
-        decisionModel.addReward(0.1);
+        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Hi World")).get();
+        decisionModel.addReward(1/3.0);
     }
 
     @Test
@@ -477,5 +519,119 @@ public class DecisionModelTest {
             return ;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testLoadFromAsssets() throws IOException {
+        DecisionModel decisionModel = new DecisionModel("hello");
+        decisionModel.load(new URL("file:///android_asset/dummy_v6.xgb"));
+    }
+
+    @Test
+    public void testScore_null_variants() {
+        DecisionModel decisionModel = getDecisionModel("hello");
+        try {
+            decisionModel.score(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testScore_empty_variants() {
+        DecisionModel decisionModel = getDecisionModel("hello");
+        try {
+            decisionModel.score(new ArrayList<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testScore_valid() {
+        DecisionModel decisionModel = getDecisionModel("hello");
+        decisionModel.score(Arrays.asList(1, 2, 3));
+    }
+
+    @Test
+    public void testScore_consistent_encoding() throws IOException {
+        int loop = 10;
+        for(int i = 0; i < loop; ++i) {
+            String path = "1000_list_of_numeric_variants_20_same_nested_givens_binary_reward";
+            URL modelUrl = new URL("file:///android_asset/validate_models/" + path + "/model.xgb");
+            DecisionModel decisionModel = getDecisionModel("hello").load(modelUrl);
+            assertNotNull(decisionModel);
+
+            List variants = Arrays.asList(1.0, 2);
+            Map child = new HashMap() {{
+                put("d", Arrays.asList(0.0, 1.2, 2));
+                put("e", true);
+                put("f", "AsD");
+            }};
+            Map givens = new HashMap() {{
+                put("a", "b");
+                put("c", child);
+            }};
+
+            // first call of model.score()
+            List<Double> scores_1 = decisionModel.given(givens).score(Arrays.asList(variants, variants));
+            assertEquals(2, scores_1.size());
+            assertEquals(scores_1.get(0), scores_1.get(1), 0.000001);
+            IMPLog.d(Tag, "score 1: " + scores_1 + ", diff=" + (scores_1.get(0) - scores_1.get(1)));
+
+            // second call of model.score()
+            List<Double> scores_2 = decisionModel.given(givens).score(Arrays.asList(variants, variants));
+            assertEquals(2, scores_2.size());
+            assertEquals(scores_2.get(0), scores_2.get(1), 0.000001);
+            IMPLog.d(Tag, "score 2: " + scores_1 + ", diff=" + (scores_2.get(0) - scores_2.get(1)));
+
+            // Scores of the first and second call should differ because of the random noise
+            // in the FeatureEncoder. However, if the noises happens to be very close to each
+            // other, the scores can be very similar as well, and the following assertion might
+            // fail.
+            assertNotEquals(scores_1.get(0), scores_2.get(0), 0.000001);
+            IMPLog.d(Tag, "score diff: " + (scores_1.get(0) - scores_2.get(0)));
+        }
+    }
+
+    @Test
+    public void testA_2_Z_Model() throws IOException, JSONException {
+        for(int k = 0; k < 100; ++k) {
+            URL modelUrl = new URL("file:///android_asset/a_z_model/model.xgb");
+            DecisionModel decisionModel = new DecisionModel("a-z");
+            decisionModel.load(modelUrl);
+
+            Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+            InputStream inputStream = appContext.getAssets().open("a_z_model/a_z.json");
+            byte[] buffer = new byte[inputStream.available()];
+            inputStream.read(buffer);
+            inputStream.close();
+
+            String content = new String(buffer);
+            JSONObject root = new JSONObject(content);
+            JSONObject testCase = root.getJSONObject("test_case");
+
+            double noise = testCase.getDouble("noise");
+            decisionModel.getFeatureEncoder().noise = noise;
+            IMPLog.d(Tag, "noise: " + noise);
+
+            List variants = toList(testCase.getJSONArray("variants"));
+            IMPLog.d(Tag, "variants: " + variants);
+            assertEquals(26, variants.size());
+
+            List expectedScores = toList(root.getJSONArray("expected_output").getJSONObject(0).getJSONArray("scores"));
+            assertEquals(26, expectedScores.size());
+
+            List<Double> scores = decisionModel.score(variants);
+            IMPLog.d(Tag, "scores: " + scores);
+
+            for (int i = 0; i < 26; ++i) {
+                assertEquals((double) expectedScores.get(i), scores.get(i), 0.000002);
+            }
+        }
     }
 }
