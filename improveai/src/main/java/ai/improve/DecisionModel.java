@@ -124,6 +124,14 @@ public class DecisionModel {
             throw downloadException[0];
         }
 
+        // It's a bit strange that in a release build of an Android app, the 'listener' seems
+        // to be recycled right after calling loadAsync() while I assume that it would survive until
+        // the method returns.
+        // The dummy code here is only meant to have 'listener' survive a bit longer.
+        if(listener != null) {
+            IMPLog.d(Tag, listener.toString());
+        }
+
         return this;
     }
 
