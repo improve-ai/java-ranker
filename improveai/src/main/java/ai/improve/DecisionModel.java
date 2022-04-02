@@ -347,6 +347,16 @@ public class DecisionModel {
     }
 
     /**
+     * @param variants See chooseFrom()
+     */
+    public Decision chooseFirst(List variants) {
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+    }
+
+    /**
      * @return an IMPDecision object
      * */
     public DecisionContext given(Map<String, Object> givens) {

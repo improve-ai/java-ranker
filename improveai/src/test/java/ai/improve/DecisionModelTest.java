@@ -710,6 +710,43 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseFirst() {
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.chooseFirst(variants);
+        assertEquals("hi", decision.best);
+        assertEquals(variants, decision.variants);
+        assertNull(decision.givens);
+        assertEquals(variants.size(), decision.scores.size());
+    }
+
+    @Test
+    public void testChooseFirst_null_variants() {
+        List variants = null;
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFirst(variants);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFrom_empty_variants() {
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFirst(variants);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testScore_without_loading_model() {
         int size = 100;
 
