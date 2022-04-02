@@ -805,6 +805,52 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseRandom() {
+        int loop = 10000;
+        Map<String, Integer> countMap = new HashMap<>();
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        for(int i = 0; i < loop; ++i) {
+            String variant = (String) decisionModel.chooseRandom(variants).get();
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+        IMPLog.d(Tag, "count: " + countMap);
+        assertEquals(loop/3, countMap.get("hello"), 100);
+        assertEquals(loop/3, countMap.get("hi"), 100);
+        assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testChooseRandom_empty_variants() {
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseRandom(variants);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseRandom_null_variants() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseRandom(null);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testScore_without_loading_model() {
         int size = 100;
 

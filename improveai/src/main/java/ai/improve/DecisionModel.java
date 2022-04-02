@@ -387,8 +387,20 @@ public class DecisionModel {
     }
 
     /**
+     * @param variants See chooseFrom()
+     * @return A Decision object containing a random variant as the decision.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public Decision chooseRandom(List variants) {
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+    }
+
+    /**
      * @return an IMPDecision object
-     * */
+     */
     public DecisionContext given(Map<String, Object> givens) {
         return new DecisionContext(this, givens);
     }
