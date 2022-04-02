@@ -281,6 +281,33 @@ public class DecisionModel {
     }
 
     /**
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                 booleans.
+     * @param scores Scores of the variants.
+     * @return A Decision object which has the variant with highest score as the best variant.
+     * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
+     * variants.size() != scores.size().
+     */
+    public Decision chooseFrom(List variants, List scores) {
+        if(variants == null || scores == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants and scores can't be null or empty");
+        }
+        if(variants.size() != scores.size()) {
+            throw new IllegalArgumentException("variants.size(" +
+                    variants.size() + ") not equal to scores.size(" +
+                    scores.size() + ")");
+        }
+        Object best = ModelUtils.topScoringVariant(variants, scores);
+        Decision decision = new Decision(this);
+        decision.variants = variants;
+        decision.best = best;
+        decision.givens = null;
+        decision.scores = scores;
+        return decision;
+    }
+
+    /**
      * This method is an alternative of chooseFrom(). An example here might be more expressive:
      * chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
      *       is equivalent to

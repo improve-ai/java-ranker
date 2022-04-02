@@ -470,6 +470,60 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseFromVariantsAndScores() {
+        List variants = Arrays.asList("hi", "hello", "Hey");
+        List scores = Arrays.asList(0.1, 1.0, -0.1);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.chooseFrom(variants, scores);
+        assertEquals("hello", decision.best);
+        assertNull(decision.givens);
+        assertEquals(scores, decision.scores);
+        assertEquals(variants, decision.variants);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores_empty_variants() {
+        List variants = new ArrayList();
+        List scores = Arrays.asList(0.1, 1.0, -0.1);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFrom(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores_null_variants() {
+        List variants = null;
+        List scores = Arrays.asList(0.1, 1.0, -0.1);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFrom(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores_size_not_equal() {
+        List variants = Arrays.asList("hi", "hello", "Hey");
+        List scores = Arrays.asList(0.1, 1.0);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFrom(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testChooseMultiVariate_null_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
