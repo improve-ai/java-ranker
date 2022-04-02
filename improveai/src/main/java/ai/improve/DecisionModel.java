@@ -138,6 +138,7 @@ public class DecisionModel {
     /**
      * @deprecated  The callback method signature will likely have to change for multiple URLs
      * */
+    @Deprecated
     public void loadAsync(URL url, LoadListener listener) {
         int seq = getSeq();
         listeners.put(seq, new WeakReference<>(listener));
@@ -348,12 +349,41 @@ public class DecisionModel {
 
     /**
      * @param variants See chooseFrom()
+     * @return A Decision object which has the first variant as the best.
      */
     public Decision chooseFirst(List variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
         return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+    }
+
+    /**
+     * This is a short hand of chooseFirst().get().
+     * @param variants See chooseFrom().
+     *                 If only one argument, it must be a list and it will be the variants from which
+     *                 the first variant is picked.
+     * @return If multiple arguments is passed to first(), the first argument would be returned;
+     * If only one argument, then the fist member of it would be returned.
+     * @throws IllegalArgumentException Thrown if variants is null; Thrown if variants is empty;
+     * Thrown if the there's only one argument and it's not a non-empty list.
+     */
+    public Object first(Object... variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("first() expects at least one variant");
+        }
+
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseFirst((List)variants[0]).get();
+        }
+
+        return chooseFirst(Arrays.asList(variants)).get();
     }
 
     /**

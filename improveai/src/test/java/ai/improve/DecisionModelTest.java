@@ -734,11 +734,69 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseFrom_empty_variants() {
+    public void testChooseFirst_empty_variants() {
         List variants = new ArrayList();
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.chooseFirst(variants);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirst() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.first("hi", "hello", "hey");
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testFirst_empty() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.first();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirst_null() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.first(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirst_one_argument() {
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.first((Object) variants);
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testFirst_one_argument_empty_list() {
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.first((Object)variants);
+    }
+
+    @Test
+    public void testFirst_one_argument_not_list() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.first("hi");
         } catch (Exception e) {
             e.printStackTrace();
             return ;

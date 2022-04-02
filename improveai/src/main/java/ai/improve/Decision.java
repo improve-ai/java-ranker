@@ -45,7 +45,8 @@ public class Decision {
 
     /**
      * Get the chosen variant and track the decision. The decision would be tracked only once.
-     * @return Returns the chosen variant memoized.
+     * @return Returns the chosen variant memoized. When the variants contains null members, get()
+     * might return null.
      * @throws IllegalStateException Thrown if variants is null or empty.
      * */
     public synchronized Object get() {
