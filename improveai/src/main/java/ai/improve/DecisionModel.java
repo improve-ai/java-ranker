@@ -360,9 +360,7 @@ public class DecisionModel {
 
     /**
      * This is a short hand of chooseFirst().get().
-     * @param variants See chooseFrom().
-     *                 If only one argument, it must be a list and it will be the variants from which
-     *                 the first variant is picked.
+     * @param variants See chooseFrom(). If only one argument, it must be a non-empty list.
      * @return If multiple arguments is passed to first(), the first argument would be returned;
      * If only one argument, then the fist member of it would be returned.
      * @throws IllegalArgumentException Thrown if variants is null; Thrown if variants is empty;
@@ -396,6 +394,30 @@ public class DecisionModel {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
         return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+    }
+
+    /**
+     * A shorthand of chooseRandom(variants).get()
+     * @param variants See chooseFrom(). If only one argument, it must be a non-empty list. Expect
+     *                 at least one argument.
+     * @return A random variant.
+     * @throws IllegalArgumentException Thrown if variants is empty or null; Thrown if there's only
+     * one argument and it's not a non-empty list.
+     */
+    public Object random(Object...variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("random() expects at least one variant");
+        }
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseRandom((List)variants[0]).get();
+        }
+        return chooseRandom(Arrays.asList(variants)).get();
     }
 
     /**
