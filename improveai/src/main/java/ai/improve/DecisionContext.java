@@ -101,15 +101,17 @@ public class DecisionContext {
     public Object which(Object... variants) {
         if(variants == null || variants.length <= 0) {
             throw new IllegalArgumentException("should at least provide one variant.");
-        } else if(variants.length == 1) {
+        }
+
+        if(variants.length == 1) {
             if(variants[0] instanceof List) {
                 return chooseFrom((List)variants[0]).get();
             } else if(variants[0] instanceof Map) {
                 return chooseMultiVariate((Map)variants[0]).get();
             }
             throw new IllegalArgumentException("If only one argument, it must be a List or Map");
-        } else {
-            return chooseFrom(Arrays.asList(variants)).get();
         }
+
+        return chooseFrom(Arrays.asList(variants)).get();
     }
 }
