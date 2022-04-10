@@ -470,6 +470,60 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseFromVariantsAndScores() {
+        List variants = Arrays.asList("hi", "hello", "Hey");
+        List scores = Arrays.asList(0.1, 1.0, -0.1);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.chooseFrom(variants, scores);
+        assertEquals("hello", decision.best);
+        assertNull(decision.givens);
+        assertEquals(scores, decision.scores);
+        assertEquals(variants, decision.variants);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores_empty_variants() {
+        List variants = new ArrayList();
+        List scores = Arrays.asList(0.1, 1.0, -0.1);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFrom(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores_null_variants() {
+        List variants = null;
+        List scores = Arrays.asList(0.1, 1.0, -0.1);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFrom(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores_size_not_equal() {
+        List variants = Arrays.asList("hi", "hello", "Hey");
+        List scores = Arrays.asList(0.1, 1.0);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFrom(variants, scores);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testChooseMultiVariate_null_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
@@ -653,6 +707,225 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("theme");
         Object best = decisionModel.which(Arrays.asList(1, 2, 3), 2, 3, "hello");
         IMPLog.d(Tag, "best is " + best);
+    }
+
+    @Test
+    public void testChooseFirst() {
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.chooseFirst(variants);
+        assertEquals("hi", decision.best);
+        assertEquals(variants, decision.variants);
+        assertNull(decision.givens);
+        assertEquals(variants.size(), decision.scores.size());
+    }
+
+    @Test
+    public void testChooseFirst_null_variants() {
+        List variants = null;
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFirst(variants);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFirst_empty_variants() {
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFirst(variants);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirst() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.first("hi", "hello", "hey");
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testFirst_empty() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.first();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirst_null() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.first(null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirst_one_argument() {
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.first((Object) variants);
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testFirst_one_argument_empty_list() {
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.first((Object)variants);
+    }
+
+    @Test
+    public void testFirst_one_argument_not_list() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.first("hi");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseRandom() {
+        int loop = 10000;
+        Map<String, Integer> countMap = new HashMap<>();
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        for(int i = 0; i < loop; ++i) {
+            String variant = (String) decisionModel.chooseRandom(variants).get();
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+        IMPLog.d(Tag, "count: " + countMap);
+        assertEquals(loop/3, countMap.get("hello"), 100);
+        assertEquals(loop/3, countMap.get("hi"), 100);
+        assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testChooseRandom_empty_variants() {
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseRandom(variants);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseRandom_null_variants() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseRandom(null);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRandom() {
+        int loop = 10000;
+        Map<String, Integer> countMap = new HashMap<>();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        for(int i = 0; i < loop; ++i) {
+            String variant = (String) decisionModel.random("hi", "hello", "hey");
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+        IMPLog.d(Tag, "count: " + countMap);
+        assertEquals(loop/3, countMap.get("hello"), 100);
+        assertEquals(loop/3, countMap.get("hi"), 100);
+        assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testRandom_empty_variants() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.random();
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRandom_null_variants() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.random(null);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRandom_one_argument() {
+        int loop = 10000;
+        List variants = Arrays.asList("hi", "hello", "hey");
+        Map<String, Integer> countMap = new HashMap<>();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        for(int i = 0; i < loop; ++i) {
+            String variant = (String) decisionModel.random(variants);
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+        IMPLog.d(Tag, "count: " + countMap);
+        assertEquals(loop/3, countMap.get("hello"), 100);
+        assertEquals(loop/3, countMap.get("hi"), 100);
+        assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testRandom_one_argument_empty_list() {
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.random(variants);
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

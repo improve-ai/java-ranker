@@ -58,4 +58,12 @@ public class ModelUtils {
         Arrays.sort(scores, Collections.reverseOrder());
         return Arrays.asList(scores);
     }
+
+    public static List<Double> generateRandomGaussians(int count) {
+        Double[] scores = new Double[count];
+        for(int i = 0; i < count; ++i) {
+            scores[i] = randomGenerator.nextGaussian();
+        }
+        return Arrays.asList(scores);
+    }
 }

@@ -124,12 +124,21 @@ public class DecisionModel {
             throw downloadException[0];
         }
 
+        // It's a bit strange that in a release build of an Android app, the 'listener' seems
+        // to be recycled right after calling loadAsync() while I assume that it would survive until
+        // the method returns.
+        // The dummy code here is only meant to have 'listener' survive a bit longer.
+        if(listener != null) {
+            IMPLog.d(Tag, listener.toString());
+        }
+
         return this;
     }
 
     /**
      * @deprecated  The callback method signature will likely have to change for multiple URLs
      * */
+    @Deprecated
     public void loadAsync(URL url, LoadListener listener) {
         int seq = getSeq();
         listeners.put(seq, new WeakReference<>(listener));
@@ -273,6 +282,33 @@ public class DecisionModel {
     }
 
     /**
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                 booleans.
+     * @param scores Scores of the variants.
+     * @return A Decision object which has the variant with highest score as the best variant.
+     * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
+     * variants.size() != scores.size().
+     */
+    public Decision chooseFrom(List variants, List scores) {
+        if(variants == null || scores == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants and scores can't be null or empty");
+        }
+        if(variants.size() != scores.size()) {
+            throw new IllegalArgumentException("variants.size(" +
+                    variants.size() + ") not equal to scores.size(" +
+                    scores.size() + ")");
+        }
+        Object best = ModelUtils.topScoringVariant(variants, scores);
+        Decision decision = new Decision(this);
+        decision.variants = variants;
+        decision.best = best;
+        decision.givens = null;
+        decision.scores = scores;
+        return decision;
+    }
+
+    /**
      * This method is an alternative of chooseFrom(). An example here might be more expressive:
      * chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
      *       is equivalent to
@@ -312,8 +348,81 @@ public class DecisionModel {
     }
 
     /**
+     * @param variants See chooseFrom()
+     * @return A Decision object which has the first variant as the best.
+     */
+    public Decision chooseFirst(List variants) {
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+    }
+
+    /**
+     * This is a short hand of chooseFirst().get().
+     * @param variants See chooseFrom(). If only one argument, it must be a non-empty list.
+     * @return If multiple arguments is passed to first(), the first argument would be returned;
+     * If only one argument, then the fist member of it would be returned.
+     * @throws IllegalArgumentException Thrown if variants is null; Thrown if variants is empty;
+     * Thrown if the there's only one argument and it's not a non-empty list.
+     */
+    public Object first(Object... variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("first() expects at least one variant");
+        }
+
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseFirst((List)variants[0]).get();
+        }
+
+        return chooseFirst(Arrays.asList(variants)).get();
+    }
+
+    /**
+     * @param variants See chooseFrom()
+     * @return A Decision object containing a random variant as the decision.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public Decision chooseRandom(List variants) {
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+    }
+
+    /**
+     * A shorthand of chooseRandom(variants).get()
+     * @param variants See chooseFrom(). If only one argument, it must be a non-empty list. Expect
+     *                 at least one argument.
+     * @return A random variant.
+     * @throws IllegalArgumentException Thrown if variants is empty or null; Thrown if there's only
+     * one argument and it's not a non-empty list.
+     */
+    public Object random(Object...variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("random() expects at least one variant");
+        }
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseRandom((List)variants[0]).get();
+        }
+        return chooseRandom(Arrays.asList(variants)).get();
+    }
+
+    /**
      * @return an IMPDecision object
-     * */
+     */
     public DecisionContext given(Map<String, Object> givens) {
         return new DecisionContext(this, givens);
     }
