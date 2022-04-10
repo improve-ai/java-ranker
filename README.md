@@ -1,35 +1,42 @@
 # Improve AI for Android
 
-## AI Decisions in Java
-
-Lift revenue, performance, user retention, or any other metric with fast AI decisions. It's like an AI if/then statement.
+Improve AI provides quick on-device AI decisions that get smarter over time. It's like an AI *if/then* statement. Replace guesses in your app's configuration with AI decisions to increase your app's revenue, user retention, or any other metric automatically.
 
 ## Installation
 Include the dependency in your *app/build.gradle* file.
 ```gradle
 dependencies {
-    implementation 'ai.improve:improveai-android:7.0.0'
+    implementation 'ai.improve:improveai-android:7.0.2'
 }
 ```
 
-### Hello World (for Cowboys)!
+## Usage
 
-What is the best greeting?
+Improve AI makes quick on-device AI decisions that get smarter over time.
 
+The heart of Improve AI is the *which* statement. *which* is like an AI if/then statement.
 ```Java
-new DecisionModel("greeting").load(modelUrl)
-.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).given(Map.of("language", "cowboy")).get();
+greeting = DecisionModel.instances.get("greetings").which("Hello", "Howdy", "Hola");
 ```
 
-*greeting* should result in *Howdy World* assuming it performs best when *language* is *cowboy*.
+*which* makes decisions on-device using a *decision model*. Decision models are easily trained by assigning rewards for positive outcomes.
+
+```Java
+if (success) {
+    DecisionModel.instances.get("greetings").addReward(1.0);
+}
+```
+
+Rewards are credited to the most recent decision made by the model. *which* will make the decision that provides the highest expected reward.  When the rewards are business metrics, such as revenue or user retention, the decisions will optimize to automatically improve those metrics over time.
+
+*That's like A/B testing on steroids.*
 
 ### Numbers Too
 
 What discount should we offer?
 
 ```Java
-decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
-
+discount = decisionModel.which(0.1, 0.2, 0.3);
 ```
 
 ### Booleans
@@ -37,94 +44,123 @@ decisionModel.chooseFrom(Arrays.asList(0.1, 0.2, 0.3)).get();
 Dynamically enable feature flags for best performance...
 
 ```Java
-featureFlag = decisionModel.given(deviceAttributes).chooseFrom(Arrays.asList(true, false)).get()
+featureFlag = decisionModel.given(deviceAttributes).which(true, false)
 ```
 
 ### Complex Objects
 
 ```Java
-themeVariants = Arrays.asList(Map.of("textColor", "#000000", "backgroundColor", "#ffffff"),
-                Map.of("textColor", "#F0F0F0", "backgroundColor", "#aaaaaa"));
-theme = themeModel.chooseFrom(themeVariants).get();
+themeVariants = Arrays.asList(
+    Map.of("textColor", "#000000", "backgroundColor", "#ffffff"),
+    Map.of("textColor", "#F0F0F0", "backgroundColor", "#aaaaaa"));
+theme = themeModel.which(themeVariants);
 ```
+
+When a single Array argument is passed to which, it is treated as a list of variants.
 
 Improve learns to use the attributes of each key and value in a complex variant to make the optimal decision.
 
 Variants can be any JSON encodeable data structure of arbitrary complexity, including nested dictionaries, arrays, strings, numbers, nulls, and booleans.
 
+## Decisions are Contextual
+
+Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. On iOS, the following context is automatically included:
+
+- $country - two letter country code
+- $lang - two letter language code
+- $tz - numeric GMT offset
+- $carrier - cellular network
+- $device - string portion of device model
+- $devicev - device version
+- $os - string portion of OS name
+- $osv - OS version
+- $pixels - screen width x screen height
+- $app - app name
+- $appv - app version
+- $sdkv - Improve AI SDK version
+- $weekday - (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day
+- $time - fractional day since midnight
+- $runtime - fractional days since session start
+- $day - fractional days since born
+- $d - the number of decisions for this model
+- $r - total rewards for this model
+- $r/d - total rewards/decisions
+- $d/day - decisions/$day
+
+Using the context, on a Spanish speaker's device we expect our *greetings* model to learn to choose *Hola*.
+
+Custom context can also be provided via *given()*:
+
+```Java
+greeting = greetingsModel.given(Map.of("language", "cowboy")).which("Hello", "Howdy", "Hola");
+```
+
+Given the language is *cowboy*, the variant with the highest expected reward should be *Howdy* and the model would learn to make that choice.
+
 ## Decision Models
 
-A *Decision Model* contains the AI decision logic, analogous to a large number of *if/then* statements.  Decision models are continuously trained by the Improve AI Gym based on previous decisions, so they automatically improve over time.
+## Example: Optimizing an Upsell Offer
 
-Models are thread-safe and a single model can be used for multiple decisions.
+Improve AI is powerful and flexible.  Variants can be any JSON encodeable data structure including **strings**, **numbers**, **booleans**, **lists**, and **maps**.
 
-### Synchronous Model Loading
-
-```Java
-// Load model from https URLs
-product = new DecisionModel("clothing").load(modelUrl).chooseFrom(Arrays.asList("clutch", "dress", "jacket")).get();
-```
-
-Models can be loaded from the assets or from https URLs.
-
-### Asynchronous Model Loading
-
-Asynchronous model loading allows decisions to be made at any point, even before the model is loaded.  If the model isn't yet loaded or fails to load, the first variant will be returned as the decision.
+For a dungeon crawler game, say the user was purchasing an item using an In App Purchase.  We can use Improve AI to choose an additional product to display as an upsell offer during checkout. With a few lines of code, we can train a model that will learn to optimize the upsell offer given the original product being purchased.
 
 ```Java
-DecisionModel decisionModel = new DecisionModel("greetings");
-decisionModel.loadAsync(modelUrl, new DecisionModel.DecisionModelLoadListener() {
-    @Override
-    public void onLoad(DecisionModel decisionModel) {
-        // the model is ready to go
-        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
-    }
+product = Map.of("name", "red sword", "price", 4.99);
 
-    @Override
-    public void onError(IOException e) {
-    }
-});
-
-// It is very unlikely that the model will be loaded by the time this is called,
-// so "Hello World" would be returned and tracked as the decision
-greeting = model.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get()
+upsell = upsellModel.given(product).which(
+          Map.of("name", "gold", "quantity", 100, "price", 1.99),
+          Map.of("name", "diamonds", "quantity", 10, "price", 2.99),
+          Map.of("name", "red scabbard", "price", 0.99);
 ```
+The product to be purchased is the **red sword**.  Notice that the variants are maps with a mix of string and numeric values.
 
-## Tracking & Training Models
-
-The magic of Improve AI is it's learning process, whereby models continuously improve by training on past decisions. To accomplish this, decisions and events are tracked to your deployment of the Improve AI Gym.
-
-### Tracking Decisions
-
-Set a *DecisionTracker* on the *DecisionModel* to automatically track decisions and enable learning.  A single *DecisionTracker* instance can be shared by multiple models.
+The rewards in this case might be any additional revenue from the upsell.
 
 ```Java
-DecisionModel.setDefaultTrackURL(trackURL) // trackUrl is obtained from your Gym configuration
-
-// When a new DecisionModel instance is created, it's trackURL is set to DecisionModel.defaultTrackURL
-fontSize = new DecisionModel("fontSizes").load(modelUrl).chooseFrom(12, 16, 20).get()
+if (upsellPurchased) {
+    upsellModel.addReward(upsell.price);
+}
 ```
 
-The decision is lazily evaluated and then automatically tracked as being causal upon calling *get()*.
+While it is reasonable to hypothesize that the **red scabbord** might be the best upsell offer to pair with the **red sword**, it is still a guess. Any time a guess is made on the value of a variable, instead use Improve AI to decide.
 
-For this reason, wait to call *get()* until the decision will actually be used.
+*Replace guesses with AI decisions.*
 
-### Tracking Rewards
+## Example: Performance Tuning
 
-Events are the mechanism by which decisions are rewarded or penalized.  In most cases these will mirror the normal analytics events that your app tracks and can be integrated with any event tracking singletons in your app.
+In the 2000s I was writing a lot of video streaming code. The initial motivation for Improve AI came out of my frustrations with attempting to tune video streaming clients across heterogenious networks.
+
+I was forced to make guesses on performance sensitive configuration defaults through slow trial and error. My client configuration code maybe looked something like this:
 
 ```Java
-decisionModel.addReward(19.99)
+config = Map.of("bufferSize", 2048, "videoBitrate", 384000);
 ```
+
+This is the code I wish I could have written:
+
+```Java
+config = configModel.which(Map.of(
+      "bufferSize", [1024, 2048, 4096, 8192],
+      "videoBitrate", [256000, 384000, 512000]);
+```
+This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a dictionary mapping keys to lists of variants is provided to *which*. This multi-variate mode jointly optimizes both variables for the highest expected reward.  
+
+The rewards in this case might be negative to penalize any stalls during video playback.
+```Java
+if (videoStalled) {
+    configModel.addReward(-0.001);
+}
+```
+
+Improve AI frees us from having to overthink our configuration values during development. We simply give it some reasonable variants and let it learn from real world usage.
+
+Look for places where you're relying on guesses or an executive decision and consider instead directly optimizing for the outcomes you desire.
 
 ## Privacy
 
-It is strongly recommended to never include Personally Identifiable Information (PII) in variants, givens, or analytics events so that it is never tracked or persisted in your Improve Gym analytics records.
+It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is never tracked, persisted, or used as training data.
 
-## An Ask
+## Help Improve Our World
 
-Thank you so much for enjoying my labor of love. Please only use it to create things that are good, true, and beautiful. - Justin Chapweske
-
-## License
-
-Improve AI is copyright Mind Blown Apps, LLC. All rights reserved.  May not be used without a license.
+The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. - Justin Chapweske
