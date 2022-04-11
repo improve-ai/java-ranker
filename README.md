@@ -6,7 +6,7 @@ Improve AI provides quick on-device AI decisions that get smarter over time. It'
 Include the dependency in your *app/build.gradle* file.
 ```gradle
 dependencies {
-    implementation 'ai.improve:improveai-android:7.0.2'
+    implementation 'ai.improve:improveai-android:7.1.0'
 }
 ```
 
