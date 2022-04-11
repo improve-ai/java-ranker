@@ -127,6 +127,17 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testLoadAsync_no_callback() throws MalformedURLException {
+        URL url = new URL(ModelURL);
+        DecisionModel.instances.get("greetings").loadAsync(url);
+        try {
+            Thread.sleep(10 * 1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testLoadAsync() throws MalformedURLException, InterruptedException {
         Semaphore semaphore = new Semaphore(0);
         URL url = new URL(ModelURL);

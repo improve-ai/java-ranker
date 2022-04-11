@@ -23,6 +23,12 @@
 
         <activity android:name=".LeakTestActivity">
         </activity>
+
+
+        <meta-data
+            android:name="improve.ai.DefaultTrackURL"
+            android:value="https://d97zv0mo3g.execute-api.us-east-2.amazonaws.com/track" />
+
     </application>
 
 </manifest>

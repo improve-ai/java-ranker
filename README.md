@@ -10,6 +10,27 @@ dependencies {
 }
 ```
 
+## Initialization
+### Step 1: Add default track url to your AndroidManifest.xml file
+```
+// trackUrl is obtained from your Improve AI Gym configuration
+<meta-data
+    android:name="improve.ai.DefaultTrackURL"
+    android:value="https://improve.ai/track" />
+```
+
+### Step 2: Load the model
+```
+public class SampleApplication extends Application {
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        // greetingsModelUrl is a trained model output by the Improve AI Gym
+        DecisionModel.instances.get("greetings").loadAsync(greetingsModelUrl);
+    }
+}
+```
+
 ## Usage
 
 Improve AI makes quick on-device AI decisions that get smarter over time.

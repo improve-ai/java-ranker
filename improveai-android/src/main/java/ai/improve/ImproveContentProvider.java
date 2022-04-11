@@ -3,6 +3,8 @@ package ai.improve;
 import android.content.ContentProvider;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -37,6 +39,8 @@ public class ImproveContentProvider extends ContentProvider {
 
         IMPLog.setLogger(new Logger());
 
+        setTrackURL();
+
         DecisionModel.setDefaultGivensProvider(new AppGivensProvider(sContext));
 
         DecisionTracker.setPersistenceProvider(new AndroidPersistenceProvider(sContext));
@@ -52,6 +56,17 @@ public class ImproveContentProvider extends ContentProvider {
 
     public static long getSessionStartTime() {
         return sSessionStartTime;
+    }
+
+    private void setTrackURL() {
+        try {
+            String packageName = sContext.getPackageName();
+            ApplicationInfo info = sContext.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+            String defaultTrackURL = info.metaData.getString("improve.ai.DefaultTrackURL");
+            DecisionModel.setDefaultTrackURL(defaultTrackURL);
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
     }
 
     @Override

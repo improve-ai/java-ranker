@@ -1,14 +1,13 @@
 package ai.improve;
 
 import java.io.IOException;
-import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import ai.improve.downloader.ModelDownloader;
@@ -53,6 +52,8 @@ public class DecisionModel {
 
     public final static ModelMap instances = new ModelMap();
 
+    private Map<Integer, LoadListener> listeners = new ConcurrentHashMap<>();
+
     /**
      * It's an equivalent of DecisionModel(modelName, defaultTrackURL, defaultTrackApiKey)
      * We suggest to have the defaultTrackURL/defaultTrackApiKey set on startup before creating
@@ -82,14 +83,6 @@ public class DecisionModel {
 
         this.givensProvider = defaultGivensProvider;
     }
-
-    /**
-     * WeakReference is used here to avoid Android activity leaks.
-     * A sample activity "LeakTestActivity" is included in the sample project.
-     * If WeakReference is removed, leaks can be observed when jumping between
-     * "MainActivity" and "LeakTestActivity" many times while network speed is slow.
-     */
-    private Map<Integer, WeakReference<LoadListener>> listeners = new HashMap<>();
 
     public DecisionModel load(URL url) throws IOException {
         final IOException[] downloadException = {null};
@@ -124,46 +117,42 @@ public class DecisionModel {
             throw downloadException[0];
         }
 
-        // It's a bit strange that in a release build of an Android app, the 'listener' seems
-        // to be recycled right after calling loadAsync() while I assume that it would survive until
-        // the method returns.
-        // The dummy code here is only meant to have 'listener' survive a bit longer.
-        if(listener != null) {
-            IMPLog.d(Tag, listener.toString());
-        }
-
         return this;
     }
 
+    public void loadAsync(URL modelUrl) {
+        loadAsync(modelUrl, null);
+    }
+
     /**
+     * Notice that it's not recommended to call this method directly in an Android Activity as it
+     * may cause leaks. Before we add a cancel method to allow aborting downloading tasks, you may
+     * have to call loadAsync() in something like a Singleton class.
      * @deprecated  The callback method signature will likely have to change for multiple URLs
      * */
     @Deprecated
-    public void loadAsync(URL url, LoadListener listener) {
+    public void loadAsync(URL modelUrl, LoadListener listener) {
         int seq = getSeq();
-        listeners.put(seq, new WeakReference<>(listener));
-        ModelDownloader.download(url, new ModelDownloader.ModelDownloadListener() {
+        if(listener != null) {
+            listeners.put(seq, listener);
+        }
+        ModelDownloader.download(modelUrl, new ModelDownloader.ModelDownloadListener() {
             @Override
             public void onFinish(ImprovePredictor predictor, IOException e) {
-                LoadListener l = listeners.remove(seq).get();
-                if(l != null) {
-                    if(e != null) {
-                        l.onError(e);
-                        return ;
-                    }
-                    IMPLog.d(Tag, "loadAsync, finish loading model, " + url.toString());
-
-                    DecisionModel.this.setModel(predictor);
-
-                    l.onLoad(DecisionModel.this);
-                } else {
-                    // TODO Double check it later
-                    // When calling DecisionModel.load(url), the anonymous listener might be
-                    // released before the onFinish callback???
-                    // I have seen the log 'onFinish, but listener is null' before, but can't
-                    // reproduce it now.
-                    IMPLog.d(Tag, "onFinish, but listener is null");
+                LoadListener l = listeners.remove(seq);
+                if(l == null) {
+                    IMPLog.d(Tag, "loadAsync finish loading model, but listener is null, " + modelUrl.toString());
+                    return ;
                 }
+
+                if(e != null) {
+                    l.onError(e);
+                    return ;
+                }
+
+                DecisionModel.this.setModel(predictor);
+                IMPLog.d(Tag, "loadAsync, finish loading model, " + modelUrl.toString());
+                l.onLoad(DecisionModel.this);
             }
         });
     }
