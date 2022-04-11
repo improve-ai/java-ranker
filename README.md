@@ -13,10 +13,12 @@ dependencies {
 ## Initialization
 ### Step 1: Add default track url to your AndroidManifest.xml file
 ```
-// trackUrl is obtained from your Improve AI Gym configuration
-<meta-data
-    android:name="improve.ai.DefaultTrackURL"
-    android:value="https://improve.ai/track" />
+// The default track url is obtained from your Improve AI Gym configuration.
+<application>
+    <meta-data
+        android:name="improve.ai.DefaultTrackURL"
+        android:value="YOUR TRACK URL" />
+</application>
 ```
 
 ### Step 2: Load the model
