@@ -3,10 +3,20 @@
 Improve AI provides quick on-device AI decisions that get smarter over time. It's like an AI *if/then* statement. Replace guesses in your app's configuration with AI decisions to increase your app's revenue, user retention, or any other metric automatically.
 
 ## Installation
-Include the dependency in your *app/build.gradle* file.
+### Step 1: Add JitPack in your root build.gradle at the end of repositories
+```gradle
+allprojects {
+	repositories {
+		...
+		maven { url 'https://jitpack.io' }
+	}
+}
+```
+
+### Step 2: Add the dependency in your app/build.gradle file
 ```gradle
 dependencies {
-    implementation 'ai.improve:improveai-android:7.1.0'
+    implementation 'com.github.improve-ai:android-sdk:7.1.1'
 }
 ```
 
