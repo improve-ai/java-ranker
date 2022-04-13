@@ -10,5 +10,5 @@
 include 'improveai'
 include ':xxhash'
 rootProject.name = 'improveai-android-sdk'
-include ':sample'
+//include ':sample'
 include ':improveai-android'
