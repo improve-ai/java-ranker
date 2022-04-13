@@ -13,6 +13,7 @@ import ai.improve.android.AssetModelLoader;
 import ai.improve.android.Logger;
 import ai.improve.downloader.ModelDownloader;
 import ai.improve.log.IMPLog;
+import ai.improve.util.Utils;
 
 /**
  * ImproveContentProvider is declared in the AndroidManifest.xml.
@@ -23,6 +24,8 @@ import ai.improve.log.IMPLog;
  */
 public class ImproveContentProvider extends ContentProvider {
     public static final String Tag = "ImproveContentProvider";
+
+    private static final String METADATA_DEFAULT_TRACK_URL = "improve.ai.DefaultTrackURL";
 
     private static Context sContext;
 
@@ -59,14 +62,20 @@ public class ImproveContentProvider extends ContentProvider {
     }
 
     private void setTrackURL() {
+        String packageName = sContext.getPackageName();
+        ApplicationInfo info;
         try {
-            String packageName = sContext.getPackageName();
-            ApplicationInfo info = sContext.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
-            String defaultTrackURL = info.metaData.getString("improve.ai.DefaultTrackURL");
-            DecisionModel.setDefaultTrackURL(defaultTrackURL);
-        } catch (Throwable t) {
-            t.printStackTrace();
+            info = sContext.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+        } catch (PackageManager.NameNotFoundException e) {
+            // This should never happen
+            e.printStackTrace();
+            return ;
         }
+        String defaultTrackURL = info.metaData.getString(METADATA_DEFAULT_TRACK_URL);
+        if(!Utils.isValidURL(defaultTrackURL)) {
+            throw new RuntimeException("[" + defaultTrackURL + "], invalid track URL in metadata inside AndroidManifest.xml");
+        }
+        DecisionModel.setDefaultTrackURL(defaultTrackURL);
     }
 
     @Override
