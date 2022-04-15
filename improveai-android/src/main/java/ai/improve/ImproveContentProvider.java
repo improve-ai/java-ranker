@@ -7,6 +7,7 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
+import android.text.TextUtils;
 
 import ai.improve.android.AppGivensProvider;
 import ai.improve.android.AssetModelLoader;
@@ -72,7 +73,7 @@ public class ImproveContentProvider extends ContentProvider {
             return ;
         }
         String defaultTrackURL = info.metaData.getString(METADATA_DEFAULT_TRACK_URL);
-        if(!Utils.isValidURL(defaultTrackURL)) {
+        if(!TextUtils.isEmpty(defaultTrackURL) && !Utils.isValidURL(defaultTrackURL)) {
             throw new RuntimeException("[" + defaultTrackURL + "], invalid track URL in metadata inside AndroidManifest.xml");
         }
         DecisionModel.setDefaultTrackURL(defaultTrackURL);
