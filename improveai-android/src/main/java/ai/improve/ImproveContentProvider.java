@@ -25,7 +25,7 @@ import ai.improve.util.Utils;
 public class ImproveContentProvider extends ContentProvider {
     public static final String Tag = "ImproveContentProvider";
 
-    private static final String METADATA_DEFAULT_TRACK_URL = "improve.ai.DefaultTrackURL";
+    private static final String METADATA_DEFAULT_TRACK_URL = "ai.improve.DEFAULT_TRACK_URL";
 
     private static Context sContext;
 
@@ -42,7 +42,7 @@ public class ImproveContentProvider extends ContentProvider {
 
         IMPLog.setLogger(new Logger());
 
-        setTrackURL();
+        setDefaultTrackURL();
 
         DecisionModel.setDefaultGivensProvider(new AppGivensProvider(sContext));
 
@@ -61,7 +61,7 @@ public class ImproveContentProvider extends ContentProvider {
         return sSessionStartTime;
     }
 
-    private void setTrackURL() {
+    private void setDefaultTrackURL() {
         String packageName = sContext.getPackageName();
         ApplicationInfo info;
         try {

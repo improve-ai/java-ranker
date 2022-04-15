@@ -6,10 +6,10 @@ Improve AI provides quick on-device AI decisions that get smarter over time. It'
 ### Step 1: Add JitPack in your root build.gradle at the end of repositories
 ```gradle
 allprojects {
-	repositories {
-		...
-		maven { url 'https://jitpack.io' }
-	}
+    repositories {
+        ...
+        maven { url 'https://jitpack.io' }
+    }
 }
 ```
 
@@ -26,7 +26,7 @@ dependencies {
 // The default track url is obtained from your Improve AI Gym configuration.
 <application>
     <meta-data
-        android:name="improve.ai.DefaultTrackURL"
+        android:name="ai.improve.DEFAULT_TRACK_URL"
         android:value="YOUR TRACK URL" />
 </application>
 ```
