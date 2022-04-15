@@ -16,7 +16,7 @@ allprojects {
 ### Step 2: Add the dependency in your app/build.gradle file
 ```gradle
 dependencies {
-    implementation 'com.github.improve-ai:android-sdk:7.1.1'
+    implementation 'com.github.improve-ai:android-sdk:7.1.2'
 }
 ```
 
