@@ -43,5 +43,5 @@ allprojects {
 
 ext {
     pomGroupID = 'ai.improve'
-    sdkVersion = '7.1.1'
+    sdkVersion = '7.1.2'
 }
