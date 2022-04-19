@@ -154,7 +154,7 @@ public class DecisionModelTest {
         assertNull(decisionModel.getTracker());
     }
 
-    @org.junit.Test
+    @Test
     public void testSetTrackURL_Empty() {
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNotNull(decisionModel.getTrackURL());
@@ -169,7 +169,7 @@ public class DecisionModelTest {
         fail(DefaultFailMessage);
     }
 
-    @org.junit.Test
+    @Test
     public void testSetTrackURL_Valid() {
         DecisionModel decisionModel = new DecisionModel("hello", null, null);
         assertNull(decisionModel.getTrackURL());
@@ -789,7 +789,13 @@ public class DecisionModelTest {
     public void testFirst_one_argument_empty_list() {
         List variants = new ArrayList();
         DecisionModel decisionModel = new DecisionModel("greetings");
-        decisionModel.first((Object)variants);
+        try {
+            decisionModel.first((Object) variants);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

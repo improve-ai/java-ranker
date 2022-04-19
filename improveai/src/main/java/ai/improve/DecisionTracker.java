@@ -20,7 +20,7 @@ class DecisionTracker {
 
     private static final String TYPE_KEY = "type";
     private static final String DECISION_TYPE = "decision";
-    private static final String REWARD_TYPE = "decision";
+    private static final String REWARD_TYPE = "reward";
 
     private static final String MODEL_KEY = "model";
     public static final String DECISION_BEST_KEY = "variant";
@@ -218,16 +218,21 @@ class DecisionTracker {
             return ;
         }
 
+        Map<String, Object> body = getAddDecisionRewardRequestBody(ksuid, modelName, decisionId, reward);
+
+        postTrackingRequest(body);
+
+        persistenceProvider.addRewardForModel(modelName, reward);
+    }
+
+    protected Map getAddDecisionRewardRequestBody(String ksuid, String modelName, String decisionId, double reward) {
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, REWARD_TYPE);
         body.put(MODEL_KEY, modelName);
         body.put(DECISION_ID_KEY, decisionId);
         body.put(MESSAGE_ID_KEY, ksuid);
         body.put(REWARD_KEY, reward);
-
-        postTrackingRequest(body);
-
-        persistenceProvider.addRewardForModel(modelName, reward);
+        return body;
     }
 
     private void postTrackingRequest(Map<String, Object> body) {

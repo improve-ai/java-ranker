@@ -471,4 +471,16 @@ public class DecisionTrackerTest {
         tracker.setMaxRunnersUp(-1);
         assertEquals(0, tracker.getMaxRunnersUp());
     }
+
+    @Test
+    public void testGetAddDecisionRewardRequestBody() {
+        DecisionTracker tracker = newTracker();
+        Map body = tracker.getAddDecisionRewardRequestBody("2804iPUt9cAOGCBLypnS9XBX2xx", "greetings", "2804iPUt9cAOGCBLypnS9XBX2bk", 0.1);
+        assertEquals(5, body.size());
+        assertEquals("reward", body.get("type"));
+        assertEquals("greetings", body.get("model"));
+        assertEquals("2804iPUt9cAOGCBLypnS9XBX2xx", body.get("message_id"));
+        assertEquals("2804iPUt9cAOGCBLypnS9XBX2bk", body.get("decision_id"));
+        assertEquals(0.1, (double)body.get("reward"), 0.0000001);
+    }
 }
