@@ -38,7 +38,7 @@ public class SampleApplication extends Application {
     public void onCreate() {
         super.onCreate();
         // greetingsModelUrl is a trained model output by the Improve AI Gym
-        DecisionModel.instances.get("greetings").loadAsync(greetingsModelUrl);
+        DecisionModel.get("greetings").loadAsync(greetingsModelUrl);
     }
 }
 ```
@@ -49,14 +49,14 @@ Improve AI makes quick on-device AI decisions that get smarter over time.
 
 The heart of Improve AI is the *which* statement. *which* is like an AI if/then statement.
 ```Java
-greeting = DecisionModel.instances.get("greetings").which("Hello", "Howdy", "Hola");
+greeting = DecisionModel.get("greetings").which("Hello", "Howdy", "Hola");
 ```
 
 *which* makes decisions on-device using a *decision model*. Decision models are easily trained by assigning rewards for positive outcomes.
 
 ```Java
 if (success) {
-    DecisionModel.instances.get("greetings").addReward(1.0);
+    DecisionModel.get("greetings").addReward(1.0);
 }
 ```
 
