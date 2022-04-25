@@ -50,7 +50,7 @@ public class DecisionModel {
     // Currently only set on Android; null on other platform
     private static GivensProvider defaultGivensProvider;
 
-    public final static ModelMap instances = new ModelMap();
+    private final static ModelMap instances = new ModelMap();
 
     private Map<Integer, LoadListener> listeners = new ConcurrentHashMap<>();
 
@@ -82,6 +82,14 @@ public class DecisionModel {
         setTrackURL(trackURL);
 
         this.givensProvider = defaultGivensProvider;
+    }
+
+    public static DecisionModel get(String modelName) {
+        return instances.get(modelName);
+    }
+
+    public static void put(String modelName, DecisionModel decisionModel) {
+        instances.put(modelName, decisionModel);
     }
 
     public DecisionModel load(URL url) throws IOException {
@@ -567,5 +575,13 @@ public class DecisionModel {
 
     private boolean isValidModelName(String modelName) {
         return modelName != null && modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
+    }
+
+    protected static void clearInstances() {
+        instances.clear();
+    }
+
+    protected static int sizeOfInstances() {
+        return instances.size();
     }
 }

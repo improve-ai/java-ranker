@@ -161,7 +161,7 @@ public class AppGivensProvider implements GivensProvider {
     }
 
     private double getOsVersion() {
-        return AppGivensProviderUtils.versionToInt(Build.VERSION.RELEASE);
+        return AppGivensProviderUtils.versionToNumber(Build.VERSION.RELEASE);
     }
 
     private String getDevice() {
@@ -198,7 +198,7 @@ public class AppGivensProvider implements GivensProvider {
         PackageInfo packageInfo;
         try {
             packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
-            return AppGivensProviderUtils.versionToInt(packageInfo.versionName);
+            return AppGivensProviderUtils.versionToNumber(packageInfo.versionName);
         } catch (Exception e) {
         }
         return 0;
@@ -206,7 +206,7 @@ public class AppGivensProvider implements GivensProvider {
 
     private double getImproveVersion() {
         String version = BuildProperties.getSDKVersion();
-        return AppGivensProviderUtils.versionToInt(version);
+        return AppGivensProviderUtils.versionToNumber(version);
     }
 
     private int getScreenPixels(Context context) {

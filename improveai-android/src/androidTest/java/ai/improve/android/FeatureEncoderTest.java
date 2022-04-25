@@ -236,7 +236,7 @@ public class FeatureEncoderTest {
     @Test
     public void testEncodeMultipleVariants() throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open("multiple_variants.json");
+        InputStream inputStream = appContext.getAssets().open("feature_encoder_test_suite/multiple_variants.json");
         byte[] buffer = new byte[inputStream.available()];
         inputStream.read(buffer);
         inputStream.close();

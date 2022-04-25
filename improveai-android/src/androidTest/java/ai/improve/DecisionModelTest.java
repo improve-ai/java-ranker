@@ -53,7 +53,6 @@ public class DecisionModelTest {
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        DecisionModel.setDefaultTrackURL(Track_URL);
     }
 
 //
@@ -129,7 +128,7 @@ public class DecisionModelTest {
     @Test
     public void testLoadAsync_no_callback() throws MalformedURLException {
         URL url = new URL(ModelURL);
-        DecisionModel.instances.get("greetings").loadAsync(url);
+        DecisionModel.get("greetings").loadAsync(url);
         try {
             Thread.sleep(10 * 1000);
         } catch (InterruptedException e) {

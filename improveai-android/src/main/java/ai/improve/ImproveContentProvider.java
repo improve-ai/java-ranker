@@ -72,11 +72,13 @@ public class ImproveContentProvider extends ContentProvider {
             e.printStackTrace();
             return ;
         }
-        String defaultTrackURL = info.metaData.getString(METADATA_DEFAULT_TRACK_URL);
-        if(!TextUtils.isEmpty(defaultTrackURL) && !Utils.isValidURL(defaultTrackURL)) {
-            throw new RuntimeException("[" + defaultTrackURL + "], invalid track URL in metadata inside AndroidManifest.xml");
+        if(info.metaData != null) {
+            String defaultTrackURL = info.metaData.getString(METADATA_DEFAULT_TRACK_URL);
+            if (!TextUtils.isEmpty(defaultTrackURL) && !Utils.isValidURL(defaultTrackURL)) {
+                throw new RuntimeException("[" + defaultTrackURL + "], invalid track URL in metadata inside AndroidManifest.xml");
+            }
+            DecisionModel.setDefaultTrackURL(defaultTrackURL);
         }
-        DecisionModel.setDefaultTrackURL(defaultTrackURL);
     }
 
     @Override

@@ -45,11 +45,11 @@ public class ModelMap {
         }
     }
 
-    protected void clear() {
+    public void clear() {
         models.clear();
     }
 
-    protected int size() {
+    public int size() {
         return models.size();
     }
 }

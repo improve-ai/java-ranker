@@ -8,6 +8,10 @@
     <application
         android:usesCleartextTraffic="true">
 
+        <meta-data
+            android:name="ai.improve.DEFAULT_TRACK_URL"
+            android:value="https://gh8hd0ee47.execute-api.us-east-1.amazonaws.com/track" />
+
     </application>
 
 </manifest>

@@ -5,6 +5,8 @@ import android.content.Context;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.platform.app.InstrumentationRegistry;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -88,5 +90,13 @@ public class AppGivensProviderTest {
         assertEquals(oldTotalRewardsOfModel+0.1, newTotalRewardsOfModel, 0.0000000001);
         IMPLog.d(Tag, "old reward: " + oldTotalRewardsOfModel +
                 ", new reward: " + newTotalRewardsOfModel);
+    }
+
+    @Test
+    public void testVersion_string_length() throws JSONException {
+        double v = AppGivensProviderUtils.versionToNumber("7.1.2");
+        JSONObject root = new JSONObject();
+        root.put("v", v);
+        assertEquals("{\"v\":7.001002}", root.toString());
     }
 }

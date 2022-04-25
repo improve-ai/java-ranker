@@ -103,16 +103,17 @@ public class AppGivensProviderUtils {
     /**
      * @return 0, if version string is null or empty
      * */
-    public static double versionToInt(String versionString) {
+    public static double versionToNumber(String versionString) {
         if(TextUtils.isEmpty(versionString)) {
             return 0;
         }
 
+        double version = 0;
         String[] versionArray = versionString.split("\\.");
         if(versionArray.length == 1) {
             try {
                 int major = Integer.parseInt(versionArray[0]);
-                return major;
+                version = major;
             } catch (Throwable t){
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }
@@ -120,7 +121,7 @@ public class AppGivensProviderUtils {
             try {
                 int major = Integer.parseInt(versionArray[0]);
                 int minor = Integer.parseInt(versionArray[1]);
-                return major + minor/1000.0;
+                version = major + minor/1000.0;
             } catch (Throwable t) {
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }
@@ -129,12 +130,13 @@ public class AppGivensProviderUtils {
                 int major = Integer.parseInt(versionArray[0]);
                 int minor = Integer.parseInt(versionArray[1]);
                 int build = Integer.parseInt(versionArray[2]);
-                return major + minor/1000.0 + build/1000000.0;
+                version = major + minor/1000.0 + build/1000000.0;
             } catch (Throwable t) {
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }
         }
-        return 0;
+        return Double.parseDouble(String.format("%.6f", version));
+//        return version;
     }
 
     public static void addRewardForModel(String modelName, double reward) {
