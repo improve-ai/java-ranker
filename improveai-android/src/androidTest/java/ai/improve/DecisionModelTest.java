@@ -644,4 +644,16 @@ public class DecisionModelTest {
             }
         }
     }
+
+    @Test
+    public void testArrayEncodingWarning() throws IOException {
+        List variants = Arrays.asList(
+                Arrays.asList(1, 2, 3),
+                Arrays.asList(4, 5, 6));
+        URL modelUrl = new URL("file:///android_asset/a_z_model/model.xgb");
+        DecisionModel decisionModel = new DecisionModel("a-z");
+        decisionModel.load(modelUrl);
+        decisionModel.chooseFrom(variants).get();
+        decisionModel.chooseFrom(variants).get();
+    }
 }

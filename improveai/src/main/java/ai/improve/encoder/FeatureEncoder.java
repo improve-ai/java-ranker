@@ -22,6 +22,8 @@ public class FeatureEncoder {
 
     private long givensSeed;
 
+    private boolean warningOnceArrayEncoding = false;
+
     public FeatureEncoder(long modelSeed, List<String> featureNames) {
         variantSeed = xxhash3("variant".getBytes(), modelSeed);
         valueSeed = xxhash3("$value".getBytes(), variantSeed);//$value
@@ -134,6 +136,10 @@ public class FeatureEncoder {
                 encodeInternal(entry.getValue(), newSeed, noise, features);
             }
         } else if (node instanceof List) {
+            if(!warningOnceArrayEncoding) {
+                warningOnceArrayEncoding = true;
+                IMPLog.w(Tag, "Array encoding may change in the near future.");
+            }
             List list = (List)node;
             for (int i = 0; i < list.size(); ++i) {
                 byte[] bytes = longToByteArray(i);
