@@ -43,12 +43,19 @@ public class DecisionContext {
     }
 
     /**
+     * @see ai.improve.DecisionModel#chooseFrom(List)
+     */
+    public Decision chooseFirst(List variants) {
+        Decision decision = decisionModel.chooseFirst(variants);
+        decision.givens = decisionModel.combinedGivens(givens);;
+        return decision;
+    }
+
+    /**
      * @see ai.improve.DecisionModel#chooseMultiVariate(Map)
      */
     public Decision chooseMultiVariate(Map<String, ?> variants) {
         if(variants == null || variants.size() <= 0) {
-            // Let it pass here.
-            // Exception would be thrown later when calling get()
             return chooseFrom(null);
         }
 

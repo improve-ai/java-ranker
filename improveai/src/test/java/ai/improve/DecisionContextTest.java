@@ -64,6 +64,38 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testChooseFirst() {
+        Map givens = new HashMap();
+        givens.put("lang", "en");
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.given(givens).chooseFirst(variants);
+        assertEquals(givens, decision.givens);
+        assertEquals("hi", decision.get());
+    }
+
+    @Test
+    public void testChooseFirst_null_variants() {
+        Map givens = new HashMap();
+        givens.put("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.given(givens).chooseFirst(null);
+        assertEquals(givens, decision.givens);
+        assertEquals("hi", decision.get());
+    }
+
+    @Test
+    public void testChooseFirst_empty_variants() {
+        Map givens = new HashMap();
+        givens.put("lang", "en");
+        List variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.given(givens).chooseFirst(variants);
+        assertEquals(givens, decision.givens);
+        assertEquals("hi", decision.get());
+    }
+
+    @Test
     public void testChooseMultiVariate() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
