@@ -47,21 +47,8 @@ task javaSourcesJar(type: Jar) {
     reproducibleFileOrder = true
 }
 
-//Properties localProperties = new Properties()
-//localProperties.load(project.rootProject.file('local.properties').newDataInputStream())
-
 afterEvaluate {
     publishing {
-//        repositories {
-//            maven {
-//                name = "GitHubPackages"
-//                url = uri("https://maven.pkg.github.com/improve-ai/android-sdk")
-//                credentials {
-//                    username = localProperties.getProperty("gpr.user")
-//                    password = localProperties.getProperty("gpr.key")
-//                }
-//            }
-//        }
         publications {
             // Creates a Maven publication called 'library'.
             release(MavenPublication) {
