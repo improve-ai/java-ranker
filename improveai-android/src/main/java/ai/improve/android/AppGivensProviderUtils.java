@@ -135,8 +135,7 @@ public class AppGivensProviderUtils {
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }
         }
-        return Double.parseDouble(String.format("%.6f", version));
-//        return version;
+        return Math.round(version * 1000000) / 1000000.0;
     }
 
     public static void addRewardForModel(String modelName, double reward) {
@@ -156,7 +155,7 @@ public class AppGivensProviderUtils {
 
     public static double roundedRewardOfModel(String modelName) {
         double reward = rewardOfModel(modelName);
-        return Math.round(reward * 100000) / 1000000.0;
+        return Math.round(reward * 1000000) / 1000000.0;
     }
 
     public static double rewardsPerDecision(String modelName) {
