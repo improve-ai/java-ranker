@@ -359,10 +359,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
     public Decision chooseRandom(List variants) {
-        if(variants == null || variants.size() <= 0) {
-            throw new IllegalArgumentException("variants can't be null or empty");
-        }
-        return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+        return given(null).chooseRandom(variants);
     }
 
     /**

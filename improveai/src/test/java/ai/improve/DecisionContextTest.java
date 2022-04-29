@@ -19,6 +19,8 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 public class DecisionContextTest {
+    public static final String Tag = "DecisionContextTest";
+
     @BeforeAll
     public static void setUp() {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
@@ -194,6 +196,51 @@ public class DecisionContextTest {
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.given(givens).first(new ArrayList());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseRandom() {
+        int loop = 10000;
+        Map<String, Integer> countMap = new HashMap<>();
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        for(int i = 0; i < loop; ++i) {
+            String variant = (String) decisionModel.given(null).chooseRandom(variants).get();
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+        IMPLog.d(Tag, "count: " + countMap);
+        assertEquals(loop/3, countMap.get("hello"), 100);
+        assertEquals(loop/3, countMap.get("hi"), 100);
+        assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testChooseRandom_null_variants() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(null).chooseRandom(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseRandom_empty_variants() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(null).chooseRandom(new ArrayList());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;

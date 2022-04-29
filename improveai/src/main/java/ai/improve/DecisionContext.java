@@ -96,6 +96,16 @@ public class DecisionContext {
     }
 
     /**
+     * @see ai.improve.DecisionModel#chooseRandom(List)
+     */
+    public Decision chooseRandom(List variants) {
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+    }
+
+    /**
      * @see ai.improve.DecisionModel#chooseMultiVariate(Map)
      */
     public Decision chooseMultiVariate(Map<String, ?> variants) {
