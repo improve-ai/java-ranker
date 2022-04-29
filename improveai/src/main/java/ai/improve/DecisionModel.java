@@ -345,26 +345,12 @@ public class DecisionModel {
      * This is a short hand of chooseFirst().get().
      * @param variants See chooseFrom(). If only one argument, it must be a non-empty list.
      * @return If multiple arguments is passed to first(), the first argument would be returned;
-     * If only one argument, then the fist member of it would be returned.
+     * If only one argument(a non-empty list), then the fist member of it would be returned.
      * @throws IllegalArgumentException Thrown if variants is null; Thrown if variants is empty;
      * Thrown if the there's only one argument and it's not a non-empty list.
      */
     public Object first(Object... variants) {
-        if(variants == null) {
-            throw new IllegalArgumentException("variants can't be null");
-        }
-        if(variants.length <= 0) {
-            throw new IllegalArgumentException("first() expects at least one variant");
-        }
-
-        if(variants.length == 1) {
-            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
-                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
-            }
-            return chooseFirst((List)variants[0]).get();
-        }
-
-        return chooseFirst(Arrays.asList(variants)).get();
+        return given(null).first(variants);
     }
 
     /**

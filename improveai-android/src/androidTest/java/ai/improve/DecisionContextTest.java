@@ -46,6 +46,15 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testFirst() {
+        Map givens = new HashMap();
+        givens.put("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.given(givens).first("hi", "hello", "hey");
+        assertEquals("hi", first);
+    }
+
+    @Test
     public void testChooseFromVaiantsAndScores() {
         Map givens = new HashMap();
         givens.put("lang", "en");

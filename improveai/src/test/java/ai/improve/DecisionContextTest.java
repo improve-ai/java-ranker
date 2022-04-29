@@ -122,7 +122,6 @@ public class DecisionContextTest {
         fail(DefaultFailMessage);
     }
 
-
     @Test
     public void testChooseFirst() {
         Map givens = Map.of("lang", "en");
@@ -161,13 +160,54 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testFirst() {
+        Map givens = Map.of("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.given(givens).first("hi", "hello", "hey");
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testFirst_one_argument() {
+        Map givens = Map.of("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.given(givens).first(Arrays.asList("hi", "hello", "hey"));
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testFirst_empty() {
+        Map givens = Map.of("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(givens).first();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirst_empty_list() {
+        Map givens = Map.of("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(givens).first(new ArrayList());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testChooseMultiVariate() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
         variants.put("color", Arrays.asList("#000000", "#ffffff"));
         DecisionModel decisionModel = new DecisionModel("theme");
-        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
-        decisionContext.chooseMultiVariate(variants);
+        decisionModel.given(null).chooseMultiVariate(variants);
     }
 
     @Test

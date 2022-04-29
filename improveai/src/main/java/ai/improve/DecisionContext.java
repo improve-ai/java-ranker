@@ -68,9 +68,31 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#chooseFrom(List)
      */
     public Decision chooseFirst(List variants) {
-        Decision decision = decisionModel.chooseFirst(variants);
-        decision.givens = decisionModel.combinedGivens(givens);;
-        return decision;
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#first(Object...)
+     */
+    public Object first(Object... variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("first() expects at least one variant");
+        }
+
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseFirst((List)variants[0]).get();
+        }
+
+        return chooseFirst(Arrays.asList(variants)).get();
     }
 
     /**
