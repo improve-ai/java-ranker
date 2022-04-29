@@ -275,7 +275,7 @@ public class DecisionModel {
      * @return an IMPDecision object.
      * */
     public <T> Decision chooseFrom(List<T> variants) {
-        return new DecisionContext(this, null).chooseFrom(variants);
+        return given(null).chooseFrom(variants);
     }
 
     /**
@@ -288,21 +288,7 @@ public class DecisionModel {
      * variants.size() != scores.size().
      */
     public Decision chooseFrom(List variants, List scores) {
-        if(variants == null || scores == null || variants.size() <= 0) {
-            throw new IllegalArgumentException("variants and scores can't be null or empty");
-        }
-        if(variants.size() != scores.size()) {
-            throw new IllegalArgumentException("variants.size(" +
-                    variants.size() + ") not equal to scores.size(" +
-                    scores.size() + ")");
-        }
-        Object best = ModelUtils.topScoringVariant(variants, scores);
-        Decision decision = new Decision(this);
-        decision.variants = variants;
-        decision.best = best;
-        decision.givens = null;
-        decision.scores = scores;
-        return decision;
+        return given(null).chooseFrom(variants, scores);
     }
 
     /**

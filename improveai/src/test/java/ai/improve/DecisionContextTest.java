@@ -29,6 +29,10 @@ public class DecisionContextTest {
         return Arrays.asList("Hello", "Hi", "Hey");
     }
 
+    private Map givens() {
+        return Map.of("lang", "en");
+    }
+
     @Test
     public void testChooseFrom() {
         DecisionModel decisionModel = new DecisionModel("greetings");
@@ -64,9 +68,64 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testChooseFromVaiantsAndScores() {
+        Map givens = Map.of("lang", "en");
+        List variants = Arrays.asList("hi", "hello", "hey");
+        List scores = Arrays.asList(0.05, 0.1, 0.08);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.given(givens).chooseFrom(variants, scores);
+        assertEquals("hello", decision.best);
+        assertEquals(1, decision.givens.size());
+        assertEquals("en", decision.givens.get("lang"));
+    }
+
+    @Test
+    public void testChooseFromVaiantsAndScores_null_variants() {
+        Map givens = Map.of("lang", "en");
+        List scores = Arrays.asList(1, 2, 3);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(givens).chooseFrom(null, scores);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVaiantsAndScores_empty_variants() {
+        Map givens = Map.of("lang", "en");
+        List scores = Arrays.asList(1, 2, 3);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(givens()).chooseFrom(null, scores);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVaiantsAndScores_invalid_size() {
+        Map givens = Map.of("lang", "en");
+        List variants = Arrays.asList("hi", "hello", "hey");
+        List scores = Arrays.asList(0.05, 0.1, 0.08, 0.09);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(givens).chooseFrom(variants, scores);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+
+    @Test
     public void testChooseFirst() {
-        Map givens = new HashMap();
-        givens.put("lang", "en");
+        Map givens = Map.of("lang", "en");
         List variants = Arrays.asList("hi", "hello", "hey");
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision decision = decisionModel.given(givens).chooseFirst(variants);
@@ -76,23 +135,29 @@ public class DecisionContextTest {
 
     @Test
     public void testChooseFirst_null_variants() {
-        Map givens = new HashMap();
-        givens.put("lang", "en");
+        Map givens = Map.of("lang", "en");
         DecisionModel decisionModel = new DecisionModel("greetings");
-        Decision decision = decisionModel.given(givens).chooseFirst(null);
-        assertEquals(givens, decision.givens);
-        assertEquals("hi", decision.get());
+        try {
+            decisionModel.given(givens).chooseFirst(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test
     public void testChooseFirst_empty_variants() {
-        Map givens = new HashMap();
-        givens.put("lang", "en");
+        Map givens = Map.of("lang", "en");
         List variants = new ArrayList();
         DecisionModel decisionModel = new DecisionModel("greetings");
-        Decision decision = decisionModel.given(givens).chooseFirst(variants);
-        assertEquals(givens, decision.givens);
-        assertEquals("hi", decision.get());
+        try {
+            decisionModel.given(givens).chooseFirst(variants);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

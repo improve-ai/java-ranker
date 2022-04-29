@@ -44,4 +44,17 @@ public class DecisionContextTest {
         assertEquals(21, decision.givens.size());
         assertEquals("hi", decision.get());
     }
+
+    @Test
+    public void testChooseFromVaiantsAndScores() {
+        Map givens = new HashMap();
+        givens.put("lang", "en");
+        List variants = Arrays.asList("hi", "hello", "hey");
+        List scores = Arrays.asList(0.05, 0.1, 0.08);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.given(givens).chooseFrom(variants, scores);
+        assertEquals("hello", decision.best);
+        assertEquals(21, decision.givens.size());
+        assertEquals("en", decision.givens.get("lang"));
+    }
 }

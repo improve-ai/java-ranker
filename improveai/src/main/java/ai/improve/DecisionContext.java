@@ -28,9 +28,7 @@ public class DecisionContext {
         }
 
         Map allGivens = decisionModel.combinedGivens(givens);
-
         List scores = decisionModel.scoreInternal(variants, allGivens);
-
         Object best = ModelUtils.topScoringVariant(variants, scores);
 
         Decision decision = new Decision(decisionModel);
@@ -39,6 +37,30 @@ public class DecisionContext {
         decision.givens = allGivens;
         decision.scores = scores;
 
+        return decision;
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#chooseFrom(List, List)
+     */
+    public Decision chooseFrom(List variants, List scores) {
+        if(variants == null || scores == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants and scores can't be null or empty");
+        }
+        if(variants.size() != scores.size()) {
+            throw new IllegalArgumentException("variants.size(" +
+                    variants.size() + ") not equal to scores.size(" +
+                    scores.size() + ")");
+        }
+
+        Map allGivens = decisionModel.combinedGivens(givens);
+
+        Object best = ModelUtils.topScoringVariant(variants, scores);
+        Decision decision = new Decision(decisionModel);
+        decision.variants = variants;
+        decision.best = best;
+        decision.givens = allGivens;
+        decision.scores = scores;
         return decision;
     }
 
