@@ -106,6 +106,25 @@ public class DecisionContext {
     }
 
     /**
+     * @see ai.improve.DecisionModel#random(Object...)
+     */
+    public Object random(Object... variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("random() expects at least one variant");
+        }
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseRandom((List)variants[0]).get();
+        }
+        return chooseRandom(Arrays.asList(variants)).get();
+    }
+
+    /**
      * @see ai.improve.DecisionModel#chooseMultiVariate(Map)
      */
     public Decision chooseMultiVariate(Map<String, ?> variants) {

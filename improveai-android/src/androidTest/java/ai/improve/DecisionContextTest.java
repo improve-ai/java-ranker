@@ -55,6 +55,26 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testChooseRandom() {
+        Map givens = new HashMap();
+        givens.put("lang", "en");
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision decision = decisionModel.given(givens).chooseFirst(variants);
+        assertEquals("en", decision.givens.get("lang"));
+        assertEquals(21, decision.givens.size());
+    }
+
+    @Test
+    public void testRandom() {
+        Map givens = new HashMap();
+        givens.put("lang", "en");
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.given(givens).random(variants);
+    }
+
+    @Test
     public void testChooseFromVaiantsAndScores() {
         Map givens = new HashMap();
         givens.put("lang", "en");

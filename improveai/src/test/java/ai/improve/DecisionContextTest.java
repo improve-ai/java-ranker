@@ -249,6 +249,61 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testRandom() {
+        int loop = 10000;
+        Map<String, Integer> countMap = new HashMap<>();
+        List variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        for(int i = 0; i < loop; ++i) {
+            String variant = (String) decisionModel.given(null).random(variants);
+            if(countMap.containsKey(variant)) {
+                countMap.put(variant, countMap.get(variant) + 1);
+            } else {
+                countMap.put(variant, 1);
+            }
+        }
+        IMPLog.d(Tag, "count: " + countMap);
+        assertEquals(loop/3, countMap.get("hello"), 100);
+        assertEquals(loop/3, countMap.get("hi"), 100);
+        assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testRandom_one_argument() {
+        Map givens = Map.of("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.given(givens).first(Arrays.asList("hi", "hello", "hey"));
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testRandom_no_arguments() {
+        Map givens = Map.of("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(givens).random();
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRandom_empty_list() {
+        Map givens = Map.of("lang", "en");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.given(givens).random(new ArrayList());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testChooseMultiVariate() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
