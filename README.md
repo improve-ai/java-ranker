@@ -97,7 +97,7 @@ Variants can be any JSON encodeable data structure of arbitrary complexity, incl
 
 ## Decisions are Contextual
 
-Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. On iOS, the following context is automatically included:
+Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. On Android, the following context is automatically included:
 
 - $country - two letter country code
 - $lang - two letter language code
