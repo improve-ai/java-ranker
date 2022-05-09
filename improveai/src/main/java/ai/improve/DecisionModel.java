@@ -149,18 +149,22 @@ public class DecisionModel {
             public void onFinish(ImprovePredictor predictor, IOException e) {
                 LoadListener l = listeners.remove(seq);
                 if(l == null) {
+                    // Don't return here, just give a warning here.
                     IMPLog.d(Tag, "loadAsync finish loading model, but listener is null, " + modelUrl.toString());
-                    return ;
                 }
 
                 if(e != null) {
-                    l.onError(e);
-                    return ;
-                }
+                    if(l != null) {
+                        l.onError(e);
+                    }
+                } else {
+                    DecisionModel.this.setModel(predictor);
 
-                DecisionModel.this.setModel(predictor);
-                IMPLog.d(Tag, "loadAsync, finish loading model, " + modelUrl.toString());
-                l.onLoad(DecisionModel.this);
+                    IMPLog.d(Tag, "loadAsync, finish loading model, " + modelUrl.toString());
+                    if (l != null) {
+                        l.onLoad(DecisionModel.this);
+                    }
+                }
             }
         });
     }
