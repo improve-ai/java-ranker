@@ -252,7 +252,7 @@ public class DecisionModel {
                 predictor.getModelMetadata().getModelFeatureNames());
     }
 
-    public ImprovePredictor getModel() {
+    public synchronized ImprovePredictor getModel() {
         return predictor;
     }
 
