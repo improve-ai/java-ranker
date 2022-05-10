@@ -200,12 +200,10 @@ public class DecisionModelTest {
 
     @Test
     public void testLoadAsync_null_listener() throws MalformedURLException, InterruptedException {
-        URL modelURL = new URL(ModelURL);
+        URL modelURL = new URL("file:///android_asset/dummy_v6.xgb");
         DecisionModel decisionModel = new DecisionModel("greetings");
         decisionModel.loadAsync(modelURL, null);
-        Thread.sleep(10 * 1000);
-        // Assume that the model is downloaded in 10 seconds.
-        // Make sure that field decisionModel.model is set when the model is loaded
+        Thread.sleep(3 * 1000);
         assertNotNull(decisionModel.getModel());
     }
 
