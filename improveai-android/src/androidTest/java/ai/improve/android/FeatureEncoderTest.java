@@ -263,4 +263,15 @@ public class FeatureEncoderTest {
         assertTrue(isEqual(expected.getJSONObject(0), features.get(0)));
         assertTrue(isEqual(expected.getJSONObject(1), features.get(1)));
     }
+
+    @Test
+    public void testHashToFeatureName() {
+        FeatureEncoder featureEncoder = new FeatureEncoder(0, featureNames);
+        featureEncoder.hash_to_feature_name(0);
+        assertEquals(String.format("%08x", 0xffffffff), featureEncoder.hash_to_feature_name(0xffffffffffffffffL));
+        assertEquals(String.format("%08x", 0xfffffffe), featureEncoder.hash_to_feature_name(0xfffffffefffffffeL));
+        assertEquals(String.format("%08x", 0x8fffffff), featureEncoder.hash_to_feature_name(0x8fffffffffffffffL));
+        assertEquals(String.format("%08x", 0x7fffffff), featureEncoder.hash_to_feature_name(0x7fffffffffffffffL));
+        assertEquals(String.format("%08x", 0xfffffff), featureEncoder.hash_to_feature_name(0xfffffffffffffffL));
+    }
 }
