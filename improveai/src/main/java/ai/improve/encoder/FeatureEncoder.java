@@ -81,8 +81,9 @@ public class FeatureEncoder {
             double nodeValue = ((Boolean)node).booleanValue() ? 1.0 : 0.0;
             String featureName = hash_to_feature_name(seed);
 //            IMPLog.d(Tag, "featureName: "+featureName);
-            if(featureNamesMap.containsKey(featureName)) {
-                int index = featureNamesMap.get(featureName);
+            Integer indexObj = featureNamesMap.get(featureName);
+            if(indexObj != null) {
+                int index = indexObj.intValue();
                 double unsprinkled = 0;
                 if(!Double.isNaN(features[index])) {
                     unsprinkled = reverseSprinkle(features[index], noise);
@@ -94,8 +95,9 @@ public class FeatureEncoder {
                 double nodeValue = ((Number) node).doubleValue();
                 String featureName = hash_to_feature_name(seed);
 //                IMPLog.d(Tag, "featureName: " + featureName);
-                if (featureNamesMap.containsKey(featureName)) {
-                    int index = featureNamesMap.get(featureName);
+                Integer indexObj = featureNamesMap.get(featureName);
+                if (indexObj != null) {
+                    int index = indexObj.intValue();
                     double unsprinkled = 0;
                     if (!Double.isNaN(features[index])) {
                         unsprinkled = reverseSprinkle(features[index], noise);
@@ -107,8 +109,9 @@ public class FeatureEncoder {
             long hashed = xxhash3(((String) node).getBytes(), seed);
             String featureName = hash_to_feature_name(seed);
 //            IMPLog.d(Tag, "featureName: " + featureName);
-            if(featureNamesMap.containsKey(featureName)) {
-                int index = featureNamesMap.get(featureName);
+            Integer indexObj = featureNamesMap.get(featureName);
+            if(indexObj != null) {
+                int index = indexObj.intValue();
                 double unsprinkled = 0.0;
                 if(!Double.isNaN(features[index])) {
                     unsprinkled = reverseSprinkle(features[index], noise);
@@ -118,8 +121,9 @@ public class FeatureEncoder {
 
             String hashedFeatureName = hash_to_feature_name(hashed);
 //            IMPLog.d(Tag, "featureName: "+hashedFeatureName);
-            if(featureNamesMap.containsKey(hashedFeatureName)) {
-                int index = featureNamesMap.get(hashedFeatureName);
+            Integer hashedIndexObj = featureNamesMap.get(hashedFeatureName);
+            if(hashedIndexObj != null) {
+                int index = hashedIndexObj.intValue();
                 double unsprinkled = 0.0;
                 if(!Double.isNaN(features[index])) {
                     unsprinkled = reverseSprinkle(features[index], noise);
