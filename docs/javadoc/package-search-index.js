@@ -1,0 +1,1 @@
+packageSearchIndex = [{"l":"ai.improve"},{"l":"ai.improve.constants"},{"l":"ai.improve.downloader"},{"l":"ai.improve.encoder"},{"l":"ai.improve.ksuid"},{"l":"ai.improve.log"},{"l":"ai.improve.provider"},{"l":"ai.improve.util"},{"l":"ai.improve.xgbpredictor"},{"l":"All Packages","url":"allpackages-index.html"}]
