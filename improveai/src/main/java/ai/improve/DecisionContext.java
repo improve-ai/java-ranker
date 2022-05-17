@@ -22,7 +22,7 @@ public class DecisionContext {
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
      */
-    public Decision chooseFrom(List variants) {
+    public <T> Decision<T> chooseFrom(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants to choose from can't be null or empty");
         }
@@ -43,7 +43,7 @@ public class DecisionContext {
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List, List)
      */
-    public Decision chooseFrom(List variants, List scores) {
+    public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
         if(variants == null || scores == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants and scores can't be null or empty");
         }
@@ -67,7 +67,7 @@ public class DecisionContext {
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
      */
-    public Decision chooseFirst(List variants) {
+    public <T> Decision<T> chooseFirst(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
@@ -98,7 +98,7 @@ public class DecisionContext {
     /**
      * @see ai.improve.DecisionModel#chooseRandom(List)
      */
-    public Decision chooseRandom(List variants) {
+    public <T> Decision<T> chooseRandom(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }

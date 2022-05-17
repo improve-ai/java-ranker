@@ -162,4 +162,22 @@ public class DecisionTest {
         }
         fail(DefaultFailMessage);
     }
+
+    @Test
+    public void testGet_generic() {
+        List<String> variants = Arrays.asList("hi", "hello", "Hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        // Unit test that no type cast needed here
+        String greeting = decisionModel.chooseFrom(variants).get();
+        assertEquals("hi", greeting);
+    }
+
+    @Test
+    public void testPeek_generic() {
+        List<String> variants = Arrays.asList("hi", "hello", "Hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        // Unit test that no type cast needed here
+        String greeting = decisionModel.chooseFrom(variants).peek();
+        assertEquals("hi", greeting);
+    }
 }

@@ -43,6 +43,14 @@ public class DecisionModelTest {
         DecisionModel.setDefaultTrackApiKey(Track_Api_Key);
     }
 
+    private List<String> variants() {
+        return Arrays.asList("Hello", "Hi", "Hey");
+    }
+
+    private List<Double> scores() {
+        return Arrays.asList(0.1, 0.2, 0.3);
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         IMPLog.d(Tag, "setUp");
@@ -320,6 +328,16 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testRank_generic() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        List<Double> scores = Arrays.asList(0.1, 0.2, 0.3);
+        // test that we don't have to do type cast here like:
+        // String greeting = (String) DecisionModel.rank(variants, scores).get(0);
+        String greeting = DecisionModel.rank(variants, scores).get(0);
+        assertEquals("hey", greeting);
+    }
+
+    @Test
     public void testTopScoringVariant() {
         int count = 100;
         List<Object> variants = new ArrayList<>();
@@ -470,6 +488,13 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseFrom_generic() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.chooseFrom(variants()).get();
+        IMPLog.d(Tag, "greetings is " + greeting);
+    }
+
+    @Test
     public void testChooseFromVariantsAndScores() {
         List variants = Arrays.asList("hi", "hello", "Hey");
         List scores = Arrays.asList(0.1, 1.0, -0.1);
@@ -479,6 +504,13 @@ public class DecisionModelTest {
         assertNull(decision.givens);
         assertEquals(scores, decision.scores);
         assertEquals(variants, decision.variants);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores_generic() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.chooseFrom(variants(), scores()).get();
+        IMPLog.d(Tag, "greetings is " + greeting);
     }
 
     @Test
@@ -721,6 +753,13 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testChooseFirst_generic() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.chooseFirst(variants()).get();
+        IMPLog.d(Tag, "greetings is " + greeting);
+    }
+
+    @Test
     public void testChooseFirst_null_variants() {
         List variants = null;
         DecisionModel decisionModel = new DecisionModel("greetings");
@@ -829,6 +868,13 @@ public class DecisionModelTest {
         assertEquals(loop/3, countMap.get("hello"), 100);
         assertEquals(loop/3, countMap.get("hi"), 100);
         assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testChooseRandom_generic() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.chooseRandom(variants()).get();
+        IMPLog.d(Tag, "greetings is " + greeting);
     }
 
     @Test

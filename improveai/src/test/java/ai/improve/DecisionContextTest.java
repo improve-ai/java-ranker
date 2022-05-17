@@ -27,8 +27,12 @@ public class DecisionContextTest {
         DecisionModel.setDefaultTrackURL(Track_URL);
     }
 
-    private List variants() {
+    private List<String> variants() {
         return Arrays.asList("Hello", "Hi", "Hey");
+    }
+
+    private List<Double> scores() {
+        return Arrays.asList(0.1, 0.2, 0.3);
     }
 
     private Map givens() {
@@ -41,6 +45,13 @@ public class DecisionContextTest {
         DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         Decision decision = decisionContext.chooseFrom(variants());
         assertNotNull(decision);
+    }
+
+    @Test
+    public void testChooseFrom_generic() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.given(null).chooseFrom(variants()).get();
+        IMPLog.d(Tag, "greeting is " + greeting);
     }
 
     @Test
@@ -79,6 +90,13 @@ public class DecisionContextTest {
         assertEquals("hello", decision.best);
         assertEquals(1, decision.givens.size());
         assertEquals("en", decision.givens.get("lang"));
+    }
+
+    @Test
+    public void testChooseFromVaiantsAndScores_generic() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.given(null).chooseFrom(variants(), scores()).get();
+        IMPLog.d(Tag, "greeting is " + greeting);
     }
 
     @Test
@@ -130,8 +148,16 @@ public class DecisionContextTest {
         List variants = Arrays.asList("hi", "hello", "hey");
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision decision = decisionModel.given(givens).chooseFirst(variants);
-        assertEquals(givens, decision.givens);
+        assertEquals(1, decision.givens.size());
+        assertEquals("en", decision.givens.get("lang"));
         assertEquals("hi", decision.get());
+    }
+
+    @Test
+    public void testChooseFirst_generic() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.given(null).chooseFirst(variants()).get();
+        IMPLog.d(Tag, "greeting is " + greeting);
     }
 
     @Test
@@ -222,6 +248,15 @@ public class DecisionContextTest {
         assertEquals(loop/3, countMap.get("hello"), 100);
         assertEquals(loop/3, countMap.get("hi"), 100);
         assertEquals(loop/3, countMap.get("hey"), 100);
+    }
+
+    @Test
+    public void testChooseRandom_generic() {
+        Map givens = Map.of("lang", "en");
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String greeting = decisionModel.given(givens).chooseRandom(variants).get();
+        IMPLog.d(Tag, "greeting is " + greeting);
     }
 
     @Test

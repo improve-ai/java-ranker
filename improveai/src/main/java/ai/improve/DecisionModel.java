@@ -278,7 +278,7 @@ public class DecisionModel {
      *                booleans.
      * @return an IMPDecision object.
      * */
-    public <T> Decision chooseFrom(List<T> variants) {
+    public <T> Decision<T> chooseFrom(List<T> variants) {
         return given(null).chooseFrom(variants);
     }
 
@@ -291,7 +291,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
      * variants.size() != scores.size().
      */
-    public Decision chooseFrom(List variants, List scores) {
+    public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
         return given(null).chooseFrom(variants, scores);
     }
 
@@ -338,7 +338,7 @@ public class DecisionModel {
      * @param variants See chooseFrom()
      * @return A Decision object which has the first variant as the best.
      */
-    public Decision chooseFirst(List variants) {
+    public <T> Decision<T> chooseFirst(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
@@ -362,7 +362,7 @@ public class DecisionModel {
      * @return A Decision object containing a random variant as the decision.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
-    public Decision chooseRandom(List variants) {
+    public <T> Decision<T> chooseRandom(List<T> variants) {
         return given(null).chooseRandom(variants);
     }
 
@@ -399,7 +399,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      * @return scores of the variants
      */
-    public <T> List<Double> score(List<T> variants) {
+    public List<Double> score(List variants) {
         return scoreInternal(variants, combinedGivens(null));
     }
 
@@ -416,12 +416,12 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants is null or empty
      * @return scores of the variants
      */
-    protected  <T> List<Double> scoreInternal(List<T> variants, Map<String, ?> givens) {
+    protected List<Double> scoreInternal(List variants, Map<String, ?> givens) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
 
-        IMPLog.d(Tag, "givens: " + givens);
+//        IMPLog.d(Tag, "givens: " + givens);
 
         if(predictor == null) {
             // When tracking a decision like this:
@@ -516,7 +516,7 @@ public class DecisionModel {
             }
         });
 
-        List<T> result = new ArrayList<T>(variants.size());
+        List<T> result = new ArrayList<>(variants.size());
         for(int i = 0; i < indices.length; ++i) {
             result.add(variants.get(indices[i]));
         }
