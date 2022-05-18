@@ -155,8 +155,19 @@ public class FeatureEncoder {
         return features;
     }
 
+    final static char[] ref = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     public String hash_to_feature_name(long hash) {
-        return String.format("%08x", (int)(hash >>> 32));
+        char[] buffer = new char[8];
+        int hash32 = (int)(hash >>> 32);
+        buffer[0] = ref[((hash32 >>> 28) & 0xf)];
+        buffer[1] = ref[((hash32 >>> 24) & 0xf)];
+        buffer[2] = ref[((hash32 >>> 20) & 0xf)];
+        buffer[3] = ref[((hash32 >>> 16) & 0xf)];
+        buffer[4] = ref[((hash32 >>> 12) & 0xf)];
+        buffer[5] = ref[((hash32 >>> 8) & 0xf)];
+        buffer[6] = ref[((hash32 >>> 4) & 0xf)];
+        buffer[7] = ref[((hash32) & 0xf)];
+        return new String(buffer);
     }
 
     private double shrink(double noise) {

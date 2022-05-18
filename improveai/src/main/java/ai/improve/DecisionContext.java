@@ -22,15 +22,13 @@ public class DecisionContext {
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
      */
-    public Decision chooseFrom(List variants) {
+    public <T> Decision<T> chooseFrom(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants to choose from can't be null or empty");
         }
 
         Map allGivens = decisionModel.combinedGivens(givens);
-
         List scores = decisionModel.scoreInternal(variants, allGivens);
-
         Object best = ModelUtils.topScoringVariant(variants, scores);
 
         Decision decision = new Decision(decisionModel);
@@ -43,12 +41,87 @@ public class DecisionContext {
     }
 
     /**
+     * @see ai.improve.DecisionModel#chooseFrom(List, List)
+     */
+    public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
+        if(variants == null || scores == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants and scores can't be null or empty");
+        }
+        if(variants.size() != scores.size()) {
+            throw new IllegalArgumentException("variants.size(" +
+                    variants.size() + ") not equal to scores.size(" +
+                    scores.size() + ")");
+        }
+
+        Map allGivens = decisionModel.combinedGivens(givens);
+
+        Object best = ModelUtils.topScoringVariant(variants, scores);
+        Decision decision = new Decision(decisionModel);
+        decision.variants = variants;
+        decision.best = best;
+        decision.givens = allGivens;
+        decision.scores = scores;
+        return decision;
+    }
+
+    /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
      */
-    public Decision chooseFirst(List variants) {
-        Decision decision = decisionModel.chooseFirst(variants);
-        decision.givens = decisionModel.combinedGivens(givens);;
-        return decision;
+    public <T> Decision<T> chooseFirst(List<T> variants) {
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#first(Object...)
+     */
+    public Object first(Object... variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("first() expects at least one variant");
+        }
+
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseFirst((List)variants[0]).get();
+        }
+
+        return chooseFirst(Arrays.asList(variants)).get();
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#chooseRandom(List)
+     */
+    public <T> Decision<T> chooseRandom(List<T> variants) {
+        if(variants == null || variants.size() <= 0) {
+            throw new IllegalArgumentException("variants can't be null or empty");
+        }
+        return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#random(Object...)
+     */
+    public Object random(Object... variants) {
+        if(variants == null) {
+            throw new IllegalArgumentException("variants can't be null");
+        }
+        if(variants.length <= 0) {
+            throw new IllegalArgumentException("random() expects at least one variant");
+        }
+        if(variants.length == 1) {
+            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
+                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
+            }
+            return chooseRandom((List)variants[0]).get();
+        }
+        return chooseRandom(Arrays.asList(variants)).get();
     }
 
     /**

@@ -43,9 +43,9 @@ import static java.lang.Math.pow;
 public class DecisionModelTest {
     public static final String Tag = "DecisionModelTest";
 
-    public static final String ModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
+    public static final String ModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/songs-2.0.xgb.gz";
 
-    private static final String CompressedModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/improveai-songs-2.0.xgb.gz";
+    private static final String CompressedModelURL = "https://improveai-mindblown-mindful-prod-models.s3.amazonaws.com/models/latest/songs-2.0.xgb.gz";
 
     private static final String AssetModelFileName = "dummy_v6.xgb";
 
@@ -196,6 +196,15 @@ public class DecisionModelTest {
             }
         });
         semaphore.acquire();
+    }
+
+    @Test
+    public void testLoadAsync_null_listener() throws MalformedURLException, InterruptedException {
+        URL modelURL = new URL("file:///android_asset/dummy_v6.xgb");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.loadAsync(modelURL, null);
+        Thread.sleep(3 * 1000);
+        assertNotNull(decisionModel.getModel());
     }
 
     @Test

@@ -34,4 +34,16 @@ task generateJava {
 compileJava.dependsOn generateJava
 sourceSets.main.java.srcDir generateJava.outputDir
 
+javadoc {
+    source = sourceSets.main.allJava
+    classpath += configurations.compile
+    exclude '**/R.html', '**/R.*.html', '**/index.html', '**/*.kt',
+            '**/constants/*',
+            'ai/improve/encoder',
+            'ai/improve/ksuid',
+            'ai/improve/util',
+            'ai/improve/xgbpredictor',
+            'ai/improve/provider/PersistenceProvider*'
+}
+
 apply from: '../publish.gradle'

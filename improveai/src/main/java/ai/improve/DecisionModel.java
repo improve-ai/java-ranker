@@ -149,18 +149,22 @@ public class DecisionModel {
             public void onFinish(ImprovePredictor predictor, IOException e) {
                 LoadListener l = listeners.remove(seq);
                 if(l == null) {
+                    // Don't return here, just give a warning here.
                     IMPLog.d(Tag, "loadAsync finish loading model, but listener is null, " + modelUrl.toString());
-                    return ;
                 }
 
                 if(e != null) {
-                    l.onError(e);
-                    return ;
-                }
+                    if(l != null) {
+                        l.onError(e);
+                    }
+                } else {
+                    DecisionModel.this.setModel(predictor);
 
-                DecisionModel.this.setModel(predictor);
-                IMPLog.d(Tag, "loadAsync, finish loading model, " + modelUrl.toString());
-                l.onLoad(DecisionModel.this);
+                    IMPLog.d(Tag, "loadAsync, finish loading model, " + modelUrl.toString());
+                    if (l != null) {
+                        l.onLoad(DecisionModel.this);
+                    }
+                }
             }
         });
     }
@@ -252,7 +256,7 @@ public class DecisionModel {
                 predictor.getModelMetadata().getModelFeatureNames());
     }
 
-    public ImprovePredictor getModel() {
+    public synchronized ImprovePredictor getModel() {
         return predictor;
     }
 
@@ -274,8 +278,8 @@ public class DecisionModel {
      *                booleans.
      * @return an IMPDecision object.
      * */
-    public <T> Decision chooseFrom(List<T> variants) {
-        return new DecisionContext(this, null).chooseFrom(variants);
+    public <T> Decision<T> chooseFrom(List<T> variants) {
+        return given(null).chooseFrom(variants);
     }
 
     /**
@@ -287,22 +291,8 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
      * variants.size() != scores.size().
      */
-    public Decision chooseFrom(List variants, List scores) {
-        if(variants == null || scores == null || variants.size() <= 0) {
-            throw new IllegalArgumentException("variants and scores can't be null or empty");
-        }
-        if(variants.size() != scores.size()) {
-            throw new IllegalArgumentException("variants.size(" +
-                    variants.size() + ") not equal to scores.size(" +
-                    scores.size() + ")");
-        }
-        Object best = ModelUtils.topScoringVariant(variants, scores);
-        Decision decision = new Decision(this);
-        decision.variants = variants;
-        decision.best = best;
-        decision.givens = null;
-        decision.scores = scores;
-        return decision;
+    public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
+        return given(null).chooseFrom(variants, scores);
     }
 
     /**
@@ -348,7 +338,7 @@ public class DecisionModel {
      * @param variants See chooseFrom()
      * @return A Decision object which has the first variant as the best.
      */
-    public Decision chooseFirst(List variants) {
+    public <T> Decision<T> chooseFirst(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
@@ -359,26 +349,12 @@ public class DecisionModel {
      * This is a short hand of chooseFirst().get().
      * @param variants See chooseFrom(). If only one argument, it must be a non-empty list.
      * @return If multiple arguments is passed to first(), the first argument would be returned;
-     * If only one argument, then the fist member of it would be returned.
+     * If only one argument(a non-empty list), then the fist member of it would be returned.
      * @throws IllegalArgumentException Thrown if variants is null; Thrown if variants is empty;
      * Thrown if the there's only one argument and it's not a non-empty list.
      */
     public Object first(Object... variants) {
-        if(variants == null) {
-            throw new IllegalArgumentException("variants can't be null");
-        }
-        if(variants.length <= 0) {
-            throw new IllegalArgumentException("first() expects at least one variant");
-        }
-
-        if(variants.length == 1) {
-            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
-                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
-            }
-            return chooseFirst((List)variants[0]).get();
-        }
-
-        return chooseFirst(Arrays.asList(variants)).get();
+        return given(null).first(variants);
     }
 
     /**
@@ -386,11 +362,8 @@ public class DecisionModel {
      * @return A Decision object containing a random variant as the decision.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
-    public Decision chooseRandom(List variants) {
-        if(variants == null || variants.size() <= 0) {
-            throw new IllegalArgumentException("variants can't be null or empty");
-        }
-        return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+    public <T> Decision<T> chooseRandom(List<T> variants) {
+        return given(null).chooseRandom(variants);
     }
 
     /**
@@ -402,19 +375,7 @@ public class DecisionModel {
      * one argument and it's not a non-empty list.
      */
     public Object random(Object...variants) {
-        if(variants == null) {
-            throw new IllegalArgumentException("variants can't be null");
-        }
-        if(variants.length <= 0) {
-            throw new IllegalArgumentException("random() expects at least one variant");
-        }
-        if(variants.length == 1) {
-            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
-                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
-            }
-            return chooseRandom((List)variants[0]).get();
-        }
-        return chooseRandom(Arrays.asList(variants)).get();
+        return given(null).random(variants);
     }
 
     /**
@@ -438,7 +399,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      * @return scores of the variants
      */
-    public <T> List<Double> score(List<T> variants) {
+    public List<Double> score(List variants) {
         return scoreInternal(variants, combinedGivens(null));
     }
 
@@ -455,12 +416,12 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants is null or empty
      * @return scores of the variants
      */
-    protected  <T> List<Double> scoreInternal(List<T> variants, Map<String, ?> givens) {
+    protected List<Double> scoreInternal(List variants, Map<String, ?> givens) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
 
-        IMPLog.d(Tag, "givens: " + givens);
+//        IMPLog.d(Tag, "givens: " + givens);
 
         if(predictor == null) {
             // When tracking a decision like this:
@@ -555,7 +516,7 @@ public class DecisionModel {
             }
         });
 
-        List<T> result = new ArrayList<T>(variants.size());
+        List<T> result = new ArrayList<>(variants.size());
         for(int i = 0; i < indices.length; ++i) {
             result.add(variants.get(indices[i]));
         }

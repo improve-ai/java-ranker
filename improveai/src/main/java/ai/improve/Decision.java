@@ -6,12 +6,12 @@ import java.util.Map;
 import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
 
-public class Decision {
+public class Decision<T> {
     public static final String Tag = "Decision";
 
     private DecisionModel model;
 
-    protected List<?> variants;
+    protected List<T> variants;
 
     protected Map<String, Object> givens;
 
@@ -25,7 +25,7 @@ public class Decision {
      * */
     protected int tracked;
 
-    protected Object best;
+    protected T best;
 
     // The message_id of the tracked decision
     protected String id;
@@ -39,7 +39,7 @@ public class Decision {
      * @return Returns the chosen variant memoized.
      * @throws IllegalStateException Thrown if called before chooseFrom()
      */
-    public Object peek() {
+    public T peek() {
         return best;
     }
 
@@ -49,7 +49,7 @@ public class Decision {
      * might return null.
      * @throws IllegalStateException Thrown if variants is null or empty.
      * */
-    public synchronized Object get() {
+    public synchronized T get() {
         if(tracked == 0) {
             DecisionTracker tracker = model.getTracker();
             if (tracker != null) {
