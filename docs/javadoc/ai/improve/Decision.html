@@ -115,14 +115,14 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <main role="main">
 <div class="header">
 <div class="subTitle"><span class="packageLabelInType">Package</span>&nbsp;<a href="package-summary.html">ai.improve</a></div>
-<h2 title="Class Decision" class="title">Class Decision</h2>
+<h2 title="Class Decision" class="title">Class Decision&lt;T&gt;</h2>
 </div>
 <div class="contentContainer">
 <ul class="inheritance">
 <li>java.lang.Object</li>
 <li>
 <ul class="inheritance">
-<li>ai.improve.Decision</li>
+<li>ai.improve.Decision&lt;T&gt;</li>
 </ul>
 </li>
 </ul>
@@ -130,7 +130,7 @@ $('.navPadding').css('padding-top', $('.fixedNav').css("height"));
 <ul class="blockList">
 <li class="blockList">
 <hr>
-<pre>public class <span class="typeNameLabel">Decision</span>
+<pre>public class <span class="typeNameLabel">Decision&lt;T&gt;</span>
 extends java.lang.Object</pre>
 </li>
 </ul>
@@ -153,7 +153,7 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected java.lang.Object</code></td>
+<td class="colFirst"><code>protected <a href="Decision.html" title="type parameter in Decision">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#best">best</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -185,7 +185,7 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected java.util.List&lt;?&gt;</code></td>
+<td class="colFirst"><code>protected java.util.List&lt;<a href="Decision.html" title="type parameter in Decision">T</a>&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#variants">variants</a></span></code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -238,14 +238,14 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
+<td class="colFirst"><code><a href="Decision.html" title="type parameter in Decision">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get()">get</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Get the chosen variant and track the decision.</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
+<td class="colFirst"><code><a href="Decision.html" title="type parameter in Decision">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peek()">peek</a></span>()</code></th>
 <td class="colLast">
 <div class="block">Same as get() except that peek won't track the decision.</div>
@@ -294,7 +294,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>variants</h4>
-<pre>protected&nbsp;java.util.List&lt;?&gt; variants</pre>
+<pre>protected&nbsp;java.util.List&lt;<a href="Decision.html" title="type parameter in Decision">T</a>&gt; variants</pre>
 </li>
 </ul>
 <a id="givens">
@@ -334,7 +334,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>best</h4>
-<pre>protected&nbsp;java.lang.Object best</pre>
+<pre>protected&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a> best</pre>
 </li>
 </ul>
 <a id="id">
@@ -381,7 +381,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>peek</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;peek()</pre>
+<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a>&nbsp;peek()</pre>
 <div class="block">Same as get() except that peek won't track the decision.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
@@ -397,7 +397,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;get()</pre>
+<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a>&nbsp;get()</pre>
 <div class="block">Get the chosen variant and track the decision. The decision would be tracked only once.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>

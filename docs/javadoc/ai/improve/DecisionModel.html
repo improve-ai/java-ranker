@@ -250,19 +250,19 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFirst(java.util.List)">chooseFirst</a></span>&#8203;(java.util.List&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFirst(java.util.List)">chooseFirst</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List,java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&nbsp;variants,
-          java.util.List&nbsp;scores)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List,java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+          java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -273,8 +273,8 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseRandom(java.util.List)">chooseRandom</a></span>&#8203;(java.util.List&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseRandom(java.util.List)">chooseRandom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
@@ -310,7 +310,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i13" class="rowColor">
-<td class="colFirst"><code>protected <a href="encoder/FeatureEncoder.html" title="class in ai.improve.encoder">FeatureEncoder</a></code></td>
+<td class="colFirst"><code>protected ai.improve.encoder.FeatureEncoder</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFeatureEncoder()">getFeatureEncoder</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -320,7 +320,7 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i15" class="rowColor">
-<td class="colFirst"><code><a href="xgbpredictor/ImprovePredictor.html" title="class in ai.improve.xgbpredictor">ImprovePredictor</a></code></td>
+<td class="colFirst"><code>ai.improve.xgbpredictor.ImprovePredictor</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getModel()">getModel</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
@@ -391,8 +391,8 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i27" class="rowColor">
-<td class="colFirst"><code>&lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#score(java.util.List)">score</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colFirst"><code>java.util.List&lt;java.lang.Double&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#score(java.util.List)">score</a></span>&#8203;(java.util.List&nbsp;variants)</code></th>
 <td class="colLast">
 <div class="block">If this method is called before the model is loaded, or errors occurred
  while loading the model file, a randomly generated list of descending
@@ -400,8 +400,8 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i28" class="altColor">
-<td class="colFirst"><code>protected &lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scoreInternal(java.util.List,java.util.Map)">scoreInternal</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+<td class="colFirst"><code>protected java.util.List&lt;java.lang.Double&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scoreInternal(java.util.List,java.util.Map)">scoreInternal</a></span>&#8203;(java.util.List&nbsp;variants,
              java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</code></th>
 <td class="colLast">
 <div class="block">If this method is called before the model is loaded, or errors occurred
@@ -431,7 +431,7 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i33" class="rowColor">
 <td class="colFirst"><code>void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setModel(ai.improve.xgbpredictor.ImprovePredictor)">setModel</a></span>&#8203;(<a href="xgbpredictor/ImprovePredictor.html" title="class in ai.improve.xgbpredictor">ImprovePredictor</a>&nbsp;predictor)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setModel(ai.improve.xgbpredictor.ImprovePredictor)">setModel</a></span>&#8203;(ai.improve.xgbpredictor.ImprovePredictor&nbsp;predictor)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i34" class="altColor">
@@ -733,7 +733,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>setModel</h4>
-<pre class="methodSignature">public&nbsp;void&nbsp;setModel&#8203;(<a href="xgbpredictor/ImprovePredictor.html" title="class in ai.improve.xgbpredictor">ImprovePredictor</a>&nbsp;predictor)</pre>
+<pre class="methodSignature">public&nbsp;void&nbsp;setModel&#8203;(ai.improve.xgbpredictor.ImprovePredictor&nbsp;predictor)</pre>
 </li>
 </ul>
 <a id="getModel()">
@@ -742,7 +742,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>getModel</h4>
-<pre class="methodSignature">public&nbsp;<a href="xgbpredictor/ImprovePredictor.html" title="class in ai.improve.xgbpredictor">ImprovePredictor</a>&nbsp;getModel()</pre>
+<pre class="methodSignature">public&nbsp;ai.improve.xgbpredictor.ImprovePredictor&nbsp;getModel()</pre>
 </li>
 </ul>
 <a id="getModelName()">
@@ -769,7 +769,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>getFeatureEncoder</h4>
-<pre class="methodSignature">protected&nbsp;<a href="encoder/FeatureEncoder.html" title="class in ai.improve.encoder">FeatureEncoder</a>&nbsp;getFeatureEncoder()</pre>
+<pre class="methodSignature">protected&nbsp;ai.improve.encoder.FeatureEncoder&nbsp;getFeatureEncoder()</pre>
 </li>
 </ul>
 <a id="chooseFrom(java.util.List)">
@@ -778,7 +778,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - Variants can be any JSON encodeable data structure of arbitrary complexity,
@@ -795,8 +795,8 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseFrom&#8203;(java.util.List&nbsp;variants,
-                           java.util.List&nbsp;scores)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+                                  java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - Variants can be any JSON encodeable data structure of arbitrary complexity,
@@ -871,7 +871,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFirst</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseFirst&#8203;(java.util.List&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFirst&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - See chooseFrom()</dd>
@@ -906,7 +906,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseRandom</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseRandom&#8203;(java.util.List&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseRandom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - See chooseFrom()</dd>
@@ -965,7 +965,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>score</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;score&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;score&#8203;(java.util.List&nbsp;variants)</pre>
 <div class="block">If this method is called before the model is loaded, or errors occurred
  while loading the model file, a randomly generated list of descending
  Gaussian scores is returned.</div>
@@ -986,8 +986,8 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>scoreInternal</h4>
-<pre class="methodSignature">protected&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;scoreInternal&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
-                                                             java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</pre>
+<pre class="methodSignature">protected&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;scoreInternal&#8203;(java.util.List&nbsp;variants,
+                                                         java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</pre>
 <div class="block">If this method is called before the model is loaded, or errors occurred
  while loading the model file, a randomly generated list of descending
  Gaussian scores is returned.</div>

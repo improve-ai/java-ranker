@@ -175,19 +175,19 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr id="i0" class="altColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFirst(java.util.List)">chooseFirst</a></span>&#8203;(java.util.List&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFirst(java.util.List)">chooseFirst</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List,java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&nbsp;variants,
-          java.util.List&nbsp;scores)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List,java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+          java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
@@ -196,8 +196,8 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseRandom(java.util.List)">chooseRandom</a></span>&#8203;(java.util.List&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseRandom(java.util.List)">chooseRandom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
@@ -270,7 +270,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseFrom&#8203;(java.util.List&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseFrom(java.util.List)"><code>DecisionModel.chooseFrom(List)</code></a></dd>
@@ -283,8 +283,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseFrom&#8203;(java.util.List&nbsp;variants,
-                           java.util.List&nbsp;scores)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+                                  java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseFrom(java.util.List,java.util.List)"><code>DecisionModel.chooseFrom(List, List)</code></a></dd>
@@ -297,7 +297,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFirst</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseFirst&#8203;(java.util.List&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFirst&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseFrom(java.util.List)"><code>DecisionModel.chooseFrom(List)</code></a></dd>
@@ -323,7 +323,7 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseRandom</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseRandom&#8203;(java.util.List&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseRandom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseRandom(java.util.List)"><code>DecisionModel.chooseRandom(List)</code></a></dd>
