@@ -851,7 +851,7 @@ public class DecisionModelTest {
 
     @Test
     public void testChooseRandom() {
-        int loop = 10000;
+        int loop = 100000;
         Map<String, Integer> countMap = new HashMap<>();
         List variants = Arrays.asList("hi", "hello", "hey");
         DecisionModel decisionModel = new DecisionModel("greetings");
@@ -865,9 +865,9 @@ public class DecisionModelTest {
             }
         }
         IMPLog.d(Tag, "count: " + countMap);
-        assertEquals(loop/3, countMap.get("hello"), 100);
-        assertEquals(loop/3, countMap.get("hi"), 100);
-        assertEquals(loop/3, countMap.get("hey"), 100);
+        assertEquals(loop/3, countMap.get("hello"), loop/3.0*0.03);
+        assertEquals(loop/3, countMap.get("hi"), loop/3.0*0.03);
+        assertEquals(loop/3, countMap.get("hey"), loop/3.0*0.03);
     }
 
     @Test
@@ -904,7 +904,7 @@ public class DecisionModelTest {
 
     @Test
     public void testRandom() {
-        int loop = 10000;
+        int loop = 100000;
         Map<String, Integer> countMap = new HashMap<>();
         DecisionModel decisionModel = new DecisionModel("greetings");
         decisionModel.setTrackURL(null);
@@ -917,9 +917,9 @@ public class DecisionModelTest {
             }
         }
         IMPLog.d(Tag, "count: " + countMap);
-        assertEquals(loop/3, countMap.get("hello"), 100);
-        assertEquals(loop/3, countMap.get("hi"), 100);
-        assertEquals(loop/3, countMap.get("hey"), 100);
+        assertEquals(loop/3, countMap.get("hello"), loop/3.0*0.03);
+        assertEquals(loop/3, countMap.get("hi"), loop/3.0*0.03);
+        assertEquals(loop/3, countMap.get("hey"), loop/3.0*0.03);
     }
 
     @Test
@@ -948,7 +948,7 @@ public class DecisionModelTest {
 
     @Test
     public void testRandom_one_argument() {
-        int loop = 10000;
+        int loop = 100000;
         List variants = Arrays.asList("hi", "hello", "hey");
         Map<String, Integer> countMap = new HashMap<>();
         DecisionModel decisionModel = new DecisionModel("greetings");
@@ -962,9 +962,9 @@ public class DecisionModelTest {
             }
         }
         IMPLog.d(Tag, "count: " + countMap);
-        assertEquals(loop/3, countMap.get("hello"), 100);
-        assertEquals(loop/3, countMap.get("hi"), 100);
-        assertEquals(loop/3, countMap.get("hey"), 100);
+        assertEquals(loop/3, countMap.get("hello"), loop/3.0*0.03);
+        assertEquals(loop/3, countMap.get("hi"), loop/3.0*0.03);
+        assertEquals(loop/3, countMap.get("hey"), loop/3.0*0.03);
     }
 
     @Test

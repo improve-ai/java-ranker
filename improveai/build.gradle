@@ -46,4 +46,8 @@ javadoc {
             'ai/improve/provider/PersistenceProvider*'
 }
 
+test {
+    forkEvery = 4
+}
+
 apply from: '../publish.gradle'

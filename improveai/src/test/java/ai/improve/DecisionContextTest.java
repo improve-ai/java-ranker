@@ -245,9 +245,9 @@ public class DecisionContextTest {
             }
         }
         IMPLog.d(Tag, "count: " + countMap);
-        assertEquals(loop/3, countMap.get("hello"), 100);
-        assertEquals(loop/3, countMap.get("hi"), 100);
-        assertEquals(loop/3, countMap.get("hey"), 100);
+        assertEquals(loop/3, countMap.get("hello"), 150);
+        assertEquals(loop/3, countMap.get("hi"), 150);
+        assertEquals(loop/3, countMap.get("hey"), 150);
     }
 
     @Test
@@ -299,9 +299,9 @@ public class DecisionContextTest {
             }
         }
         IMPLog.d(Tag, "count: " + countMap);
-        assertEquals(loop/3, countMap.get("hello"), 100);
-        assertEquals(loop/3, countMap.get("hi"), 100);
-        assertEquals(loop/3, countMap.get("hey"), 100);
+        assertEquals(loop/3, countMap.get("hello"), 150);
+        assertEquals(loop/3, countMap.get("hi"), 150);
+        assertEquals(loop/3, countMap.get("hey"), 150);
     }
 
     @Test
