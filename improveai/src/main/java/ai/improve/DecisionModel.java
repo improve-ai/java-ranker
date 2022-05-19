@@ -95,7 +95,19 @@ public class DecisionModel {
         instances.put(modelName, decisionModel);
     }
 
-    public DecisionModel load(URL url) throws IOException {
+    /**
+     * Load a model synchronously. Calling this method would block the current thread, so please
+     * try not do it in the UI thread.
+     * @param modelUrl A url that can be a local file path, a remote http url that points to a
+     *                 model file, or a bundled asset. Urls that ends with '.gz' are considered gzip
+     *                 compressed, and will be handled appropriately. Bundled model asset urls
+     *                 appears a bit different. Suppose that you have a bundled model file in folder
+     *                 "assets/models/my_model.xgb.gz", then modelUrl should be
+     *                 new URL("file:///android_asset/models/my_model.xgb").
+     * @return Returns self.
+     * @throws IOException Thrown if the model failed to load.
+     */
+    public DecisionModel load(URL modelUrl) throws IOException {
         final IOException[] downloadException = {null};
         LoadListener listener = new LoadListener() {
             @Override
@@ -114,7 +126,7 @@ public class DecisionModel {
             }
         };
 
-        loadAsync(url, listener);
+        loadAsync(modelUrl, listener);
         synchronized (lock) {
             try {
                 lock.wait();
@@ -131,6 +143,14 @@ public class DecisionModel {
         return this;
     }
 
+    /**
+     * @param modelUrl A url that can be a local file path, a remote http url that points to a
+     *                 model file, or a bundled asset. Urls that ends with '.gz' are considered gzip
+     *                 compressed, and will be handled appropriately. Bundled model asset urls
+     *                 appears a bit different. Suppose that you have a bundled model file in folder
+     *                 "assets/models/my_model.xgb.gz", then modelUrl should be
+     *                 new URL("file:///android_asset/models/my_model.xgb").
+     */
     public void loadAsync(URL modelUrl) {
         loadAsync(modelUrl, null);
     }
@@ -146,6 +166,7 @@ public class DecisionModel {
      *                 appears a bit different. Suppose that you have a bundled model file in folder
      *                 "assets/models/my_model.xgb.gz", then modelUrl should be
      *                 new URL("file:///android_asset/models/my_model.xgb").
+     * @param listener The callback that will run when the model is loaded.
      * */
     @Deprecated
     public void loadAsync(URL modelUrl, LoadListener listener) {
@@ -388,7 +409,9 @@ public class DecisionModel {
     }
 
     /**
-     * @return an IMPDecision object
+     * @param givens Additional context info that will be used with each of the variants to calculate
+     *              its feature vector.
+     * @return A DecisionContext object.
      */
     public DecisionContext given(Map<String, Object> givens) {
         return new DecisionContext(this, givens);
@@ -464,7 +487,7 @@ public class DecisionModel {
      * @param reward the reward to add. Must not be NaN, or Infinity.
      * @throws IllegalArgumentException Thrown if `reward` is NaN or Infinity
      * @throws IllegalStateException Thrown if trackURL is null, or called on non-Android platform.
-     * */
+     */
     public void addReward(double reward) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
             throw new IllegalArgumentException("reward must not be NaN or infinity");
@@ -482,8 +505,10 @@ public class DecisionModel {
     }
 
     /**
+     * @param decisionId unique id of a decision.
+     * @param reward reward for the decision.
      * Adds the reward to a specific decision
-     * */
+     */
     protected void addRewardForDecision(String decisionId, double reward) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
             throw new IllegalArgumentException("reward must not be NaN or infinity");
@@ -502,20 +527,24 @@ public class DecisionModel {
 
     /**
      * This method is likely to be changed in the future. Try not to use it in your code.
-     *
      * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
+     * @param variants A list of variants to be ranked.
+     * @param scores Scores of the variants.
      * @return a list of the variants ranked from best to worst by scores
-     * */
+     * @throws IllegalArgumentException Thrown if variants or scores is null; Thrown if
+     * variants.size() not equal to scores.size().
+     */
     public static <T> List<T> rank(List<T> variants, List<Double> scores) {
-        // check the size of variants and scores, and use the bigger one so that
-        // an IndexOutOfBoundOfException would be thrown later
-        int size = variants.size();
-        if(scores.size() > variants.size()) {
-            size = scores.size();
+        if(variants == null || scores == null) {
+            throw new IllegalArgumentException("variants or scores can't be null");
+        }
+
+        if(variants.size() != scores.size()) {
+            throw new IllegalArgumentException("variants.size() must equal to scores.size()");
         }
 
         Integer[] indices = new Integer[variants.size()];
-        for(int i = 0; i < size; ++i) {
+        for(int i = 0; i < variants.size(); ++i) {
             indices[i] = i;
         }
 

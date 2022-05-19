@@ -245,9 +245,7 @@ extends java.lang.Object</pre>
 <td class="colFirst"><code>protected void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addRewardForDecision(java.lang.String,double)">addRewardForDecision</a></span>&#8203;(java.lang.String&nbsp;decisionId,
                     double&nbsp;reward)</code></th>
-<td class="colLast">
-<div class="block">Adds the reward to a specific decision</div>
-</td>
+<td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
@@ -351,8 +349,10 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i21" class="rowColor">
 <td class="colFirst"><code><a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load(java.net.URL)">load</a></span>&#8203;(java.net.URL&nbsp;url)</code></th>
-<td class="colLast">&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load(java.net.URL)">load</a></span>&#8203;(java.net.URL&nbsp;modelUrl)</code></th>
+<td class="colLast">
+<div class="block">Load a model synchronously.</div>
+</td>
 </tr>
 <tr id="i22" class="altColor">
 <td class="colFirst"><code>void</code></td>
@@ -523,6 +523,12 @@ extends java.lang.Object</pre>
 <div class="block">It's an equivalent of DecisionModel(modelName, defaultTrackURL, defaultTrackApiKey)
  We suggest to have the defaultTrackURL/defaultTrackApiKey set on startup before creating
  any DecisionModel instances.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>modelName</code> - Length of modelName must be in range [1, 64]; Only alphanumeric
+                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
+                  and the first character must be an alphanumeric one.</dd>
+</dl>
 </li>
 </ul>
 <a id="&lt;init&gt;(java.lang.String,java.lang.String,java.lang.String)">
@@ -538,7 +544,7 @@ extends java.lang.Object</pre>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>modelName</code> - Length of modelName must be in range [1, 64]; Only alphanumeric
                   characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
-                  and the first character must be an alphanumeric one;</dd>
+                  and the first character must be an alphanumeric one.</dd>
 <dd><code>trackURL</code> - url for tracking decisions. If trackURL is null, no decisions would be
                  tracked. If trackURL is not a valid URL, an exception would be thrown.</dd>
 <dd><code>trackApiKey</code> - will be attached to the header fields of all the post request for tracking</dd>
@@ -582,11 +588,22 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>load</h4>
-<pre class="methodSignature">public&nbsp;<a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a>&nbsp;load&#8203;(java.net.URL&nbsp;url)
+<pre class="methodSignature">public&nbsp;<a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a>&nbsp;load&#8203;(java.net.URL&nbsp;modelUrl)
                    throws java.io.IOException</pre>
+<div class="block">Load a model synchronously. Calling this method would block the current thread, so please
+ try not do it in the UI thread.</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>modelUrl</code> - A url that can be a local file path, a remote http url that points to a
+                 model file, or a bundled asset. Urls that ends with '.gz' are considered gzip
+                 compressed, and will be handled appropriately. Bundled model asset urls
+                 appears a bit different. Suppose that you have a bundled model file in folder
+                 "assets/models/my_model.xgb.gz", then modelUrl should be
+                 new URL("file:///android_asset/models/my_model.xgb").</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns self.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.io.IOException</code></dd>
+<dd><code>java.io.IOException</code> - Thrown if the model failed to load.</dd>
 </dl>
 </li>
 </ul>
@@ -597,6 +614,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>loadAsync</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>modelUrl</code> - A url that can be a local file path, a remote http url that points to a
+                 model file, or a bundled asset. Urls that ends with '.gz' are considered gzip
+                 compressed, and will be handled appropriately. Bundled model asset urls
+                 appears a bit different. Suppose that you have a bundled model file in folder
+                 "assets/models/my_model.xgb.gz", then modelUrl should be
+                 new URL("file:///android_asset/models/my_model.xgb").</dd>
+</dl>
 </li>
 </ul>
 <a id="loadAsync(java.net.URL,ai.improve.DecisionModel.LoadListener)">
@@ -614,6 +640,16 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <div class="block">Notice that it's not recommended to call this method directly in an Android Activity as it
  may cause leaks. Before we add a cancel method to allow aborting downloading tasks, you may
  have to call loadAsync() in something like a Singleton class.</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>modelUrl</code> - A url that can be a local file path, a remote http url that points to a
+                 model file, or a bundled asset. Urls that ends with '.gz' are considered gzip
+                 compressed, and will be handled appropriately. Bundled model asset urls
+                 appears a bit different. Suppose that you have a bundled model file in folder
+                 "assets/models/my_model.xgb.gz", then modelUrl should be
+                 new URL("file:///android_asset/models/my_model.xgb").</dd>
+<dd><code>listener</code> - The callback that will run when the model is loaded.</dd>
+</dl>
 </li>
 </ul>
 <a id="getTrackURL()">
@@ -945,8 +981,11 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <h4>given</h4>
 <pre class="methodSignature">public&nbsp;<a href="DecisionContext.html" title="class in ai.improve">DecisionContext</a>&nbsp;given&#8203;(java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&nbsp;givens)</pre>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>givens</code> - Additional context info that will be used with each of the variants to calculate
+              its feature vector.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>an IMPDecision object</dd>
+<dd>A DecisionContext object.</dd>
 </dl>
 </li>
 </ul>
@@ -1035,7 +1074,12 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <h4>addRewardForDecision</h4>
 <pre class="methodSignature">protected&nbsp;void&nbsp;addRewardForDecision&#8203;(java.lang.String&nbsp;decisionId,
                                     double&nbsp;reward)</pre>
-<div class="block">Adds the reward to a specific decision</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>decisionId</code> - unique id of a decision.</dd>
+<dd><code>reward</code> - reward for the decision.
+ Adds the reward to a specific decision</dd>
+</dl>
 </li>
 </ul>
 <a id="rank(java.util.List,java.util.List)">
@@ -1047,11 +1091,16 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <pre class="methodSignature">public static&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;T&gt;&nbsp;rank&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
                                          java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
 <div class="block">This method is likely to be changed in the future. Try not to use it in your code.
-
  If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown</div>
 <dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variants</code> - A list of variants to be ranked.</dd>
+<dd><code>scores</code> - Scores of the variants.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>a list of the variants ranked from best to worst by scores</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants or scores is null; Thrown if
+ variants.size() not equal to scores.size().</dd>
 </dl>
 </li>
 </ul>

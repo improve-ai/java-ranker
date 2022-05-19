@@ -288,6 +288,28 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testRank_null_variants() {
+        try {
+            DecisionModel.rank(null, Arrays.asList(0.1, 0.2));
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRank_null_scores() {
+        try {
+            DecisionModel.rank(Arrays.asList("hi", "hello"), null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testRankInvalid_largerVariants() {
         int count = 100;
         List<Object> variants = new ArrayList();
@@ -301,7 +323,7 @@ public class DecisionModelTest {
 
         try {
             DecisionModel.rank(variants, scores);
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IllegalArgumentException e) {
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
@@ -321,7 +343,7 @@ public class DecisionModelTest {
 
         try {
             DecisionModel.rank(variants, scores);
-        } catch (IndexOutOfBoundsException e) {
+        } catch (IllegalArgumentException e) {
             return ;
         }
         fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
