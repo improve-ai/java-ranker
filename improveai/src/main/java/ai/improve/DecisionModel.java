@@ -313,7 +313,7 @@ public class DecisionModel {
      * @return An IMPDecision object.
      * */
     public Decision chooseMultiVariate(Map<String, ?> variants) {
-        return new DecisionContext(this, null).chooseMultiVariate(variants);
+        return given(null).chooseMultiVariate(variants);
     }
 
     /**
@@ -331,7 +331,7 @@ public class DecisionModel {
      * variant and it's not a List or Map.
      * */
     public Object which(Object... variants) {
-        return new DecisionContext(this, null).which(variants);
+        return given(null).which(variants);
     }
 
     /**

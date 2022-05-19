@@ -14,7 +14,7 @@ public class DecisionContext {
 
     private Map givens;
 
-    public DecisionContext(DecisionModel decisionModel, Map givens) {
+    protected DecisionContext(DecisionModel decisionModel, Map givens) {
         this.decisionModel = decisionModel;
         this.givens = givens;
     }
