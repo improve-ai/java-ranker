@@ -81,7 +81,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testChooseFromVaiantsAndScores() {
+    public void testChooseFromVariantsAndScores() {
         Map givens = Map.of("lang", "en");
         List variants = Arrays.asList("hi", "hello", "hey");
         List scores = Arrays.asList(0.05, 0.1, 0.08);
@@ -93,14 +93,14 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testChooseFromVaiantsAndScores_generic() {
+    public void testChooseFromVariantsAndScores_generic() {
         DecisionModel decisionModel = new DecisionModel("greetings");
         String greeting = decisionModel.given(null).chooseFrom(variants(), scores()).get();
         IMPLog.d(Tag, "greeting is " + greeting);
     }
 
     @Test
-    public void testChooseFromVaiantsAndScores_null_variants() {
+    public void testChooseFromVariantsAndScores_null_variants() {
         Map givens = Map.of("lang", "en");
         List scores = Arrays.asList(1, 2, 3);
         DecisionModel decisionModel = new DecisionModel("greetings");
@@ -114,7 +114,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testChooseFromVaiantsAndScores_empty_variants() {
+    public void testChooseFromVariantsAndScores_empty_variants() {
         Map givens = Map.of("lang", "en");
         List scores = Arrays.asList(1, 2, 3);
         DecisionModel decisionModel = new DecisionModel("greetings");
@@ -128,7 +128,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testChooseFromVaiantsAndScores_invalid_size() {
+    public void testChooseFromVariantsAndScores_invalid_size() {
         Map givens = Map.of("lang", "en");
         List variants = Arrays.asList("hi", "hello", "hey");
         List scores = Arrays.asList(0.05, 0.1, 0.08, 0.09);
