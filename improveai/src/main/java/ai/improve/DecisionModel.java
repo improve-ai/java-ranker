@@ -58,6 +58,9 @@ public class DecisionModel {
      * It's an equivalent of DecisionModel(modelName, defaultTrackURL, defaultTrackApiKey)
      * We suggest to have the defaultTrackURL/defaultTrackApiKey set on startup before creating
      * any DecisionModel instances.
+     * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
+     *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
+     *                  and the first character must be an alphanumeric one.
      * */
     public DecisionModel(String modelName) {
         this(modelName, sDefaultTrackURL, sDefaultTrackApiKey);
@@ -66,7 +69,7 @@ public class DecisionModel {
     /**
      * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
      *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
-     *                  and the first character must be an alphanumeric one;
+     *                  and the first character must be an alphanumeric one.
      * @param trackURL url for tracking decisions. If trackURL is null, no decisions would be
      *                 tracked. If trackURL is not a valid URL, an exception would be thrown.
      * @param trackApiKey will be attached to the header fields of all the post request for tracking
@@ -137,6 +140,12 @@ public class DecisionModel {
      * may cause leaks. Before we add a cancel method to allow aborting downloading tasks, you may
      * have to call loadAsync() in something like a Singleton class.
      * @deprecated  The callback method signature will likely have to change for multiple URLs
+     * @param modelUrl A url that can be a local file path, a remote http url that points to a
+     *                 model file, or a bundled asset. Urls that ends with '.gz' are considered gzip
+     *                 compressed, and will be handled appropriately. Bundled model asset urls
+     *                 appears a bit different. Suppose that you have a bundled model file in folder
+     *                 "assets/models/my_model.xgb.gz", then modelUrl should be
+     *                 new URL("file:///android_asset/models/my_model.xgb").
      * */
     @Deprecated
     public void loadAsync(URL modelUrl, LoadListener listener) {

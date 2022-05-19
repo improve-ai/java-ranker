@@ -6,20 +6,24 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.net.HttpURLConnection;
 import java.net.URL;
+
+import ai.improve.DecisionModel;
 
 @RunWith(AndroidJUnit4.class)
 public class DownloaderTest {
 
     @Test
-    public void testDownloadWithCache() {
-        try {
-            HttpURLConnection urlConnection = (HttpURLConnection) new URL("http://10.254.115.144:8080/dummy_v6.xgb").openConnection();
-            urlConnection.setReadTimeout(15000);
-            urlConnection.getInputStream();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    public void testLoad_asset() throws IOException {
+        URL modelUrl = new URL("file:///android_asset/dummy_v6.xgb");
+        DecisionModel decisionModel = new DecisionModel("dummy");
+        decisionModel.load(modelUrl);
+    }
+
+    @Test
+    public void testLoad_asset_gzip() throws IOException {
+        URL modelUrl = new URL("file:///android_asset/dummy_v5.xgb");
+        DecisionModel decisionModel = new DecisionModel("dummy");
+        decisionModel.load(modelUrl);
     }
 }

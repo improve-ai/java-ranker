@@ -58,11 +58,7 @@ public class ModelDownloader {
                         // When running in pure Java, new URL("file:///android_asset/") is interpreted
                         // as new URL("file:/android_asset").
                         String path = urlString.substring("file:///android_asset/".length());
-                        if(urlString.endsWith(".gz")) {
-                            inputStream = new GZIPInputStream(assetModelLoader.load(path));
-                        } else {
-                            inputStream = assetModelLoader.load(path);
-                        }
+                        inputStream = assetModelLoader.load(path);
                         ImprovePredictor predictor = new ImprovePredictor(inputStream);
                         if(listener != null) {
                             listener.onFinish(predictor, null);
@@ -87,7 +83,11 @@ public class ModelDownloader {
                     e.printStackTrace();
                     IMPLog.e(Tag, url + ", model download exception: " + e.getMessage());
                     if(listener != null) {
-                        listener.onFinish(null, new IOException(e.getMessage()));
+                        if(e instanceof IOException) {
+                            listener.onFinish(null, (IOException) e);
+                        } else {
+                            listener.onFinish(null, new IOException(e.getMessage()));
+                        }
                     }
                 } finally {
                     if(inputStream != null) {
