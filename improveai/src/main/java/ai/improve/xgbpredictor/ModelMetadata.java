@@ -1,6 +1,5 @@
 package ai.improve.xgbpredictor;
 
-import ai.improve.log.IMPLog;
 import biz.k11i.xgboost.util.ModelReader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -61,7 +60,7 @@ public class ModelMetadata {
         return getValue(USER_DEFINED_METADATA);
     }
 
-    private void parseMetadata(String value) {
+    private void parseMetadata(String value) throws IOException {
         try {
             JsonObject root = JsonParser.parseString(value).getAsJsonObject().getAsJsonObject("json");
             modelName = root.get("model_name").getAsString();
@@ -73,7 +72,7 @@ public class ModelMetadata {
                 modelFeatureNames.add(featuresArray.get(i).getAsString());
             }
         } catch (Throwable t) {
-            throw new IllegalArgumentException("Improve failed to parse the model metadata. Looks like the model being loaded is invalid.");
+            throw new IOException("Failed to parse the model metadata. Looks like the model being loaded is invalid.");
         }
     }
 }
