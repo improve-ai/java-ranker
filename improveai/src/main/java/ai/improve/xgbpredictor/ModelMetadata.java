@@ -1,5 +1,6 @@
 package ai.improve.xgbpredictor;
 
+import ai.improve.constants.BuildProperties;
 import biz.k11i.xgboost.util.ModelReader;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -15,6 +16,9 @@ public class ModelMetadata {
     private static final String Tag = "ModelMetadata";
 
     public static final String USER_DEFINED_METADATA = "user_defined_metadata";
+
+    public static final String IMPROVE_VERSION_KEY = "ai.improve.version";
+
     private Map<String, String> storage = new HashMap<>();
 
     private String modelName;
@@ -63,6 +67,13 @@ public class ModelMetadata {
     private void parseMetadata(String value) throws IOException {
         try {
             JsonObject root = JsonParser.parseString(value).getAsJsonObject().getAsJsonObject("json");
+            if(root.has(IMPROVE_VERSION_KEY)) {
+                String modelVersion = root.get(IMPROVE_VERSION_KEY).getAsString();
+                if(!canParseModel(modelVersion, BuildProperties.getSDKVersion())) {
+                    throw new IOException("Major version don't match. ImproveAI SDK version(" + BuildProperties.getSDKVersion()+") " +
+                            "can't load the model of version("+ modelVersion + ").");
+                }
+            }
             modelName = root.get("model_name").getAsString();
             modelSeed = root.get("model_seed").getAsLong();
 
@@ -71,8 +82,23 @@ public class ModelMetadata {
             for (int i = 0; i < featuresArray.size(); ++i) {
                 modelFeatureNames.add(featuresArray.get(i).getAsString());
             }
-        } catch (Throwable t) {
+        } catch (RuntimeException e) {
             throw new IOException("Failed to parse the model metadata. Looks like the model being loaded is invalid.");
         }
+    }
+
+    /**
+     * Check if the SDK can parse the model.
+     * @return Returns true, if {@value IMPROVE_VERSION_KEY} property is null;
+     * Returns true if the @{value IMPROVE_VERSION_KEY} property is not null and its major version
+     * matches the major version of the SDK; otherwise, return false.
+     */
+    public static boolean canParseModel(String modelVersion, String sdkVersion) {
+        if(modelVersion == null) {
+            return true;
+        }
+        String modelMajorVersion = modelVersion.split("\\.")[0];
+        String sdkMajorVersion = sdkVersion.split("\\.")[0];
+        return modelMajorVersion.equals(sdkMajorVersion);
     }
 }
