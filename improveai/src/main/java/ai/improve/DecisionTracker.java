@@ -28,7 +28,6 @@ class DecisionTracker {
     private static final String GIVENS_KEY = "givens";
     private static final String RUNNERS_UP_KEY = "runners_up";
     public static final String SAMPLE_VARIANT_KEY = "sample";
-    private static final String TIMESTAMP_KEY = "timestamp";
     private static final String MESSAGE_ID_KEY = "message_id";
     private static final String DECISION_ID_KEY = "decision_id";
     private static final String REWARD_KEY = "reward";
@@ -37,8 +36,6 @@ class DecisionTracker {
     private static final String TRACK_API_KEY_HEADER = "x-api-key";
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
-
-    private static final SimpleDateFormat ISO_TIMESTAMP_FORMAT = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.UK);
 
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
 
@@ -242,11 +239,6 @@ class DecisionTracker {
             headers.put(TRACK_API_KEY_HEADER, trackApiKey);
         }
 
-        body = new HashMap<>(body);
-        body.put(TIMESTAMP_KEY, ISO_TIMESTAMP_FORMAT.format(new Date()));
-
-        Map<String, Object> finalBody = body;
-
         // It's not allowed to send network request in the main thread on Android.
         new Thread() {
             @Override
@@ -254,7 +246,7 @@ class DecisionTracker {
                 try {
                     // android.os.NetworkOnMainThreadException will be thrown if post() is called
                     // in main thread
-                    HttpUtil.withUrl(trackURL).withHeaders(headers).withBody(finalBody).post();
+                    HttpUtil.withUrl(trackURL).withHeaders(headers).withBody(body).post();
                 } catch (MalformedURLException e) {
                     IMPLog.e(Tag, e.getLocalizedMessage());
                 }
