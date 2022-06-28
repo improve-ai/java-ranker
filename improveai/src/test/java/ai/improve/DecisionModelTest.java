@@ -463,9 +463,12 @@ public class DecisionModelTest {
 
     @Test
     public void testGiven() {
-        Map<String, Object> given = new HashMap<>();
+        Map<String, Object> givens = new HashMap<>();
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.given(given);
+        decisionModel.given(givens);
+
+        decisionModel.given(Map.of("lang", "en"));
+        decisionModel.given(Map.of("size", 1));
     }
 
     @Test

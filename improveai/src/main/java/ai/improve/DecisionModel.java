@@ -413,7 +413,7 @@ public class DecisionModel {
      *              its feature vector.
      * @return A DecisionContext object.
      */
-    public DecisionContext given(Map<String, Object> givens) {
+    public DecisionContext given(Map<String, ?> givens) {
         return new DecisionContext(this, givens);
     }
 
