@@ -327,7 +327,7 @@ public class DecisionModel {
 
     /**
      * This method is an alternative of chooseFrom(). An example here might be more expressive:
-     * chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
+     * optimize({"style":["bold", "italic"], "size":[3, 5]})
      *       is equivalent to
      * chooseFrom([
      *      {"style":"bold", "size":3},
@@ -338,12 +338,12 @@ public class DecisionModel {
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity
      *                 like chooseFrom(). The value of the dictionary is expected to be a List.
      *                 If not, it would be treated as an one-element List anyway. So
-     *                 chooseMultiVariate({"style":["bold", "italic"], "size":3}) is equivalent to
-     *                 chooseMultiVariate({"style":["bold", "italic"], "size":[3]})
+     *                 optimize({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                 optimize({"style":["bold", "italic"], "size":[3]})
      * @return An IMPDecision object.
      * */
-    public Decision chooseMultiVariate(Map<String, ?> variants) {
-        return given(null).chooseMultiVariate(variants);
+    public Decision optimize(Map<String, ?> variants) {
+        return given(null).optimize(variants);
     }
 
     /**
@@ -353,7 +353,7 @@ public class DecisionModel {
      *                 When the only argument is a List, it's equivalent to calling
      *                 chooseFrom(variants).get();
      *                 When the only argument is a Map, it's equivalent to calling
-     *                 chooseMultiVariate(variants).get();
+     *                 optimize(variants).get();
      *                 When there are two or more arguments, all the arguments would form a
      *                 list and be passed to chooseFrom();
      * @return Returns the chosen variant

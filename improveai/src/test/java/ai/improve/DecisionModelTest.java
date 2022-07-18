@@ -581,10 +581,10 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_null_variants() {
+    public void testOptimize_null_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.chooseMultiVariate(null);
+            decisionModel.optimize(null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -593,10 +593,10 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_empty_variants() {
+    public void testOptimize_empty_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.chooseMultiVariate(new HashMap<>());
+            decisionModel.optimize(new HashMap<>());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -605,11 +605,11 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_1_variant() {
+    public void testOptimize_1_variant() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(variants);
+        Decision decision = decisionModel.optimize(variants);
         List expected = Arrays.asList(
                 new HashMap<String, String>(){{
                     put("font", "Italic");
@@ -621,12 +621,12 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_2_variants() {
+    public void testOptimize_2_variants() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
         variants.put("color", Arrays.asList("#000000", "#ffffff"));
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(variants);
+        Decision decision = decisionModel.optimize(variants);
         List expected = Arrays.asList(
                 new HashMap<String, String>(){{
                     put("font", "Italic");
@@ -648,13 +648,13 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_3_variants() {
+    public void testOptimize_3_variants() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
         variants.put("color", Arrays.asList("#000000", "#ffffff"));
         variants.put("size", 3);
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(variants);
+        Decision decision = decisionModel.optimize(variants);
         List expected = Arrays.asList(
                 new HashMap<String, Object>(){{
                     put("font", "Italic");

@@ -125,9 +125,9 @@ public class DecisionContext {
     }
 
     /**
-     * @see ai.improve.DecisionModel#chooseMultiVariate(Map)
+     * @see ai.improve.DecisionModel#optimize(Map)
      */
-    public Decision chooseMultiVariate(Map<String, ?> variants) {
+    public Decision optimize(Map<String, ?> variants) {
         if(variants == null || variants.size() <= 0) {
             return chooseFrom(null);
         }
@@ -187,7 +187,7 @@ public class DecisionContext {
             if(variants[0] instanceof List) {
                 return chooseFrom((List)variants[0]).get();
             } else if(variants[0] instanceof Map) {
-                return chooseMultiVariate((Map)variants[0]).get();
+                return optimize((Map)variants[0]).get();
             }
             throw new IllegalArgumentException("If only one argument, it must be a List or Map");
         }
