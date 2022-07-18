@@ -751,12 +751,13 @@ public class DecisionModelTest {
         variants.put("color", Arrays.asList("#000000"));
         variants.put("size", 3);
         DecisionModel decisionModel = new DecisionModel("theme");
-        Object best = decisionModel.which(variants);
-        assertEquals(new HashMap<String, Object>(){{
-            put("font", "Italic");
-            put("color", "#000000");
-            put("size", 3);
-        }}, best);
+        try {
+            decisionModel.which(variants);
+        } catch (IllegalArgumentException t) {
+            t.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
     }
 
     @Test

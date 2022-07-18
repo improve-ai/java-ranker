@@ -352,13 +352,11 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      *                 When the only argument is a List, it's equivalent to calling
      *                 chooseFrom(variants).get();
-     *                 When the only argument is a Map, it's equivalent to calling
-     *                 optimize(variants).get();
      *                 When there are two or more arguments, all the arguments would form a
      *                 list and be passed to chooseFrom();
      * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants is null or empty; or if there's only one
-     * variant and it's not a List or Map.
+     * @throws IllegalArgumentException Thrown if variants is null or empty; Thrown if there's only one
+     * variant and it's not a List.
      * */
     public Object which(Object... variants) {
         return given(null).which(variants);
@@ -379,7 +377,7 @@ public class DecisionModel {
      * This is a short hand of chooseFirst().get().
      * @param variants See chooseFrom(). If only one argument, it must be a non-empty list.
      * @return If multiple arguments is passed to first(), the first argument would be returned;
-     * If only one argument(a non-empty list), then the fist member of it would be returned.
+     * If only one argument(a nonempty list), then the fist member of it would be returned.
      * @throws IllegalArgumentException Thrown if variants is null; Thrown if variants is empty;
      * Thrown if the there's only one argument and it's not a non-empty list.
      */
@@ -398,7 +396,7 @@ public class DecisionModel {
 
     /**
      * A shorthand of chooseRandom(variants).get()
-     * @param variants See chooseFrom(). If only one argument, it must be a non-empty list. Expect
+     * @param variants See chooseFrom(). If only one argument, it must be a nonempty list. Expect
      *                 at least one argument.
      * @return A random variant.
      * @throws IllegalArgumentException Thrown if variants is empty or null; Thrown if there's only

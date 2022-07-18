@@ -186,10 +186,8 @@ public class DecisionContext {
         if(variants.length == 1) {
             if(variants[0] instanceof List) {
                 return chooseFrom((List)variants[0]).get();
-            } else if(variants[0] instanceof Map) {
-                return optimize((Map)variants[0]).get();
             }
-            throw new IllegalArgumentException("If only one argument, it must be a List or Map");
+            throw new IllegalArgumentException("If only one argument, it must be a List.");
         }
 
         return chooseFrom(Arrays.asList(variants)).get();
