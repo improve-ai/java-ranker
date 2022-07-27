@@ -530,17 +530,21 @@ public class DecisionModel {
     }
 
     /**
-     * @param decisionId unique id of a decision.
+     * Add reward for the provided decisionId
      * @param reward reward for the decision.
+     * @param decisionId unique id of a decision.
+     * @throws IllegalArgumentException Thrown if decisionId is null or empty; Thrown if reward
+     * is NaN or Infinity.
+     * @throws IllegalStateException Thrown if trackURL is null.
      * Adds the reward to a specific decision
      */
-    protected void addRewardForDecision(String decisionId, double reward) {
+    public void addReward(double reward, String decisionId) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
             throw new IllegalArgumentException("reward must not be NaN or infinity");
         }
 
-        if(DecisionTracker.persistenceProvider == null) {
-            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+        if(Utils.isEmpty(decisionId)) {
+            throw new IllegalArgumentException("decisionId can't be null or empty");
         }
 
         if(tracker == null) {

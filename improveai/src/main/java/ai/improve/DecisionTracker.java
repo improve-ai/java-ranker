@@ -219,7 +219,9 @@ class DecisionTracker {
 
         postTrackingRequest(body);
 
-        persistenceProvider.addRewardForModel(modelName, reward);
+        if(persistenceProvider != null) {
+            persistenceProvider.addRewardForModel(modelName, reward);
+        }
     }
 
     protected Map getAddDecisionRewardRequestBody(String ksuid, String modelName, String decisionId, double reward) {

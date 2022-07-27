@@ -1070,6 +1070,85 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testAddRewardForDecision() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.addReward(1.0, "abcd");
+    }
+
+    @Test
+    public void testAddRewardForDecision_empty_decisionId() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(1.0, "");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_null_decisionId() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(1.0, null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_nan() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(Double.NaN, "abcd");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_positive_infinity() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(Double.POSITIVE_INFINITY, "abcd");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_negative_infinity() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(Double.POSITIVE_INFINITY, "abcd");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_null_trackURL() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        try {
+            decisionModel.addReward(1.0, "abcd");
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testGivensProvider_getter_setter() {
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNull(decisionModel.getGivensProvider());
