@@ -107,7 +107,7 @@ public class DecisionContext {
     }
 
     /**
-     * @see ai.improve.DecisionModel#optimize(Map)
+     * @see ai.improve.DecisionModel#chooseMultivariate(Map)
      */
     public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
         if(variants == null || variants.size() <= 0) {
@@ -119,11 +119,17 @@ public class DecisionContext {
         List<List> categories = new ArrayList();
         for(Map.Entry<String, ?> entry : variants.entrySet()) {
             if(entry.getValue() instanceof List) {
-                categories.add((List)entry.getValue());
+                if(((List)entry.getValue()).size() > 0) {
+                    categories.add((List) entry.getValue());
+                    allKeys.add(entry.getKey());
+                }
             } else {
                 categories.add(Arrays.asList(entry.getValue()));
+                allKeys.add(entry.getKey());
             }
-            allKeys.add(entry.getKey());
+        }
+        if(categories.size() <= 0) {
+            throw new IllegalArgumentException("valueMap values are all empty list!");
         }
 
         List<Map<String, ?>> combinations = new ArrayList();

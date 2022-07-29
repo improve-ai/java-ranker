@@ -337,16 +337,19 @@ public class DecisionModel {
      *      {"style":"italic", "size":5},
      * ])
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity
-     *                 like chooseFrom(). The value of the dictionary is expected to be a List.
-     *                 If not, it would be treated as an one-element List anyway. So
-     *                 optimize({"style":["bold", "italic"], "size":3}) is equivalent to
-     *                 optimize({"style":["bold", "italic"], "size":[3]})
+     *                 like chooseFrom(). The value of the dictionary is expected to be a list.
+     *                 If not, it would be automatically wrapped as a list containing a single item.
+     *                 So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                 chooseMultivariate({"style":["bold", "italic"], "size":[3]})
      * @return An IMPDecision object.
-     * */
+     */
     public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
         return given(null).chooseMultivariate(variants);
     }
 
+    /**
+     * A shorthand of chooseMultivariate(variantMap).get().
+     */
     public Map<String, ?> optimize(Map<String, ?> variants) {
         return given(null).optimize(variants);
     }

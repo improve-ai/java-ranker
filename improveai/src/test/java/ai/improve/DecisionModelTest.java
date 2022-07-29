@@ -717,6 +717,32 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testOptimize_empty_member() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        variants.put("size", Arrays.asList(12, 13));
+        variants.put("color", new ArrayList<String>());
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Map<String, String> theme = decisionModel.optimize(variants);
+        assertEquals(2, theme.size());
+        assertNotNull(theme.get("font"));
+        assertNotNull(theme.get("size"));
+    }
+
+    @Test
+    public void testOptimize_all_empty() {
+        Map variants = new HashMap();
+        variants.put("color", new ArrayList<String>());
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.optimize(variants);
+            fail(DefaultFailMessage);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testWhichVariadic() {
         DecisionModel decisionModel = new DecisionModel("theme");
 
