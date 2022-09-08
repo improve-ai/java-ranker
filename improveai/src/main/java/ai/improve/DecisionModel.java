@@ -29,7 +29,7 @@ public class DecisionModel {
 
     private final Object lock = new Object();
 
-    private String modelName;
+    private final String modelName;
 
     private String trackURL;
 
@@ -41,7 +41,7 @@ public class DecisionModel {
 
     private FeatureEncoder featureEncoder;
 
-    private static AtomicInteger seq = new AtomicInteger(0);
+    private static final AtomicInteger seq = new AtomicInteger(0);
 
     protected boolean enableTieBreaker = true;
 
@@ -52,7 +52,7 @@ public class DecisionModel {
 
     private final static ModelMap instances = new ModelMap();
 
-    private Map<Integer, LoadListener> listeners = new ConcurrentHashMap<>();
+    private final Map<Integer, LoadListener> listeners = new ConcurrentHashMap<>();
 
     /**
      * It's an equivalent of DecisionModel(modelName, defaultTrackURL, defaultTrackApiKey)
@@ -307,6 +307,7 @@ public class DecisionModel {
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.
      * @return an IMPDecision object.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
      * */
     public <T> Decision<T> chooseFrom(List<T> variants) {
         return given(null).chooseFrom(variants);
@@ -327,7 +328,7 @@ public class DecisionModel {
 
     /**
      * This method is an alternative of chooseFrom(). An example here might be more expressive:
-     * chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
+     * optimize({"style":["bold", "italic"], "size":[3, 5]})
      *       is equivalent to
      * chooseFrom([
      *      {"style":"bold", "size":3},
@@ -336,31 +337,42 @@ public class DecisionModel {
      *      {"style":"italic", "size":5},
      * ])
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity
-     *                 like chooseFrom(). The value of the dictionary is expected to be a List.
-     *                 If not, it would be treated as an one-element List anyway. So
-     *                 chooseMultiVariate({"style":["bold", "italic"], "size":3}) is equivalent to
-     *                 chooseMultiVariate({"style":["bold", "italic"], "size":[3]})
+     *                 like chooseFrom(). The value of the dictionary is expected to be a list.
+     *                 If not, it would be automatically wrapped as a list containing a single item.
+     *                 So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                 chooseMultivariate({"style":["bold", "italic"], "size":[3]})
      * @return An IMPDecision object.
-     * */
-    public Decision chooseMultiVariate(Map<String, ?> variants) {
-        return given(null).chooseMultiVariate(variants);
+     */
+    public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
+        return given(null).chooseMultivariate(variants);
+    }
+
+    /**
+     * A shorthand of chooseMultivariate(variantMap).get().
+     */
+    public Map<String, ?> optimize(Map<String, ?> variants) {
+        return given(null).optimize(variants);
     }
 
     /**
      * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
      * directly.
      * @param variants See chooseFrom().
-     *                 When the only argument is a List, it's equivalent to calling
-     *                 chooseFrom(variants).get();
-     *                 When the only argument is a Map, it's equivalent to calling
-     *                 chooseMultiVariate(variants).get();
-     *                 When there are two or more arguments, all the arguments would form a
-     *                 list and be passed to chooseFrom();
      * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants is null or empty; or if there's only one
-     * variant and it's not a List or Map.
-     * */
-    public Object which(Object... variants) {
+     * @throws IllegalArgumentException Thrown if variants number is 0.
+     */
+    @SafeVarargs
+    public final <T> T which(T... variants) {
+        return given(null).which(variants);
+    }
+
+    /**
+     * This is a short hand version of chooseFrom(variants).get()
+     * @param variants See chooseFrom().
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public <T> T which(List<T> variants) {
         return given(null).which(variants);
     }
 
@@ -369,25 +381,32 @@ public class DecisionModel {
      * @return A Decision object which has the first variant as the best.
      */
     public <T> Decision<T> chooseFirst(List<T> variants) {
-        if(variants == null || variants.size() <= 0) {
-            throw new IllegalArgumentException("variants can't be null or empty");
-        }
-        return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+        return given(null).chooseFirst(variants);
     }
 
     /**
-     * This is a short hand of chooseFirst().get().
-     * @param variants See chooseFrom(). If only one argument, it must be a non-empty list.
-     * @return If multiple arguments is passed to first(), the first argument would be returned;
-     * If only one argument(a non-empty list), then the fist member of it would be returned.
-     * @throws IllegalArgumentException Thrown if variants is null; Thrown if variants is empty;
-     * Thrown if the there's only one argument and it's not a non-empty list.
+     * A shorthand of chooseFirst().get().
+     * @param variants See chooseFrom().
+     * @return Returns the first variant.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
-    public Object first(Object... variants) {
+    public <T> T first(List<T> variants) {
         return given(null).first(variants);
     }
 
     /**
+     * An alternative of first(list).
+     * @param variants See chooseFrom().
+     * @return Returns the first variant.
+     * @throws IllegalArgumentException Thrown if variants number is 0.
+     */
+    @SafeVarargs
+    public final <T> T first(T... variants) {
+        return given(null).first(variants);
+    }
+
+    /**
+     * Choose a random variant.
      * @param variants See chooseFrom()
      * @return A Decision object containing a random variant as the decision.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
@@ -398,13 +417,22 @@ public class DecisionModel {
 
     /**
      * A shorthand of chooseRandom(variants).get()
-     * @param variants See chooseFrom(). If only one argument, it must be a non-empty list. Expect
-     *                 at least one argument.
+     * @param variants See chooseFrom().
      * @return A random variant.
-     * @throws IllegalArgumentException Thrown if variants is empty or null; Thrown if there's only
-     * one argument and it's not a non-empty list.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
-    public Object random(Object...variants) {
+    public <T> T random(List<T> variants) {
+        return given(null).random(variants);
+    }
+
+    /**
+     * An alternative of random(List).
+     * @param variants See chooseFrom().
+     * @return A random variant.
+     * @throws IllegalArgumentException Thrown if variants number is 0.
+     */
+    @SafeVarargs
+    public final <T> T random(T... variants) {
         return given(null).random(variants);
     }
 
@@ -413,7 +441,7 @@ public class DecisionModel {
      *              its feature vector.
      * @return A DecisionContext object.
      */
-    public DecisionContext given(Map<String, Object> givens) {
+    public DecisionContext given(Map<String, ?> givens) {
         return new DecisionContext(this, givens);
     }
 
@@ -431,7 +459,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      * @return scores of the variants
      */
-    public List<Double> score(List variants) {
+    public List<Double> score(List<?> variants) {
         return scoreInternal(variants, combinedGivens(null));
     }
 
@@ -448,7 +476,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants is null or empty
      * @return scores of the variants
      */
-    protected List<Double> scoreInternal(List variants, Map<String, ?> givens) {
+    protected List<Double> scoreInternal(List<?> variants, Map<String, ?> givens) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
@@ -505,17 +533,21 @@ public class DecisionModel {
     }
 
     /**
-     * @param decisionId unique id of a decision.
+     * Add reward for the provided decisionId
      * @param reward reward for the decision.
+     * @param decisionId unique id of a decision.
+     * @throws IllegalArgumentException Thrown if decisionId is null or empty; Thrown if reward
+     * is NaN or Infinity.
+     * @throws IllegalStateException Thrown if trackURL is null.
      * Adds the reward to a specific decision
      */
-    protected void addRewardForDecision(String decisionId, double reward) {
+    public void addReward(double reward, String decisionId) {
         if(Double.isInfinite(reward) || Double.isNaN(reward)) {
             throw new IllegalArgumentException("reward must not be NaN or infinity");
         }
 
-        if(DecisionTracker.persistenceProvider == null) {
-            throw new RuntimeException("DecisionModel.addReward() is only available for Android.");
+        if(Utils.isEmpty(decisionId)) {
+            throw new IllegalArgumentException("decisionId can't be null or empty");
         }
 
         if(tracker == null) {
@@ -527,7 +559,6 @@ public class DecisionModel {
 
     /**
      * This method is likely to be changed in the future. Try not to use it in your code.
-     * If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown
      * @param variants A list of variants to be ranked.
      * @param scores Scores of the variants.
      * @return a list of the variants ranked from best to worst by scores

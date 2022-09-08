@@ -12,6 +12,7 @@ import static ai.improve.DecisionTrackerTest.Track_URL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +55,9 @@ public class DecisionModelTest {
     @BeforeEach
     public void setUp() throws Exception {
         IMPLog.d(Tag, "setUp");
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        DecisionModel.setDefaultTrackURL(Track_URL);
+        DecisionModel.setDefaultTrackApiKey(Track_Api_Key);
     }
 
     private class AlphaGivensProvider implements GivensProvider {
@@ -254,7 +258,7 @@ public class DecisionModelTest {
     @Test
     public void testRank() {
         int count = 100;
-        List<Object> variants = new ArrayList();
+        List<Integer> variants = new ArrayList();
         List<Double> scores = new ArrayList<>();
 
         for(int i = 0; i < count; ++i) {
@@ -276,7 +280,7 @@ public class DecisionModelTest {
         }
 
         IMPLog.d(Tag, "Sorted.....");
-        List<Object> sorted = DecisionModel.rank(variants, scores);
+        List<Integer> sorted = DecisionModel.rank(variants, scores);
         assertEquals(sorted.size(), variants.size());
 
         for(int i = 0; i < sorted.size(); ++i) {
@@ -332,7 +336,7 @@ public class DecisionModelTest {
     @Test
     public void testRankInvalid_largerScores() {
         int count = 100;
-        List<Object> variants = new ArrayList();
+        List<Integer> variants = new ArrayList();
         List<Double> scores = new ArrayList<>();
 
         for(int i = 0; i < count; ++i) {
@@ -463,9 +467,12 @@ public class DecisionModelTest {
 
     @Test
     public void testGiven() {
-        Map<String, Object> given = new HashMap<>();
+        Map<String, Object> givens = new HashMap<>();
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.given(given);
+        decisionModel.given(givens);
+
+        decisionModel.given(Map.of("lang", "en"));
+        decisionModel.given(Map.of("size", 1));
     }
 
     @Test
@@ -491,8 +498,6 @@ public class DecisionModelTest {
         decisionModel.chooseFrom(stringVariants).get();
 
         // Choose from complex objects
-        // themeVariants = [ { "textColor": "#000000", "backgroundColor": "#ffffff" },
-        // { "textColor": "#F0F0F0", "backgroundColor": "#aaaaaa" } ]
         List variants = Arrays.asList(
                 new HashMap<String, String>(){{
                     put("textColor", "#000000");
@@ -503,10 +508,6 @@ public class DecisionModelTest {
                     put("backgroundColor", "#aaaaaa");
                 }});
         decisionModel.chooseFrom(variants).get();
-
-
-        // product = try DecisionModel.load(modelUrl).chooseFrom(["clutch", "dress", "jacket"]).get()
-//        product = IMPDecisionModel.lo(modelUrl).chooseFrom(["clutch", "dress", "jacket"]).get()
     }
 
     @Test
@@ -517,11 +518,37 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseFromVariantsAndScores() {
-        List variants = Arrays.asList("hi", "hello", "Hey");
-        List scores = Arrays.asList(0.1, 1.0, -0.1);
+    public void testChooseFrom_empty() {
+        List<String> variants = new ArrayList<>();
         DecisionModel decisionModel = new DecisionModel("greetings");
-        Decision decision = decisionModel.chooseFrom(variants, scores);
+        try {
+            decisionModel.chooseFrom(variants);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChoooseFrom_null() {
+        List<String> variants = null;
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.chooseFrom(variants);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testChooseFromVariantsAndScores() {
+        List<String> variants = Arrays.asList("hi", "hello", "Hey");
+        List<Double> scores = Arrays.asList(0.1, 1.0, -0.1);
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Decision<String> decision = decisionModel.chooseFrom(variants, scores);
         assertEquals("hello", decision.best);
         assertNull(decision.givens);
         assertEquals(scores, decision.scores);
@@ -565,8 +592,8 @@ public class DecisionModelTest {
 
     @Test
     public void testChooseFromVariantsAndScores_size_not_equal() {
-        List variants = Arrays.asList("hi", "hello", "Hey");
-        List scores = Arrays.asList(0.1, 1.0);
+        List<String> variants = Arrays.asList("hi", "hello", "Hey");
+        List<Double> scores = Arrays.asList(0.1, 1.0);
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.chooseFrom(variants, scores);
@@ -578,10 +605,10 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_null_variants() {
+    public void testChooseMultivariate_null_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.chooseMultiVariate(null);
+            decisionModel.chooseMultivariate(null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -590,10 +617,10 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_empty_variants() {
+    public void testChooseMultivariate_empty_variants() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.chooseMultiVariate(new HashMap<>());
+            decisionModel.chooseMultivariate(new HashMap<>());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -602,11 +629,11 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_1_variant() {
-        Map variants = new HashMap();
+    public void testChooseMultivariate_1_variant() {
+        Map<String, List<String>> variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(variants);
+        Decision decision = decisionModel.chooseMultivariate(variants);
         List expected = Arrays.asList(
                 new HashMap<String, String>(){{
                     put("font", "Italic");
@@ -614,16 +641,16 @@ public class DecisionModelTest {
                 new HashMap<String, String>(){{
                     put("font", "Bold");
                 }});
-        assertTrue(expected.equals(decision.variants));
+        assertEquals(expected, decision.variants);
     }
 
     @Test
-    public void testChooseMultiVariate_2_variants() {
+    public void testChooseMultivariate_2_variants() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
         variants.put("color", Arrays.asList("#000000", "#ffffff"));
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(variants);
+        Decision decision = decisionModel.chooseMultivariate(variants);
         List expected = Arrays.asList(
                 new HashMap<String, String>(){{
                     put("font", "Italic");
@@ -645,13 +672,13 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testChooseMultiVariate_3_variants() {
+    public void testChooseMultivariate_3_variants() {
         Map variants = new HashMap();
         variants.put("font", Arrays.asList("Italic", "Bold"));
         variants.put("color", Arrays.asList("#000000", "#ffffff"));
         variants.put("size", 3);
         DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseMultiVariate(variants);
+        Decision decision = decisionModel.chooseMultivariate(variants);
         List expected = Arrays.asList(
                 new HashMap<String, Object>(){{
                     put("font", "Italic");
@@ -677,18 +704,66 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhich_null_argument() {
+    public void testOptimize() {
+        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        variants.put("size", Arrays.asList(12, 13));
         DecisionModel decisionModel = new DecisionModel("theme");
-        try {
-            decisionModel.which((Object)null);
-        } catch (IllegalArgumentException e) {
-            return ;
-        }
-        fail(DefaultFailMessage);
+        Map<String, String> theme = decisionModel.optimize(variants);
+        assertEquals(2, theme.size());
+        assertNotNull(theme.get("font"));
+        assertNotNull(theme.get("size"));
     }
 
     @Test
-    public void testWhich_no_argument() {
+    public void testOptimize_empty_member() {
+        Map variants = new HashMap();
+        variants.put("font", Arrays.asList("Italic", "Bold"));
+        variants.put("size", Arrays.asList(12, 13));
+        variants.put("color", new ArrayList<String>());
+        DecisionModel decisionModel = new DecisionModel("theme");
+        Map<String, String> theme = decisionModel.optimize(variants);
+        assertEquals(2, theme.size());
+        assertNotNull(theme.get("font"));
+        assertNotNull(theme.get("size"));
+    }
+
+    @Test
+    public void testOptimize_all_empty() {
+        Map variants = new HashMap();
+        variants.put("color", new ArrayList<String>());
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.optimize(variants);
+            fail(DefaultFailMessage);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testWhichVariadic() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+
+        int size = decisionModel.which(1, 2, 3);
+        assertEquals(1, size);
+
+        String greeting = decisionModel.which("hi", "hello", "hey");
+        assertEquals("hi", greeting);
+
+        String color = decisionModel.which(Arrays.asList("#ffffff", "#000000", "#f0f0f0"));
+        assertEquals("#ffffff", color);
+    }
+
+    @Test
+    public void testWhichVariadic_null() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        decisionModel.which((String)null);
+    }
+
+    @Test
+    public void testWhichVariadic_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
             decisionModel.which();
@@ -700,19 +775,25 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhich_empty_map() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        try {
-            decisionModel.which(new HashMap<>());
-        } catch (IllegalArgumentException e) {
-            e.printStackTrace();
-            return ;
-        }
-        fail(DefaultFailMessage);
+    public void testWhichVariadic_mixed_types() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object chosen = decisionModel.which("hi", 0, true, 1.2f);
+        assertEquals("hi", chosen);
+
+        chosen = decisionModel.which(false, "hi", 0, true, 1.2f);
+        assertEquals(false, chosen);
     }
 
     @Test
-    public void testWhich_empty_list() {
+    public void testWhichList() {
+        List<String> variants = Arrays.asList("Hi", "Hello", "Hey");
+        DecisionModel decisionModel = new DecisionModel("theme");
+        String greeting = decisionModel.which(variants);
+        assertEquals("Hi", greeting);
+    }
+
+    @Test
+    public void testWhichList_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
             decisionModel.which(new ArrayList<>());
@@ -721,46 +802,6 @@ public class DecisionModelTest {
             return ;
         }
         fail(DefaultFailMessage);
-    }
-
-
-    @Test
-    public void testWhich_1_argument_non_array() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        try {
-            decisionModel.which(1);
-        } catch (IllegalArgumentException e) {
-            return ;
-        }
-        fail(DefaultFailMessage);
-    }
-
-    @Test
-    public void testWhich_1_argument_array() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        decisionModel.which(Arrays.asList(1));
-    }
-
-    @Test
-    public void testWhich_1_argument_map() {
-        Map variants = new HashMap();
-        variants.put("font", Arrays.asList("Italic"));
-        variants.put("color", Arrays.asList("#000000"));
-        variants.put("size", 3);
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Object best = decisionModel.which(variants);
-        assertEquals(new HashMap<String, Object>(){{
-            put("font", "Italic");
-            put("color", "#000000");
-            put("size", 3);
-        }}, best);
-    }
-
-    @Test
-    public void testWhich_multiple_arguments() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Object best = decisionModel.which(Arrays.asList(1, 2, 3), 2, 3, "hello");
-        IMPLog.d(Tag, "best is " + best);
     }
 
     @Test
@@ -808,50 +849,27 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testFirst() {
+    public void testFirstVariadic() {
         DecisionModel decisionModel = new DecisionModel("greetings");
-        Object first = decisionModel.first("hi", "hello", "hey");
+        String first = decisionModel.first("hi", "hello", "hey");
         assertEquals("hi", first);
     }
 
     @Test
-    public void testFirst_empty() {
+    public void testFirstVariadic_mixed_types() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.first("hi", 0, true, 1.2f);
+        assertEquals("hi", first);
+
+        first = decisionModel.first(false, "hi", 0, true, 1.2f);
+        assertEquals(false, first);
+    }
+
+    @Test
+    public void testFirstVariadic_empty() {
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.first();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ;
-        }
-        fail(DefaultFailMessage);
-    }
-
-    @Test
-    public void testFirst_null() {
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        try {
-            decisionModel.first(null);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ;
-        }
-        fail(DefaultFailMessage);
-    }
-
-    @Test
-    public void testFirst_one_argument() {
-        List variants = Arrays.asList("hi", "hello", "hey");
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        Object first = decisionModel.first((Object) variants);
-        assertEquals("hi", first);
-    }
-
-    @Test
-    public void testFirst_one_argument_empty_list() {
-        List variants = new ArrayList();
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        try {
-            decisionModel.first((Object) variants);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -860,11 +878,39 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testFirst_one_argument_not_list() {
+    public void testFirstVariadic_null() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String chosen = decisionModel.first((String)null);
+        assertNull(chosen);
+    }
+
+    @Test
+    public void testFirstList() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        String first = decisionModel.first(variants);
+        assertEquals("hi", first);
+    }
+
+    @Test
+    public void testFirstList_empty() {
+        List<String> variants = new ArrayList();
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
-            decisionModel.first("hi");
-        } catch (Exception e) {
+            decisionModel.first(variants);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testFirstList_null() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.first((List)null);
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
         }
@@ -905,7 +951,7 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.chooseRandom(variants);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
         }
@@ -917,7 +963,7 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.chooseRandom(null);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
         }
@@ -925,7 +971,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRandom() {
+    public void testRandomVariadic() {
         int loop = 100000;
         Map<String, Integer> countMap = new HashMap<>();
         DecisionModel decisionModel = new DecisionModel("greetings");
@@ -945,11 +991,11 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRandom_empty_variants() {
+    public void testRandomVariadic_empty() {
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.random();
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
         }
@@ -957,26 +1003,27 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRandom_null_variants() {
+    public void testRandomVariadic_null() {
         DecisionModel decisionModel = new DecisionModel("greetings");
-        try {
-            decisionModel.random(null);
-        } catch (RuntimeException e) {
-            e.printStackTrace();
-            return ;
-        }
-        fail(DefaultFailMessage);
+        String greeting = decisionModel.random((String)null);
+        assertNull(greeting);
     }
 
     @Test
-    public void testRandom_one_argument() {
+    public void testRandomVariadic_mixed_types() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        Object first = decisionModel.random("hi", 0, true, 1.2f);
+    }
+
+    @Test
+    public void testRandomList() {
         int loop = 100000;
-        List variants = Arrays.asList("hi", "hello", "hey");
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
         Map<String, Integer> countMap = new HashMap<>();
         DecisionModel decisionModel = new DecisionModel("greetings");
         decisionModel.setTrackURL(null);
         for(int i = 0; i < loop; ++i) {
-            String variant = (String) decisionModel.random(variants);
+            String variant = decisionModel.random(variants);
             if(countMap.containsKey(variant)) {
                 countMap.put(variant, countMap.get(variant) + 1);
             } else {
@@ -990,12 +1037,25 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRandom_one_argument_empty_list() {
-        List variants = new ArrayList();
+    public void testRandomList_empty() {
+        List<String> variants = new ArrayList();
         DecisionModel decisionModel = new DecisionModel("greetings");
         try {
             decisionModel.random(variants);
-        } catch (RuntimeException e) {
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRandomList_null() {
+        List<String> variants = new ArrayList();
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.random(variants);
+        } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
         }
@@ -1028,6 +1088,85 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("hello");
         try {
             decisionModel.addReward(0.1);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.addReward(1.0, "abcd");
+    }
+
+    @Test
+    public void testAddRewardForDecision_empty_decisionId() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(1.0, "");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_null_decisionId() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(1.0, null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_nan() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(Double.NaN, "abcd");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_positive_infinity() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(Double.POSITIVE_INFINITY, "abcd");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_negative_infinity() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        try {
+            decisionModel.addReward(Double.POSITIVE_INFINITY, "abcd");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testAddRewardForDecision_null_trackURL() {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.setTrackURL(null);
+        try {
+            decisionModel.addReward(1.0, "abcd");
         } catch (IllegalStateException e) {
             e.printStackTrace();
             return ;

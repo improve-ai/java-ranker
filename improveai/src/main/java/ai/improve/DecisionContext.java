@@ -29,9 +29,9 @@ public class DecisionContext {
 
         Map allGivens = decisionModel.combinedGivens(givens);
         List scores = decisionModel.scoreInternal(variants, allGivens);
-        Object best = ModelUtils.topScoringVariant(variants, scores);
+        T best = (T) ModelUtils.topScoringVariant(variants, scores);
 
-        Decision decision = new Decision(decisionModel);
+        Decision<T> decision = new Decision(decisionModel);
         decision.variants = variants;
         decision.best = best;
         decision.givens = allGivens;
@@ -74,24 +74,14 @@ public class DecisionContext {
         return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
     }
 
+    public <T> T first(List<T> variants) {
+        return chooseFirst(variants).get();
+    }
+
     /**
      * @see ai.improve.DecisionModel#first(Object...)
      */
-    public Object first(Object... variants) {
-        if(variants == null) {
-            throw new IllegalArgumentException("variants can't be null");
-        }
-        if(variants.length <= 0) {
-            throw new IllegalArgumentException("first() expects at least one variant");
-        }
-
-        if(variants.length == 1) {
-            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
-                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
-            }
-            return chooseFirst((List)variants[0]).get();
-        }
-
+    public <T> T first(T... variants) {
         return chooseFirst(Arrays.asList(variants)).get();
     }
 
@@ -108,49 +98,47 @@ public class DecisionContext {
     /**
      * @see ai.improve.DecisionModel#random(Object...)
      */
-    public Object random(Object... variants) {
-        if(variants == null) {
-            throw new IllegalArgumentException("variants can't be null");
-        }
-        if(variants.length <= 0) {
-            throw new IllegalArgumentException("random() expects at least one variant");
-        }
-        if(variants.length == 1) {
-            if(!(variants[0] instanceof List) || ((List)variants[0]).size() <= 0) {
-                throw new IllegalArgumentException("If only one argument, it must be a non-empty list.");
-            }
-            return chooseRandom((List)variants[0]).get();
-        }
+    public <T> T random(T... variants) {
         return chooseRandom(Arrays.asList(variants)).get();
     }
 
+    public <T> T random(List<T> variants) {
+        return chooseRandom(variants).get();
+    }
+
     /**
-     * @see ai.improve.DecisionModel#chooseMultiVariate(Map)
+     * @see ai.improve.DecisionModel#chooseMultivariate(Map)
      */
-    public Decision chooseMultiVariate(Map<String, ?> variants) {
+    public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
         if(variants == null || variants.size() <= 0) {
             return chooseFrom(null);
         }
 
-        List allKeys = new ArrayList();
+        List<String> allKeys = new ArrayList();
 
         List<List> categories = new ArrayList();
         for(Map.Entry<String, ?> entry : variants.entrySet()) {
             if(entry.getValue() instanceof List) {
-                categories.add((List)entry.getValue());
+                if(((List)entry.getValue()).size() > 0) {
+                    categories.add((List) entry.getValue());
+                    allKeys.add(entry.getKey());
+                }
             } else {
                 categories.add(Arrays.asList(entry.getValue()));
+                allKeys.add(entry.getKey());
             }
-            allKeys.add(entry.getKey());
+        }
+        if(categories.size() <= 0) {
+            throw new IllegalArgumentException("valueMap values are all empty list!");
         }
 
-        List<Map> combinations = new ArrayList();
+        List<Map<String, ?>> combinations = new ArrayList();
         for(int i = 0; i < categories.size(); ++i) {
             List category = categories.get(i);
-            List<Map> newCombinations = new ArrayList();
+            List<Map<String, ?>> newCombinations = new ArrayList();
             for(int m = 0; m < category.size(); ++m) {
                 if(combinations.size() == 0) {
-                    Map newVariant = new HashMap();
+                    Map<String, Object> newVariant = new HashMap();
                     newVariant.put(allKeys.get(i), category.get(m));
                     newCombinations.add(newVariant);
                 } else {
@@ -167,6 +155,10 @@ public class DecisionContext {
         return chooseFrom(combinations);
     }
 
+    public Map<String, ?> optimize(Map<String, ?> variants) {
+        return chooseMultivariate(variants).get();
+    }
+
     /**
      * @see ai.improve.DecisionModel#score(List)
      */
@@ -178,20 +170,14 @@ public class DecisionContext {
     /**
      * @see ai.improve.DecisionModel#which(Object...) 
      */
-    public Object which(Object... variants) {
+    public <T> T which(T... variants) {
         if(variants == null || variants.length <= 0) {
             throw new IllegalArgumentException("should at least provide one variant.");
         }
-
-        if(variants.length == 1) {
-            if(variants[0] instanceof List) {
-                return chooseFrom((List)variants[0]).get();
-            } else if(variants[0] instanceof Map) {
-                return chooseMultiVariate((Map)variants[0]).get();
-            }
-            throw new IllegalArgumentException("If only one argument, it must be a List or Map");
-        }
-
         return chooseFrom(Arrays.asList(variants)).get();
+    }
+
+    public <T> T which(List<T> variants) {
+        return chooseFrom(variants).get();
     }
 }

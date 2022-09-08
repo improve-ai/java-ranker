@@ -84,6 +84,6 @@ public class Decision<T> {
             throw new IllegalStateException("id can't be null. Make sure that addReward() is " +
                     "called after get(); and the trackURL is set in the DecisionModel.");
         }
-        model.addRewardForDecision(id, reward);
+        model.addReward(reward, id);
     }
 }

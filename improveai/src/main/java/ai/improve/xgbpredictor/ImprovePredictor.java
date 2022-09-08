@@ -22,7 +22,6 @@ public class ImprovePredictor implements Serializable {
     private ObjFunction obj;
     private GradBooster gbm;
     private ModelMetadata modelMetadata;
-//    private IMPModelMetadata modelMetadata;
 
     private float base_score;
 

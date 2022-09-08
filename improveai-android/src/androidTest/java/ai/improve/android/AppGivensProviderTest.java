@@ -93,6 +93,18 @@ public class AppGivensProviderTest {
     }
 
     @Test
+    public void testAddRewardForDecision() {
+        String modelName = "hello";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        double oldTotalRewards = AppGivensProviderUtils.rewardOfModel(modelName);
+        decisionModel.addReward(0.1, "decision_id");
+        double newTotalRewards = AppGivensProviderUtils.rewardOfModel(modelName);
+        assertEquals(oldTotalRewards+0.1, newTotalRewards, 0.000000000001);
+        IMPLog.d(Tag, "old reward: " + oldTotalRewards +
+                ", new reward: " + newTotalRewards);
+    }
+
+    @Test
     public void testVersion_string_length() throws JSONException {
         double v = AppGivensProviderUtils.versionToNumber("7.1.2");
         JSONObject root = new JSONObject();
