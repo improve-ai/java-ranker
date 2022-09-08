@@ -30,7 +30,6 @@ import java.util.concurrent.Semaphore;
 
 import ai.improve.log.IMPLog;
 
-import static ai.improve.DecisionTrackerTest.Track_URL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
@@ -128,7 +127,7 @@ public class DecisionModelTest {
     @Test
     public void testLoadAsync_no_callback() throws MalformedURLException {
         URL url = new URL(ModelURL);
-        DecisionModel.get("greetings").loadAsync(url);
+        DecisionModel.getInstance("greetings").loadAsync(url);
         try {
             Thread.sleep(10 * 1000);
         } catch (InterruptedException e) {

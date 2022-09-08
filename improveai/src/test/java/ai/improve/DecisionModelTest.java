@@ -156,6 +156,27 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testGetInstance() {
+        DecisionModel decisionModel = DecisionModel.getInstance("greetings");
+        assertNotNull(decisionModel);
+    }
+
+    @Test
+    public void testGetInstance_invalid_model_name() {
+        try {
+            DecisionModel.getInstance("");
+            fail("model name can't be empty");
+        } catch (IllegalArgumentException e) {
+        }
+
+        try {
+            DecisionModel.getInstance(null);
+            fail("model name can't be null");
+        } catch (IllegalArgumentException e) {
+        }
+    }
+
+    @Test
     public void testSetTrackURL_Null() {
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNotNull(decisionModel.getTrackURL());
