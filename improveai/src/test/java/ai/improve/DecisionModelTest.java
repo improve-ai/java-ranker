@@ -12,7 +12,6 @@ import static ai.improve.DecisionTrackerTest.Track_URL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -50,6 +49,10 @@ public class DecisionModelTest {
 
     private List<Double> scores() {
         return Arrays.asList(0.1, 0.2, 0.3);
+    }
+
+    private DecisionModel model() {
+        return new DecisionModel("greetings");
     }
 
     @BeforeEach
@@ -497,6 +500,33 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testDecide() {
+        DecisionModel decisionModel = model();
+
+        Decision<String> decision = decisionModel.decide(Arrays.asList("Hi", "Hello", "Hey"));
+        assertEquals("Hi", decision.get());
+        assertEquals(3, decision.ranked().size());
+
+        String greeting = decisionModel.decide(Arrays.asList("Hi", "Hello", "Hey")).get();
+        int size = decisionModel.decide(Arrays.asList(1, 2, 3)).get();
+        IMPLog.d(Tag, "greeting = " + greeting + ", size = " + size);
+    }
+
+    @Test
+    public void testDecide_false() {
+        model().decide(variants(), false).get();
+    }
+
+    @Test
+    public void testDecideWithScore() {
+        List<String> variants = Arrays.asList("Hi", "Hello", "Hey");
+        List<Double> scores = Arrays.asList(1.1, 3.3, 2.2);
+        Decision<String> decision = model().decide(variants, scores);
+        assertEquals("Hello", decision.get());
+        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked());
+    }
+
+    @Test
     public void testChooseFrom() {
         DecisionModel decisionModel = new DecisionModel("music");
 
@@ -570,10 +600,8 @@ public class DecisionModelTest {
         List<Double> scores = Arrays.asList(0.1, 1.0, -0.1);
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision<String> decision = decisionModel.chooseFrom(variants, scores);
-        assertEquals("hello", decision.best);
+        assertEquals("hello", decision.get());
         assertNull(decision.givens);
-        assertEquals(scores, decision.scores);
-        assertEquals(variants, decision.variants);
     }
 
     @Test
@@ -655,14 +683,7 @@ public class DecisionModelTest {
         variants.put("font", Arrays.asList("Italic", "Bold"));
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseMultivariate(variants);
-        List expected = Arrays.asList(
-                new HashMap<String, String>(){{
-                    put("font", "Italic");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Bold");
-                }});
-        assertEquals(expected, decision.variants);
+        assertEquals(Arrays.asList(Map.of("font", "Italic"), Map.of("font", "Bold")), decision.ranked());
     }
 
     @Test
@@ -672,24 +693,11 @@ public class DecisionModelTest {
         variants.put("color", Arrays.asList("#000000", "#ffffff"));
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseMultivariate(variants);
-        List expected = Arrays.asList(
-                new HashMap<String, String>(){{
-                    put("font", "Italic");
-                    put("color", "#000000");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Italic");
-                    put("color", "#ffffff");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Bold");
-                    put("color", "#000000");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Bold");
-                    put("color", "#ffffff");
-                }});
-        assertEquals(expected, decision.variants);
+        assertEquals(Arrays.asList(
+                Map.of("font", "Italic", "color", "#000000"),
+                Map.of("font", "Italic", "color", "#ffffff"),
+                Map.of("font", "Bold", "color", "#000000"),
+                Map.of("font", "Bold", "color", "#ffffff")), decision.ranked());
     }
 
     @Test
@@ -700,28 +708,11 @@ public class DecisionModelTest {
         variants.put("size", 3);
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseMultivariate(variants);
-        List expected = Arrays.asList(
-                new HashMap<String, Object>(){{
-                    put("font", "Italic");
-                    put("color", "#000000");
-                    put("size", 3);
-                }},
-                new HashMap<String, Object>(){{
-                    put("font", "Italic");
-                    put("color", "#ffffff");
-                    put("size", 3);
-                }},
-                new HashMap<String, Object>(){{
-                    put("font", "Bold");
-                    put("color", "#000000");
-                    put("size", 3);
-                }},
-                new HashMap<String, Object>(){{
-                    put("font", "Bold");
-                    put("color", "#ffffff");
-                    put("size", 3);
-                }});
-        assertEquals(expected, decision.variants);
+        assertEquals(Arrays.asList(
+                Map.of("font", "Italic", "color", "#000000", "size", 3),
+                Map.of("font", "Italic", "color", "#ffffff", "size", 3),
+                Map.of("font", "Bold", "color", "#000000", "size", 3),
+                Map.of("font", "Bold", "color", "#ffffff", "size", 3)), decision.ranked());
     }
 
     @Test
@@ -830,10 +821,9 @@ public class DecisionModelTest {
         List variants = Arrays.asList("hi", "hello", "hey");
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision decision = decisionModel.chooseFirst(variants);
-        assertEquals("hi", decision.best);
-        assertEquals(variants, decision.variants);
+        assertEquals("hi", decision.get());
+        assertEquals(variants, decision.ranked());
         assertNull(decision.givens);
-        assertEquals(variants.size(), decision.scores.size());
     }
 
     @Test

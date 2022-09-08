@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -38,6 +40,37 @@ public class DecisionContextTest {
 
     private Map<String, String> givens() {
         return Map.of("lang", "en");
+    }
+
+    private DecisionModel model() {
+        return new DecisionModel("greetings");
+    }
+
+    @Test
+    public void testDecide() {
+        DecisionContext decisionContext = model().given(givens());
+
+        Decision<String> decision = decisionContext.decide(Arrays.asList("Hi", "Hello", "Hey"));
+        assertEquals("Hi", decision.get());
+        assertEquals(3, decision.ranked().size());
+
+        String greeting = decisionContext.decide(Arrays.asList("Hi", "Hello", "Hey")).get();
+        int size = decisionContext.decide(Arrays.asList(1, 2, 3)).get();
+        IMPLog.d(Tag, "greeting = " + greeting + ", size = " + size);
+    }
+
+    @Test
+    public void testDecide_false() {
+        model().given(givens()).decide(variants(), false).get();
+    }
+
+    @Test
+    public void testDecideWithScore() {
+        List<String> variants = Arrays.asList("Hi", "Hello", "Hey");
+        List<Double> scores = Arrays.asList(1.1, 3.3, 2.2);
+        Decision<String> decision = model().given(givens()).decide(variants, scores);
+        assertEquals("Hello", decision.get());
+        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked());
     }
 
     @Test
@@ -88,7 +121,7 @@ public class DecisionContextTest {
         List scores = Arrays.asList(0.05, 0.1, 0.08);
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision decision = decisionModel.given(givens).chooseFrom(variants, scores);
-        assertEquals("hello", decision.best);
+        assertEquals("hello", decision.get());
         assertEquals(1, decision.givens.size());
         assertEquals("en", decision.givens.get("lang"));
     }

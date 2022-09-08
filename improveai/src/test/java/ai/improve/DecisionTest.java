@@ -97,7 +97,7 @@ public class DecisionTest {
     public void testAddReward_before_get() {
         try {
             DecisionModel decisionModel = new DecisionModel("theme");
-            Decision decision = new Decision(decisionModel);
+            Decision decision = decisionModel.decide(variants());
             decision.addReward(0.1);
         } catch (IllegalStateException e) {
             return ;

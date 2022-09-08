@@ -13,6 +13,7 @@ import ai.improve.ksuid.KsuidGenerator;
 import ai.improve.log.IMPLog;
 import ai.improve.provider.PersistenceProvider;
 import ai.improve.util.HttpUtil;
+import ai.improve.util.ModelUtils;
 import ai.improve.util.Utils;
 
 class DecisionTracker {
@@ -92,8 +93,7 @@ class DecisionTracker {
      * that bestVariant is not null , and variants.size() > 0
      * @return the message_id of the tracked decision; null is returned in case of errors
      * */
-    protected <T> String track(Object bestVariant, List<T> variants, Map<String, Object> givens,
-                                 String modelName, boolean variantsRankedAndTrackRunnersUp) {
+    protected <T> String track(List<T> rankedVariants, Map<String, ?> givens, String modelName) {
         if(modelName == null || modelName.isEmpty()) {
             IMPLog.e(Tag, "Improve.track error: modelName is empty or null");
             return null;
@@ -115,22 +115,23 @@ class DecisionTracker {
         body.put(MODEL_KEY, modelName);
         body.put(MESSAGE_ID_KEY, decisionId);
 
-        setCount(variants, body);
+        setCount(rankedVariants, body);
 
-        setBestVariant(bestVariant, body);
+        setBestVariant(rankedVariants.get(0), body);
 
         if(givens != null) {
             body.put(GIVENS_KEY, givens);
         }
 
         List<T> runnersUp = null;
-        if(variantsRankedAndTrackRunnersUp) {
-            runnersUp = topRunnersUp(variants, maxRunnersUp);
+        boolean shouldTrackRunnersUp = shouldTrackRunnersUp(rankedVariants.size(), maxRunnersUp);
+        if(shouldTrackRunnersUp) {
+            runnersUp = topRunnersUp(rankedVariants, maxRunnersUp);
             body.put(RUNNERS_UP_KEY, runnersUp);
         }
 
         int runnersUpCount = runnersUp == null ? 0 : runnersUp.size();
-        setSampleVariant(variants, runnersUpCount, variantsRankedAndTrackRunnersUp, bestVariant, body);
+        setSampleVariant(rankedVariants, runnersUpCount, body);
 
         postTrackingRequest(body);
 
@@ -166,30 +167,18 @@ class DecisionTracker {
      *
      * If the sample variant itself is null, it should also be included in the body map.
      **/
-    protected <T> void setSampleVariant(List<T> variants, int runnersUpCount, boolean ranked, Object bestVariant, Map<String, Object> body) {
-        if(variants == null || variants.size() <= 0) {
+    protected <T> void setSampleVariant(List<T> rankedVariants, int runnersUpCount, Map<String, Object> body) {
+        if(rankedVariants == null || rankedVariants.size() <= 0) {
             return ;
         }
 
-        int samplesCount = variants.size() - runnersUpCount - 1;
+        int samplesCount = rankedVariants.size() - runnersUpCount - 1;
         if (samplesCount <= 0) {
             return ;
         }
 
-        if(ranked) {
-            int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
-            body.put(SAMPLE_VARIANT_KEY, variants.get(randomIndex));
-        } else {
-            int indexOfBestVariant = variants.indexOf(bestVariant);
-            Random r = new Random();
-            while (true) {
-                int randomIdx = r.nextInt(variants.size());
-                if(randomIdx != indexOfBestVariant) {
-                    body.put(SAMPLE_VARIANT_KEY, variants.get(randomIdx));
-                    break;
-                }
-            }
-        }
+        int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
+        body.put(SAMPLE_VARIANT_KEY, rankedVariants.get(randomIndex));
     }
 
     /**
@@ -266,5 +255,12 @@ class DecisionTracker {
 
     protected String lastDecisionIdOfModel(String modelName) {
         return persistenceProvider.lastDecisionIdForModel(modelName);
+    }
+
+    protected static boolean shouldTrackRunnersUp(int variantsCount, int maxRunnersUp) {
+        if(variantsCount <= 1 || maxRunnersUp == 0) {
+            return false;
+        }
+        return Math.random() < 1.0 / Math.min(variantsCount - 1, maxRunnersUp);
     }
 }

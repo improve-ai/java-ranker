@@ -20,48 +20,57 @@ public class DecisionContext {
     }
 
     /**
-     * @see ai.improve.DecisionModel#chooseFrom(List)
+     * @see ai.improve.DecisionModel#score(List)
      */
-    public <T> Decision<T> chooseFrom(List<T> variants) {
+    public <T> List<Double> score(List<T> variants) {
+        Map allGivens = decisionModel.combinedGivens(givens);
+        return decisionModel.scoreInternal(variants, allGivens);
+    }
+
+    public <T> Decision<T> decide(List<T> variants) {
+        return decide(variants, false);
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#decide(List)
+     */
+    public <T> Decision<T> decide(List<T> variants, boolean ordered) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants to choose from can't be null or empty");
         }
 
-        Map allGivens = decisionModel.combinedGivens(givens);
-        List scores = decisionModel.scoreInternal(variants, allGivens);
-        T best = (T) ModelUtils.topScoringVariant(variants, scores);
+        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
+        List<T> rankedVariants;
+        if(ordered) {
+            rankedVariants = variants;
+        } else {
+            List<Double> scores = decisionModel.scoreInternal(variants, allGivens);
+            rankedVariants = DecisionModel.rank(variants, scores);
+        }
+        return new Decision(decisionModel, rankedVariants, allGivens);
+    }
 
-        Decision<T> decision = new Decision(decisionModel);
-        decision.variants = variants;
-        decision.best = best;
-        decision.givens = allGivens;
-        decision.scores = scores;
+    /**
+     * @see ai.improve.DecisionModel#decide(List, List)
+     */
+    public <T> Decision<T> decide(List<T> variants, List<Double> scores) {
+        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
+        List<T> rankedVariants = DecisionModel.rank(variants, scores);
+        return new Decision(decisionModel, rankedVariants, allGivens);
+    }
 
-        return decision;
+    /**
+     * @see ai.improve.DecisionModel#chooseFrom(List)
+     */
+    public <T> Decision<T> chooseFrom(List<T> variants) {
+        return decide(variants);
     }
 
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List, List)
      */
     public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
-        if(variants == null || scores == null || variants.size() <= 0) {
-            throw new IllegalArgumentException("variants and scores can't be null or empty");
-        }
-        if(variants.size() != scores.size()) {
-            throw new IllegalArgumentException("variants.size(" +
-                    variants.size() + ") not equal to scores.size(" +
-                    scores.size() + ")");
-        }
-
-        Map allGivens = decisionModel.combinedGivens(givens);
-
-        Object best = ModelUtils.topScoringVariant(variants, scores);
-        Decision decision = new Decision(decisionModel);
-        decision.variants = variants;
-        decision.best = best;
-        decision.givens = allGivens;
-        decision.scores = scores;
-        return decision;
+        return decide(variants, scores);
     }
 
     /**
@@ -157,14 +166,6 @@ public class DecisionContext {
 
     public Map<String, ?> optimize(Map<String, ?> variants) {
         return chooseMultivariate(variants).get();
-    }
-
-    /**
-     * @see ai.improve.DecisionModel#score(List)
-     */
-    public <T> List<Double> score(List<T> variants) {
-        Map allGivens = decisionModel.combinedGivens(givens);
-        return decisionModel.scoreInternal(variants, allGivens);
     }
 
     /**

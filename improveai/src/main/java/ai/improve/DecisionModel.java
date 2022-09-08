@@ -303,6 +303,27 @@ public class DecisionModel {
     }
 
     /**
+     * @param givens Additional context info that will be used with each of the variants to calculate
+     *              its feature vector.
+     * @return A DecisionContext object.
+     */
+    public DecisionContext given(Map<String, ?> givens) {
+        return new DecisionContext(this, givens);
+    }
+
+    public <T> Decision<T> decide(List<T> variants) {
+        return decide(variants, false);
+    }
+
+    public <T> Decision<T> decide(List<T> variants, boolean ordered) {
+        return given(null).decide(variants, ordered);
+    }
+
+    public <T> Decision<T> decide(List<T> variants, List<Double> scores) {
+        return given(null).decide(variants, scores);
+    }
+
+    /**
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.
@@ -434,15 +455,6 @@ public class DecisionModel {
     @SafeVarargs
     public final <T> T random(T... variants) {
         return given(null).random(variants);
-    }
-
-    /**
-     * @param givens Additional context info that will be used with each of the variants to calculate
-     *              its feature vector.
-     * @return A DecisionContext object.
-     */
-    public DecisionContext given(Map<String, ?> givens) {
-        return new DecisionContext(this, givens);
     }
 
     protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
