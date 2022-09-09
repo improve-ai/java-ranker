@@ -87,6 +87,13 @@ public class DecisionContext {
     }
 
     /**
+     * @see ai.improve.DecisionModel#optimize(Map) 
+     */
+    public Map<String, Object> optimize(Map<String, ?> variantMap) {
+        return whichFrom(decisionModel.fullFactorialVariants(variantMap));
+    }
+
+    /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
      */
     public <T> Decision<T> chooseFrom(List<T> variants) {
@@ -189,9 +196,5 @@ public class DecisionContext {
         }
 
         return chooseFrom(combinations);
-    }
-
-    public Map<String, ?> optimize(Map<String, ?> variants) {
-        return chooseMultivariate(variants).get();
     }
 }

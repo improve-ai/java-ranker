@@ -697,25 +697,31 @@ public class DecisionModelTest {
 
     @Test
     public void testOptimize() {
-        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        Map variants = new HashMap();
-        variants.put("font", Arrays.asList("Italic", "Bold"));
-        variants.put("size", Arrays.asList(12, 13));
+        Map<String, ?> variantMap = Map.of("font", Arrays.asList("Italic", "Bold"), "size", Arrays.asList(12, 13));
         DecisionModel decisionModel = new DecisionModel("theme");
-        Map<String, String> theme = decisionModel.optimize(variants);
+        Map<String, Object> theme = decisionModel.optimize(variantMap);
         assertEquals(2, theme.size());
         assertNotNull(theme.get("font"));
         assertNotNull(theme.get("size"));
     }
 
     @Test
+    public void testOptimize_null_variants() {
+        try {
+            model().optimize(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testOptimize_empty_member() {
-        Map variants = new HashMap();
-        variants.put("font", Arrays.asList("Italic", "Bold"));
-        variants.put("size", Arrays.asList(12, 13));
-        variants.put("color", new ArrayList<String>());
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Map<String, String> theme = decisionModel.optimize(variants);
+        Map<String, ?> variantMap = Map.of("font", Arrays.asList("Italic", "Bold"),
+                "size", Arrays.asList(12, 13),
+                "color", new ArrayList<>());
+        Map<String, Object> theme = model().optimize(variantMap);
         assertEquals(2, theme.size());
         assertNotNull(theme.get("font"));
         assertNotNull(theme.get("size"));

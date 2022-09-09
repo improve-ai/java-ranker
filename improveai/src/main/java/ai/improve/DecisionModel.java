@@ -441,6 +441,22 @@ public class DecisionModel {
     }
 
     /**
+     * This method is a short hand of chooseMultivariate(variants).get().
+     * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable
+     *                   data structure of arbitrary complexity. If they are not lists, they are
+     *                   automatically wrapped as a list containing a single item.
+     *                   So optimize({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                   optimize({"style":["bold", "italic"], "size":[3]})
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if the variants to choose from is nil or empty;
+     * Thrown if variantMap values
+     * are all empty lists.
+     */
+    public Map<String, Object> optimize(Map<String, ?> variantMap) {
+        return given(null).optimize(variantMap);
+    }
+
+    /**
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.
@@ -483,13 +499,6 @@ public class DecisionModel {
      */
     public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
         return given(null).chooseMultivariate(variants);
-    }
-
-    /**
-     * A shorthand of chooseMultivariate(variantMap).get().
-     */
-    public Map<String, ?> optimize(Map<String, ?> variants) {
-        return given(null).optimize(variants);
     }
 
     /**
