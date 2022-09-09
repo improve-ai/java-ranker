@@ -5,6 +5,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -373,6 +374,70 @@ public class DecisionModel {
      */
     public <T> List<T> rank(List<T> variants) {
         return given(null).rank(variants);
+    }
+
+    /**
+     * An example here might be more expressive:
+     * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
+     * [
+     *     {"style":"bold", "size":3},
+     *     {"style":"italic", "size":3},
+     *     {"style":"bold", "size":5},
+     *     {"style":"italic", "size":5},
+     * ]
+     * @param variantMap The values of the variant map are expected to be lists of any JSON
+     *                   encodeable data structure of arbitrary complexity. If they are not lists,
+     *                   they are automatically wrapped as a list containing a single item.
+     *                   So fullFactorialVariants({"style":["bold", "italic"], "size":3}) is
+     *                   equivalent to fullFactorialVariants({"style":["bold", "italic"], "size":[3]})
+     * @return Returns the full factorial combinations of key and values specified by the input variant map.
+     * @throws IllegalArgumentException Thrown if variantMap is nil or empty; Thrown if variantMap values
+     * are all empty lists.
+     */
+    public List<Map<String, Object>> fullFactorialVariants(Map<String, ?> variantMap) {
+        if(variantMap == null || variantMap.size() <= 0) {
+            throw new IllegalArgumentException("variantMap can't be null or empty");
+        }
+
+        List<String> allKeys = new ArrayList();
+
+        List<List<Object>> categories = new ArrayList();
+        for(Map.Entry<String, ?> entry : variantMap.entrySet()) {
+            if(entry.getValue() instanceof List) {
+                if(((List)entry.getValue()).size() > 0) {
+                    categories.add((List) entry.getValue());
+                    allKeys.add(entry.getKey());
+                }
+            } else {
+                categories.add(Arrays.asList(entry.getValue()));
+                allKeys.add(entry.getKey());
+            }
+        }
+        if(categories.size() <= 0) {
+            throw new IllegalArgumentException("variantMap values are all empty lists.");
+        }
+
+        List<Map<String, Object>> combinations = new ArrayList();
+        for(int i = 0; i < categories.size(); ++i) {
+            List<Object> category = categories.get(i);
+            List<Map<String, Object>> newCombinations = new ArrayList();
+            for(int m = 0; m < category.size(); ++m) {
+                if(combinations.size() == 0) {
+                    Map<String, Object> newVariant = new HashMap();
+                    newVariant.put(allKeys.get(i), category.get(m));
+                    newCombinations.add(newVariant);
+                } else {
+                    for(int n = 0; n < combinations.size(); ++n) {
+                        Map<String, Object> newVariant = new HashMap(combinations.get(n));
+                        newVariant.put(allKeys.get(i), category.get(m));
+                        newCombinations.add(newVariant);
+                    }
+                }
+            }
+            combinations = newCombinations;
+        }
+
+        return combinations;
     }
 
     /**

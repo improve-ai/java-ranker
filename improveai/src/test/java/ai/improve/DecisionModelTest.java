@@ -836,6 +836,24 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testFullFactorialVariants() {
+        List variants = model().fullFactorialVariants(Map.of(
+                "color", Arrays.asList("black", "white"),
+                "fontSize", Arrays.asList(12, 13),
+                "style", "bold",
+                "count", new ArrayList<>()));
+        assertEquals(4, variants.size());
+        List expectedVariants = Arrays.asList(
+                Map.of("fontSize", 12, "color", "black", "style", "bold"),
+                Map.of("fontSize", 12, "color", "white", "style", "bold"),
+                Map.of("fontSize", 13, "color", "black", "style", "bold"),
+                Map.of("fontSize", 13, "color", "white", "style", "bold"));
+        for(int i = 0; i < variants.size(); ++i) {
+            assertTrue(expectedVariants.contains(variants.get(i)));
+        }
+    }
+
+    @Test
     public void testChooseFirst() {
         List variants = Arrays.asList("hi", "hello", "hey");
         DecisionModel decisionModel = new DecisionModel("greetings");
