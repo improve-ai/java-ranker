@@ -763,9 +763,6 @@ public class DecisionModelTest {
 
         String greeting = decisionModel.which("hi", "hello", "hey");
         assertEquals("hi", greeting);
-
-        String color = decisionModel.which(Arrays.asList("#ffffff", "#000000", "#f0f0f0"));
-        assertEquals("#ffffff", color);
     }
 
     @Test
@@ -797,18 +794,30 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhichList() {
+    public void testWhichFrom() {
         List<String> variants = Arrays.asList("Hi", "Hello", "Hey");
         DecisionModel decisionModel = new DecisionModel("theme");
-        String greeting = decisionModel.which(variants);
+        String greeting = decisionModel.whichFrom(variants);
         assertEquals("Hi", greeting);
     }
 
     @Test
-    public void testWhichList_empty() {
+    public void testWhichFrom_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.which(new ArrayList<>());
+            decisionModel.whichFrom(new ArrayList<>());
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testWhichFrom_null() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.whichFrom(null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;

@@ -474,16 +474,16 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichList() {
+    public void testWhichFrom() {
         List<String> variants = Arrays.asList("Hello", "Hi", "Hey");
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
-        String greeting = decisionContext.which(variants);
+        String greeting = decisionContext.whichFrom(variants);
         assertEquals("Hello", greeting);
     }
 
     @Test
-    public void testWhichList_null() {
+    public void testWhichFrom_null() {
         List<String> variants = null;
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
@@ -497,7 +497,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichList_empty() {
+    public void testWhichFrom_empty() {
         List<String> variants = new ArrayList<>();
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);

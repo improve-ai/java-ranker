@@ -27,6 +27,9 @@ public class DecisionContext {
         return decisionModel.scoreInternal(variants, allGivens);
     }
 
+    /**
+     * @see ai.improve.DecisionModel#decide(List)
+     */
     public <T> Decision<T> decide(List<T> variants) {
         return decide(variants, false);
     }
@@ -57,6 +60,23 @@ public class DecisionContext {
         Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
         List<T> rankedVariants = DecisionModel.rank(variants, scores);
         return new Decision(decisionModel, rankedVariants, allGivens);
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#which(Object[])
+     */
+    public <T> T which(T... variants) {
+        if(variants == null || variants.length <= 0) {
+            throw new IllegalArgumentException("should at least provide one variant.");
+        }
+        return chooseFrom(Arrays.asList(variants)).get();
+    }
+
+    /**
+     * @see ai.improve.DecisionModel#which(Object[])
+     */
+    public <T> T whichFrom(List<T> variants) {
+        return chooseFrom(variants).get();
     }
 
     /**
@@ -166,19 +186,5 @@ public class DecisionContext {
 
     public Map<String, ?> optimize(Map<String, ?> variants) {
         return chooseMultivariate(variants).get();
-    }
-
-    /**
-     * @see ai.improve.DecisionModel#which(Object...) 
-     */
-    public <T> T which(T... variants) {
-        if(variants == null || variants.length <= 0) {
-            throw new IllegalArgumentException("should at least provide one variant.");
-        }
-        return chooseFrom(Arrays.asList(variants)).get();
-    }
-
-    public <T> T which(List<T> variants) {
-        return chooseFrom(variants).get();
     }
 }

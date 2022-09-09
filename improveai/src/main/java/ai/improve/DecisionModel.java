@@ -311,16 +311,58 @@ public class DecisionModel {
         return new DecisionContext(this, givens);
     }
 
+    /**
+     * Equivalent to decide(variants, false)
+     */
     public <T> Decision<T> decide(List<T> variants) {
         return decide(variants, false);
     }
 
+    /**
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                booleans.
+     * @param ordered True means the variants are already in order starting with the best variant.
+     * @return an IMPDecision object.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
     public <T> Decision<T> decide(List<T> variants, boolean ordered) {
         return given(null).decide(variants, ordered);
     }
 
+    /**
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                booleans.
+     * @param scores Scores of the variants.
+     * @return an IMPDecision object.
+     * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
+     * variants.size() != scores.size().
+     */
     public <T> Decision<T> decide(List<T> variants, List<Double> scores) {
         return given(null).decide(variants, scores);
+    }
+
+    /**
+     * The variadic version of whichFrom(variants).
+     * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and booleans.
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if variants number is 0.
+     */
+    @SafeVarargs
+    public final <T> T which(T... variants) {
+        return given(null).which(variants);
+    }
+
+    /**
+     * This is a short hand version of decide(variants).get()
+     * @param variants See chooseFrom().
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public <T> T whichFrom(List<T> variants) {
+        return given(null).whichFrom(variants);
     }
 
     /**
@@ -329,7 +371,7 @@ public class DecisionModel {
      *                booleans.
      * @return an IMPDecision object.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
-     * */
+     */
     public <T> Decision<T> chooseFrom(List<T> variants) {
         return given(null).chooseFrom(variants);
     }
@@ -373,28 +415,6 @@ public class DecisionModel {
      */
     public Map<String, ?> optimize(Map<String, ?> variants) {
         return given(null).optimize(variants);
-    }
-
-    /**
-     * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
-     * directly.
-     * @param variants See chooseFrom().
-     * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants number is 0.
-     */
-    @SafeVarargs
-    public final <T> T which(T... variants) {
-        return given(null).which(variants);
-    }
-
-    /**
-     * This is a short hand version of chooseFrom(variants).get()
-     * @param variants See chooseFrom().
-     * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants is null or empty.
-     */
-    public <T> T which(List<T> variants) {
-        return given(null).which(variants);
     }
 
     /**
