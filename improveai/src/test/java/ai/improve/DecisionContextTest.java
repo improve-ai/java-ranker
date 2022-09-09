@@ -3,6 +3,7 @@ package ai.improve;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
@@ -508,6 +509,36 @@ public class DecisionContextTest {
             return ;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRank() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        List<String> rankedVariants = model().rank(variants);
+        assertEquals(variants.size(), rankedVariants.size());
+        for(String variant : rankedVariants) {
+            assertTrue(variants.contains(variant));
+        }
+    }
+
+    @Test
+    public void testRank_null_variants() {
+        try {
+            model().rank(null);
+            fail("variants can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRank_empty_variants() {
+        try {
+            model().rank(new ArrayList<>());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

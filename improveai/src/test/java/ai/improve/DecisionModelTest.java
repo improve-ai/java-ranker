@@ -280,7 +280,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRank() {
+    public void testRankWithScores() {
         int count = 100;
         List<Integer> variants = new ArrayList();
         List<Double> scores = new ArrayList<>();
@@ -316,7 +316,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRank_null_variants() {
+    public void testRankWithScores_null_variants() {
         try {
             DecisionModel.rank(null, Arrays.asList(0.1, 0.2));
         } catch (IllegalArgumentException e) {
@@ -327,7 +327,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRank_null_scores() {
+    public void testRankWithScores_null_scores() {
         try {
             DecisionModel.rank(Arrays.asList("hi", "hello"), null);
         } catch (IllegalArgumentException e) {
@@ -338,43 +338,23 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRankInvalid_largerVariants() {
-        int count = 100;
-        List<Object> variants = new ArrayList();
-        List<Double> scores = new ArrayList<>();
-
-        for(int i = 0; i < count; ++i) {
-            variants.add(i);
-            scores.add((double)i);
-        }
-        variants.add(1);
-
+    public void testRankWithScores_largerVariants() {
         try {
-            DecisionModel.rank(variants, scores);
+            DecisionModel.rank(Arrays.asList("Hi", "Hello", "Hey"), Arrays.asList(1.1, 2.2));
         } catch (IllegalArgumentException e) {
             return ;
         }
-        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
+        fail("variants.size() must be equal to scores.size()");
     }
 
     @Test
-    public void testRankInvalid_largerScores() {
-        int count = 100;
-        List<Integer> variants = new ArrayList();
-        List<Double> scores = new ArrayList<>();
-
-        for(int i = 0; i < count; ++i) {
-            variants.add(i);
-            scores.add((double)i);
-        }
-        scores.add(0.1);
-
+    public void testRankWithScores_largerScores() {
         try {
-            DecisionModel.rank(variants, scores);
+            DecisionModel.rank(Arrays.asList("Hi", "Hello"), Arrays.asList(1.1, 2.2, 3.3));
         } catch (IllegalArgumentException e) {
             return ;
         }
-        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
+        fail("variants.size() must be equal to scores.size()");
     }
 
     @Test
@@ -823,6 +803,36 @@ public class DecisionModelTest {
             return ;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRank() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        List<String> rankedVariants = model().rank(variants);
+        assertEquals(variants.size(), rankedVariants.size());
+        for(String variant : rankedVariants) {
+            assertTrue(variants.contains(variant));
+        }
+    }
+
+    @Test
+    public void testRank_null_variants() {
+        try {
+            model().rank(null);
+            fail("variants can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRank_empty_variants() {
+        try {
+            model().rank(new ArrayList<>());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

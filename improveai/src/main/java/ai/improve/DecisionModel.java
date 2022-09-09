@@ -356,13 +356,23 @@ public class DecisionModel {
     }
 
     /**
-     * This is a short hand version of decide(variants).get()
+     * A shorthand of decide(variants).get()
      * @param variants See chooseFrom().
      * @return Returns the chosen variant
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
     public <T> T whichFrom(List<T> variants) {
         return given(null).whichFrom(variants);
+    }
+
+    /**
+     * A shorthand of decide(variants).ranked()
+     * @param variants See chooseFrom().
+     * @return Ranked variants list starting with the best.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public <T> List<T> rank(List<T> variants) {
+        return given(null).rank(variants);
     }
 
     /**

@@ -80,6 +80,13 @@ public class DecisionContext {
     }
 
     /**
+     * @see ai.improve.DecisionModel#rank(List) 
+     */
+    public <T> List<T> rank(List<T> variants) {
+        return decide(variants).ranked();
+    }
+
+    /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
      */
     public <T> Decision<T> chooseFrom(List<T> variants) {
