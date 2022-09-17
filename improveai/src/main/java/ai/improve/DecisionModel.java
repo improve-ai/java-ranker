@@ -699,7 +699,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variants or scores is null; Thrown if
      * variants.size() not equal to scores.size().
      */
-    public static <T> List<T> rank(List<T> variants, List<Double> scores) {
+    protected static <T> List<T> rank(List<T> variants, List<Double> scores) {
         if(variants == null || scores == null) {
             throw new IllegalArgumentException("variants or scores can't be null");
         }
