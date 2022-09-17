@@ -95,21 +95,27 @@ public class DecisionContext {
 
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> Decision<T> chooseFrom(List<T> variants) {
         return decide(variants);
     }
 
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List, List)
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
         return decide(variants, scores);
     }
 
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> Decision<T> chooseFirst(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
@@ -117,20 +123,29 @@ public class DecisionContext {
         return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
     }
 
+    /**
+     * @see ai.improve.DecisionModel#first(List)
+     * @deprecated Remove in 8.0.
+     */
+    @Deprecated
     public <T> T first(List<T> variants) {
         return chooseFirst(variants).get();
     }
 
     /**
      * @see ai.improve.DecisionModel#first(Object...)
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> T first(T... variants) {
         return chooseFirst(Arrays.asList(variants)).get();
     }
 
     /**
      * @see ai.improve.DecisionModel#chooseRandom(List)
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> Decision<T> chooseRandom(List<T> variants) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
@@ -140,18 +155,27 @@ public class DecisionContext {
 
     /**
      * @see ai.improve.DecisionModel#random(Object...)
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> T random(T... variants) {
         return chooseRandom(Arrays.asList(variants)).get();
     }
 
+    /**
+     * @see ai.improve.DecisionModel#random(List)
+     * @deprecated Remove in 8.0.
+     */
+    @Deprecated
     public <T> T random(List<T> variants) {
         return chooseRandom(variants).get();
     }
 
     /**
      * @see ai.improve.DecisionModel#chooseMultivariate(Map)
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
         if(variants == null || variants.size() <= 0) {
             return chooseFrom(null);

@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":9,"i8":10,"i9":10,"i10":9,"i11":10,"i12":9,"i13":10,"i14":10,"i15":10,"i16":10,"i17":10,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":42,"i24":9,"i25":10,"i26":9,"i27":10,"i28":10,"i29":9,"i30":9,"i31":9,"i32":10,"i33":10,"i34":10,"i35":10,"i36":9,"i37":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":42,"i4":42,"i5":42,"i6":10,"i7":9,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":9,"i16":10,"i17":9,"i18":10,"i19":10,"i20":10,"i21":10,"i22":10,"i23":10,"i24":10,"i25":10,"i26":10,"i27":10,"i28":42,"i29":10,"i30":9,"i31":10,"i32":10,"i33":10,"i34":9,"i35":10,"i36":10,"i37":9,"i38":9,"i39":9,"i40":10,"i41":10,"i42":10,"i43":10,"i44":9,"i45":10,"i46":10};
 var tabs = {65535:["t0","All Methods"],1:["t1","Static Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -242,10 +242,12 @@ extends java.lang.Object</pre>
 </td>
 </tr>
 <tr id="i1" class="rowColor">
-<td class="colFirst"><code>protected void</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addRewardForDecision(java.lang.String,double)">addRewardForDecision</a></span>&#8203;(java.lang.String&nbsp;decisionId,
-                    double&nbsp;reward)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colFirst"><code>void</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#addReward(double,java.lang.String)">addReward</a></span>&#8203;(double&nbsp;reward,
+         java.lang.String&nbsp;decisionId)</code></th>
+<td class="colLast">
+<div class="block">Add reward for the provided decisionId</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
@@ -255,25 +257,37 @@ extends java.lang.Object</pre>
 <tr id="i3" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0; use <a href="#decide(java.util.List)"><code>decide(List)</code></a> instead.</div>
+</div>
+</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List,java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
           java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0; use <a href="#decide(java.util.List,java.util.List)"><code>decide(List, List)</code></a> instead.</div>
+</div>
+</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseMultiVariate(java.util.Map)">chooseMultiVariate</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</code></th>
+<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;?&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseMultivariate(java.util.Map)">chooseMultivariate</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</code></th>
 <td class="colLast">
-<div class="block">This method is an alternative of chooseFrom().</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 </td>
 </tr>
 <tr id="i6" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseRandom(java.util.List)">chooseRandom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block">Choose a random variant.</div>
+</td>
 </tr>
 <tr id="i7" class="rowColor">
 <td class="colFirst"><code>protected static void</code></td>
@@ -286,80 +300,120 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i9" class="rowColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(java.lang.Object...)">first</a></span>&#8203;(java.lang.Object...&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decide(java.util.List)">decide</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">
-<div class="block">This is a short hand of chooseFirst().get().</div>
+<div class="block">Equivalent to decide(variants, false)</div>
 </td>
 </tr>
 <tr id="i10" class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decide(java.util.List,boolean)">decide</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+      boolean&nbsp;ordered)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decide(java.util.List,java.util.List)">decide</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+      java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(java.util.List)">first</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colLast">
+<div class="block">A shorthand of chooseFirst().get().</div>
+</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(T...)">first</a></span>&#8203;(T...&nbsp;variants)</code></th>
+<td class="colLast">
+<div class="block">An alternative of first(list).</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
+<td class="colFirst"><code>java.util.List&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#fullFactorialVariants(java.util.Map)">fullFactorialVariants</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap)</code></th>
+<td class="colLast">
+<div class="block">An example here might be more expressive:
+ fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
+ [
+     {"style":"bold", "size":3},
+     {"style":"italic", "size":3},
+     {"style":"bold", "size":5},
+     {"style":"italic", "size":5},
+ ]</div>
+</td>
+</tr>
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>static <a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get(java.lang.String)">get</a></span>&#8203;(java.lang.String&nbsp;modelName)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i11" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultTrackApiKey()">getDefaultTrackApiKey</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i12" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>static java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getDefaultTrackURL()">getDefaultTrackURL</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i13" class="rowColor">
+<tr id="i18" class="altColor">
 <td class="colFirst"><code>protected ai.improve.encoder.FeatureEncoder</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getFeatureEncoder()">getFeatureEncoder</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i19" class="rowColor">
 <td class="colFirst"><code><a href="provider/GivensProvider.html" title="interface in ai.improve.provider">GivensProvider</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getGivensProvider()">getGivensProvider</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i20" class="altColor">
 <td class="colFirst"><code>ai.improve.xgbpredictor.ImprovePredictor</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getModel()">getModel</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i21" class="rowColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getModelName()">getModelName</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i17" class="rowColor">
+<tr id="i22" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackApiKey()">getTrackApiKey</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i18" class="altColor">
+<tr id="i23" class="rowColor">
 <td class="colFirst"><code>protected ai.improve.DecisionTracker</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTracker()">getTracker</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i19" class="rowColor">
+<tr id="i24" class="altColor">
 <td class="colFirst"><code>java.lang.String</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getTrackURL()">getTrackURL</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i20" class="altColor">
+<tr id="i25" class="rowColor">
 <td class="colFirst"><code><a href="DecisionContext.html" title="class in ai.improve">DecisionContext</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#given(java.util.Map)">given</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&nbsp;givens)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#given(java.util.Map)">given</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i21" class="rowColor">
+<tr id="i26" class="altColor">
 <td class="colFirst"><code><a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#load(java.net.URL)">load</a></span>&#8203;(java.net.URL&nbsp;modelUrl)</code></th>
 <td class="colLast">
 <div class="block">Load a model synchronously.</div>
 </td>
 </tr>
-<tr id="i22" class="altColor">
+<tr id="i27" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadAsync(java.net.URL)">loadAsync</a></span>&#8203;(java.net.URL&nbsp;modelUrl)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i23" class="rowColor">
+<tr id="i28" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#loadAsync(java.net.URL,ai.improve.DecisionModel.LoadListener)">loadAsync</a></span>&#8203;(java.net.URL&nbsp;modelUrl,
          <a href="DecisionModel.LoadListener.html" title="interface in ai.improve">DecisionModel.LoadListener</a>&nbsp;listener)</code></th>
@@ -369,20 +423,41 @@ extends java.lang.Object</pre>
 </div>
 </td>
 </tr>
-<tr id="i24" class="altColor">
+<tr id="i29" class="rowColor">
+<td class="colFirst"><code>java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#optimize(java.util.Map)">optimize</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap)</code></th>
+<td class="colLast">
+<div class="block">This method is a short hand of chooseMultivariate(variants).get().</div>
+</td>
+</tr>
+<tr id="i30" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#put(java.lang.String,ai.improve.DecisionModel)">put</a></span>&#8203;(java.lang.String&nbsp;modelName,
    <a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a>&nbsp;decisionModel)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i25" class="rowColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(java.lang.Object...)">random</a></span>&#8203;(java.lang.Object...&nbsp;variants)</code></th>
+<tr id="i31" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(java.util.List)">random</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">
 <div class="block">A shorthand of chooseRandom(variants).get()</div>
 </td>
 </tr>
-<tr id="i26" class="altColor">
+<tr id="i32" class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(T...)">random</a></span>&#8203;(T...&nbsp;variants)</code></th>
+<td class="colLast">
+<div class="block">An alternative of random(List).</div>
+</td>
+</tr>
+<tr id="i33" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;java.util.List&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rank(java.util.List)">rank</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colLast">
+<div class="block">A shorthand of decide(variants).ranked()</div>
+</td>
+</tr>
+<tr id="i34" class="altColor">
 <td class="colFirst"><code>static &lt;T&gt;&nbsp;java.util.List&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rank(java.util.List,java.util.List)">rank</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
     java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</code></th>
@@ -390,18 +465,18 @@ extends java.lang.Object</pre>
 <div class="block">This method is likely to be changed in the future.</div>
 </td>
 </tr>
-<tr id="i27" class="rowColor">
+<tr id="i35" class="rowColor">
 <td class="colFirst"><code>java.util.List&lt;java.lang.Double&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#score(java.util.List)">score</a></span>&#8203;(java.util.List&nbsp;variants)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#score(java.util.List)">score</a></span>&#8203;(java.util.List&lt;?&gt;&nbsp;variants)</code></th>
 <td class="colLast">
 <div class="block">If this method is called before the model is loaded, or errors occurred
  while loading the model file, a randomly generated list of descending
  Gaussian scores is returned.</div>
 </td>
 </tr>
-<tr id="i28" class="altColor">
+<tr id="i36" class="altColor">
 <td class="colFirst"><code>protected java.util.List&lt;java.lang.Double&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scoreInternal(java.util.List,java.util.Map)">scoreInternal</a></span>&#8203;(java.util.List&nbsp;variants,
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scoreInternal(java.util.List,java.util.Map)">scoreInternal</a></span>&#8203;(java.util.List&lt;?&gt;&nbsp;variants,
              java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</code></th>
 <td class="colLast">
 <div class="block">If this method is called before the model is loaded, or errors occurred
@@ -409,52 +484,58 @@ extends java.lang.Object</pre>
  Gaussian scores is returned.</div>
 </td>
 </tr>
-<tr id="i29" class="rowColor">
+<tr id="i37" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaultGivensProvider(ai.improve.provider.GivensProvider)">setDefaultGivensProvider</a></span>&#8203;(<a href="provider/GivensProvider.html" title="interface in ai.improve.provider">GivensProvider</a>&nbsp;givensProvider)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i30" class="altColor">
+<tr id="i38" class="altColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaultTrackApiKey(java.lang.String)">setDefaultTrackApiKey</a></span>&#8203;(java.lang.String&nbsp;defaultTrackApiKey)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i31" class="rowColor">
+<tr id="i39" class="rowColor">
 <td class="colFirst"><code>static void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setDefaultTrackURL(java.lang.String)">setDefaultTrackURL</a></span>&#8203;(java.lang.String&nbsp;trackURL)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i32" class="altColor">
+<tr id="i40" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setGivensProvider(ai.improve.provider.GivensProvider)">setGivensProvider</a></span>&#8203;(<a href="provider/GivensProvider.html" title="interface in ai.improve.provider">GivensProvider</a>&nbsp;givensProvider)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i33" class="rowColor">
+<tr id="i41" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setModel(ai.improve.xgbpredictor.ImprovePredictor)">setModel</a></span>&#8203;(ai.improve.xgbpredictor.ImprovePredictor&nbsp;predictor)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i34" class="altColor">
+<tr id="i42" class="altColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackApiKey(java.lang.String)">setTrackApiKey</a></span>&#8203;(java.lang.String&nbsp;trackApiKey)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i35" class="rowColor">
+<tr id="i43" class="rowColor">
 <td class="colFirst"><code>void</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#setTrackURL(java.lang.String)">setTrackURL</a></span>&#8203;(java.lang.String&nbsp;trackURL)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i36" class="altColor">
+<tr id="i44" class="altColor">
 <td class="colFirst"><code>protected static int</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#sizeOfInstances()">sizeOfInstances</a></span>()</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i37" class="rowColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#which(java.lang.Object...)">which</a></span>&#8203;(java.lang.Object...&nbsp;variants)</code></th>
+<tr id="i45" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#which(T...)">which</a></span>&#8203;(T...&nbsp;variants)</code></th>
 <td class="colLast">
-<div class="block">This is a short hand version of chooseFrom(variants).get() that returns the chosen result
- directly.</div>
+<div class="block">The variadic version of whichFrom(variants).</div>
+</td>
+</tr>
+<tr id="i46" class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#whichFrom(java.util.List)">whichFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colLast">
+<div class="block">A shorthand of decide(variants).get()</div>
 </td>
 </tr>
 </table>
@@ -808,13 +889,198 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <pre class="methodSignature">protected&nbsp;ai.improve.encoder.FeatureEncoder&nbsp;getFeatureEncoder()</pre>
 </li>
 </ul>
+<a id="given(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>given</h4>
+<pre class="methodSignature">public&nbsp;<a href="DecisionContext.html" title="class in ai.improve">DecisionContext</a>&nbsp;given&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>givens</code> - Additional context info that will be used with each of the variants to calculate
+              its feature vector.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>A DecisionContext object.</dd>
+</dl>
+</li>
+</ul>
+<a id="decide(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decide</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;decide&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="block">Equivalent to decide(variants, false)</div>
+</li>
+</ul>
+<a id="decide(java.util.List,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decide</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;decide&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+                              boolean&nbsp;ordered)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variants</code> - Variants can be any JSON encodeable data structure of arbitrary complexity,
+                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+                booleans.</dd>
+<dd><code>ordered</code> - True means the variants are already in order starting with the best variant.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>an IMPDecision object.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null or empty.</dd>
+</dl>
+</li>
+</ul>
+<a id="decide(java.util.List,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decide</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;decide&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+                              java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variants</code> - Variants can be any JSON encodeable data structure of arbitrary complexity,
+                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+                booleans.</dd>
+<dd><code>scores</code> - Scores of the variants.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>an IMPDecision object.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants or scores is null or empty; Thrown if
+ variants.size() != scores.size().</dd>
+</dl>
+</li>
+</ul>
+<a id="which(java.lang.Object[])">
+<!--   -->
+</a><a id="which(T...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>which</h4>
+<pre class="methodSignature">@SafeVarargs
+public final&nbsp;&lt;T&gt;&nbsp;T&nbsp;which&#8203;(T...&nbsp;variants)</pre>
+<div class="block">The variadic version of whichFrom(variants).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variants</code> - A variant can be any JSON encodeable data structure of arbitrary complexity,
+                 including nested dictionaries, lists, maps, strings, numbers, nulls, and booleans.</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the chosen variant</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants number is 0.</dd>
+</dl>
+</li>
+</ul>
+<a id="whichFrom(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>whichFrom</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;whichFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="block">A shorthand of decide(variants).get()</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variants</code> - See chooseFrom().</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the chosen variant</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null or empty.</dd>
+</dl>
+</li>
+</ul>
+<a id="rank(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rank</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;T&gt;&nbsp;rank&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="block">A shorthand of decide(variants).ranked()</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variants</code> - See chooseFrom().</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Ranked variants list starting with the best.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null or empty.</dd>
+</dl>
+</li>
+</ul>
+<a id="fullFactorialVariants(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>fullFactorialVariants</h4>
+<pre class="methodSignature">public&nbsp;java.util.List&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;fullFactorialVariants&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap)</pre>
+<div class="block">An example here might be more expressive:
+ fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
+ [
+     {"style":"bold", "size":3},
+     {"style":"italic", "size":3},
+     {"style":"bold", "size":5},
+     {"style":"italic", "size":5},
+ ]</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variantMap</code> - The values of the variant map are expected to be lists of any JSON
+                   encodeable data structure of arbitrary complexity. If they are not lists,
+                   they are automatically wrapped as a list containing a single item.
+                   So fullFactorialVariants({"style":["bold", "italic"], "size":3}) is
+                   equivalent to fullFactorialVariants({"style":["bold", "italic"], "size":[3]})</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the full factorial combinations of key and values specified by the input variant map.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variantMap is nil or empty; Thrown if variantMap values
+ are all empty lists.</dd>
+</dl>
+</li>
+</ul>
+<a id="optimize(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>optimize</h4>
+<pre class="methodSignature">public&nbsp;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&nbsp;optimize&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap)</pre>
+<div class="block">This method is a short hand of chooseMultivariate(variants).get().</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variantMap</code> - The value of the variantMap are expected to be lists of any JSON encodeable
+                   data structure of arbitrary complexity. If they are not lists, they are
+                   automatically wrapped as a list containing a single item.
+                   So optimize({"style":["bold", "italic"], "size":3}) is equivalent to
+                   optimize({"style":["bold", "italic"], "size":[3]})</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the chosen variant</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if the variants to choose from is nil or empty;
+ Thrown if variantMap values
+ are all empty lists.</dd>
+</dl>
+</li>
+</ul>
 <a id="chooseFrom(java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0; use <a href="#decide(java.util.List)"><code>decide(List)</code></a> instead.</div>
+</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - Variants can be any JSON encodeable data structure of arbitrary complexity,
@@ -822,6 +1088,8 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
                 booleans.</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>an IMPDecision object.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null or empty.</dd>
 </dl>
 </li>
 </ul>
@@ -831,8 +1099,12 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
                                   java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0; use <a href="#decide(java.util.List,java.util.List)"><code>decide(List, List)</code></a> instead.</div>
+</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - Variants can be any JSON encodeable data structure of arbitrary complexity,
@@ -847,15 +1119,19 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 </dl>
 </li>
 </ul>
-<a id="chooseMultiVariate(java.util.Map)">
+<a id="chooseMultivariate(java.util.Map)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>chooseMultiVariate</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseMultiVariate&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</pre>
+<h4>chooseMultivariate</h4>
+<pre class="methodSignature">@Deprecated
+public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;?&gt;&gt;&nbsp;chooseMultivariate&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0. Use decide(<a href="#fullFactorialVariants(java.util.Map)"><code>fullFactorialVariants(Map)</code></a>)</div>
+</div>
 <div class="block">This method is an alternative of chooseFrom(). An example here might be more expressive:
- chooseMultiVariate({"style":["bold", "italic"], "size":[3, 5]})
+ optimize({"style":["bold", "italic"], "size":[3, 5]})
        is equivalent to
  chooseFrom([
       {"style":"bold", "size":3},
@@ -866,38 +1142,12 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - Variants can be any JSON encodeable data structure of arbitrary complexity
-                 like chooseFrom(). The value of the dictionary is expected to be a List.
-                 If not, it would be treated as an one-element List anyway. So
-                 chooseMultiVariate({"style":["bold", "italic"], "size":3}) is equivalent to
-                 chooseMultiVariate({"style":["bold", "italic"], "size":[3]})</dd>
+                 like chooseFrom(). The value of the dictionary is expected to be a list.
+                 If not, it would be automatically wrapped as a list containing a single item.
+                 So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to
+                 chooseMultivariate({"style":["bold", "italic"], "size":[3]})</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>An IMPDecision object.</dd>
-</dl>
-</li>
-</ul>
-<a id="which(java.lang.Object...)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>which</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;which&#8203;(java.lang.Object...&nbsp;variants)</pre>
-<div class="block">This is a short hand version of chooseFrom(variants).get() that returns the chosen result
- directly.</div>
-<dl>
-<dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variants</code> - See chooseFrom().
-                 When the only argument is a List, it's equivalent to calling
-                 chooseFrom(variants).get();
-                 When the only argument is a Map, it's equivalent to calling
-                 chooseMultiVariate(variants).get();
-                 When there are two or more arguments, all the arguments would form a
-                 list and be passed to chooseFrom();</dd>
-<dt><span class="returnLabel">Returns:</span></dt>
-<dd>Returns the chosen variant</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null or empty; or if there's only one
- variant and it's not a List or Map.</dd>
 </dl>
 </li>
 </ul>
@@ -916,23 +1166,42 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 </dl>
 </li>
 </ul>
-<a id="first(java.lang.Object...)">
+<a id="first(java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>first</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;first&#8203;(java.lang.Object...&nbsp;variants)</pre>
-<div class="block">This is a short hand of chooseFirst().get().</div>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="block">A shorthand of chooseFirst().get().</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variants</code> - See chooseFrom(). If only one argument, it must be a non-empty list.</dd>
+<dd><code>variants</code> - See chooseFrom().</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>If multiple arguments is passed to first(), the first argument would be returned;
- If only one argument(a non-empty list), then the fist member of it would be returned.</dd>
+<dd>Returns the first variant.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null; Thrown if variants is empty;
- Thrown if the there's only one argument and it's not a non-empty list.</dd>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null or empty.</dd>
+</dl>
+</li>
+</ul>
+<a id="first(java.lang.Object[])">
+<!--   -->
+</a><a id="first(T...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>first</h4>
+<pre class="methodSignature">@SafeVarargs
+public final&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(T...&nbsp;variants)</pre>
+<div class="block">An alternative of first(list).</div>
+<dl>
+<dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>variants</code> - See chooseFrom().</dd>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the first variant.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants number is 0.</dd>
 </dl>
 </li>
 </ul>
@@ -943,6 +1212,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <li class="blockList">
 <h4>chooseRandom</h4>
 <pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseRandom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="block">Choose a random variant.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - See chooseFrom()</dd>
@@ -953,39 +1223,42 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 </dl>
 </li>
 </ul>
-<a id="random(java.lang.Object...)">
+<a id="random(java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>random</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;random&#8203;(java.lang.Object...&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 <div class="block">A shorthand of chooseRandom(variants).get()</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>variants</code> - See chooseFrom(). If only one argument, it must be a non-empty list. Expect
-                 at least one argument.</dd>
+<dd><code>variants</code> - See chooseFrom().</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
 <dd>A random variant.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is empty or null; Thrown if there's only
- one argument and it's not a non-empty list.</dd>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants is null or empty.</dd>
 </dl>
 </li>
 </ul>
-<a id="given(java.util.Map)">
+<a id="random(java.lang.Object[])">
+<!--   -->
+</a><a id="random(T...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>given</h4>
-<pre class="methodSignature">public&nbsp;<a href="DecisionContext.html" title="class in ai.improve">DecisionContext</a>&nbsp;given&#8203;(java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&nbsp;givens)</pre>
+<h4>random</h4>
+<pre class="methodSignature">@SafeVarargs
+public final&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(T...&nbsp;variants)</pre>
+<div class="block">An alternative of random(List).</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
-<dd><code>givens</code> - Additional context info that will be used with each of the variants to calculate
-              its feature vector.</dd>
+<dd><code>variants</code> - See chooseFrom().</dd>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>A DecisionContext object.</dd>
+<dd>A random variant.</dd>
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if variants number is 0.</dd>
 </dl>
 </li>
 </ul>
@@ -1004,7 +1277,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>score</h4>
-<pre class="methodSignature">public&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;score&#8203;(java.util.List&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;score&#8203;(java.util.List&lt;?&gt;&nbsp;variants)</pre>
 <div class="block">If this method is called before the model is loaded, or errors occurred
  while loading the model file, a randomly generated list of descending
  Gaussian scores is returned.</div>
@@ -1025,7 +1298,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <ul class="blockList">
 <li class="blockList">
 <h4>scoreInternal</h4>
-<pre class="methodSignature">protected&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;scoreInternal&#8203;(java.util.List&nbsp;variants,
+<pre class="methodSignature">protected&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;scoreInternal&#8203;(java.util.List&lt;?&gt;&nbsp;variants,
                                                          java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</pre>
 <div class="block">If this method is called before the model is loaded, or errors occurred
  while loading the model file, a randomly generated list of descending
@@ -1066,18 +1339,23 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 </dl>
 </li>
 </ul>
-<a id="addRewardForDecision(java.lang.String,double)">
+<a id="addReward(double,java.lang.String)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>addRewardForDecision</h4>
-<pre class="methodSignature">protected&nbsp;void&nbsp;addRewardForDecision&#8203;(java.lang.String&nbsp;decisionId,
-                                    double&nbsp;reward)</pre>
+<h4>addReward</h4>
+<pre class="methodSignature">public&nbsp;void&nbsp;addReward&#8203;(double&nbsp;reward,
+                      java.lang.String&nbsp;decisionId)</pre>
+<div class="block">Add reward for the provided decisionId</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
+<dd><code>reward</code> - reward for the decision.</dd>
 <dd><code>decisionId</code> - unique id of a decision.</dd>
-<dd><code>reward</code> - reward for the decision.
+<dt><span class="throwsLabel">Throws:</span></dt>
+<dd><code>java.lang.IllegalArgumentException</code> - Thrown if decisionId is null or empty; Thrown if reward
+ is NaN or Infinity.</dd>
+<dd><code>java.lang.IllegalStateException</code> - Thrown if trackURL is null.
  Adds the reward to a specific decision</dd>
 </dl>
 </li>
@@ -1090,8 +1368,7 @@ public&nbsp;void&nbsp;loadAsync&#8203;(java.net.URL&nbsp;modelUrl,
 <h4>rank</h4>
 <pre class="methodSignature">public static&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;T&gt;&nbsp;rank&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
                                          java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
-<div class="block">This method is likely to be changed in the future. Try not to use it in your code.
- If variants.size() != scores.size(), an IndexOutOfBoundException exception will be thrown</div>
+<div class="block">This method is likely to be changed in the future. Try not to use it in your code.</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>variants</code> - A list of variants to be ranked.</dd>

@@ -313,6 +313,19 @@ public class DecisionModel {
     }
 
     /**
+     * If this method is called before the model is loaded, or errors occurred
+     * while loading the model file, a randomly generated list of descending
+     * Gaussian scores is returned.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @return scores of the variants
+     */
+    public List<Double> score(List<?> variants) {
+        return scoreInternal(variants, combinedGivens(null));
+    }
+
+    /**
      * Equivalent to decide(variants, false)
      */
     public <T> Decision<T> decide(List<T> variants) {
@@ -462,7 +475,9 @@ public class DecisionModel {
      *                booleans.
      * @return an IMPDecision object.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0; use {@link #decide(List)} instead.
      */
+    @Deprecated
     public <T> Decision<T> chooseFrom(List<T> variants) {
         return given(null).chooseFrom(variants);
     }
@@ -475,7 +490,9 @@ public class DecisionModel {
      * @return A Decision object which has the variant with highest score as the best variant.
      * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
      * variants.size() != scores.size().
+     * @deprecated Remove in 8.0; use {@link #decide(List, List)} instead.
      */
+    @Deprecated
     public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
         return given(null).chooseFrom(variants, scores);
     }
@@ -496,7 +513,9 @@ public class DecisionModel {
      *                 So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to
      *                 chooseMultivariate({"style":["bold", "italic"], "size":[3]})
      * @return An IMPDecision object.
+     * @deprecated Remove in 8.0; use decide({@link #fullFactorialVariants(Map)})
      */
+    @Deprecated
     public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
         return given(null).chooseMultivariate(variants);
     }
@@ -504,7 +523,9 @@ public class DecisionModel {
     /**
      * @param variants See chooseFrom()
      * @return A Decision object which has the first variant as the best.
+     * @deprecated Remove in 8.0; use {@link #decide(List, boolean)}(ordered = true) instead.
      */
+    @Deprecated
     public <T> Decision<T> chooseFirst(List<T> variants) {
         return given(null).chooseFirst(variants);
     }
@@ -514,7 +535,9 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return Returns the first variant.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> T first(List<T> variants) {
         return given(null).first(variants);
     }
@@ -524,7 +547,9 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return Returns the first variant.
      * @throws IllegalArgumentException Thrown if variants number is 0.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     @SafeVarargs
     public final <T> T first(T... variants) {
         return given(null).first(variants);
@@ -535,7 +560,9 @@ public class DecisionModel {
      * @param variants See chooseFrom()
      * @return A Decision object containing a random variant as the decision.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> Decision<T> chooseRandom(List<T> variants) {
         return given(null).chooseRandom(variants);
     }
@@ -545,7 +572,9 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return A random variant.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> T random(List<T> variants) {
         return given(null).random(variants);
     }
@@ -555,7 +584,9 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return A random variant.
      * @throws IllegalArgumentException Thrown if variants number is 0.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     @SafeVarargs
     public final <T> T random(T... variants) {
         return given(null).random(variants);
@@ -564,19 +595,6 @@ public class DecisionModel {
     protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
         GivensProvider provider = getGivensProvider();
         return provider == null ? givens : provider.givensForModel(this, givens);
-    }
-
-    /**
-     * If this method is called before the model is loaded, or errors occurred
-     * while loading the model file, a randomly generated list of descending
-     * Gaussian scores is returned.
-     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
-     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
-     * @throws IllegalArgumentException Thrown if variants is null or empty.
-     * @return scores of the variants
-     */
-    public List<Double> score(List<?> variants) {
-        return scoreInternal(variants, combinedGivens(null));
     }
 
     /**
