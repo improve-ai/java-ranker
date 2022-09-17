@@ -304,6 +304,14 @@ public class DecisionModel {
     }
 
     /**
+     * Check whether the model is loaded.
+     * @return {@code true} if the model is loaded.
+     */
+    protected boolean isLoaded() {
+        return predictor != null;
+    }
+
+    /**
      * @param givens Additional context info that will be used with each of the variants to calculate
      *              its feature vector.
      * @return A DecisionContext object.
@@ -615,8 +623,6 @@ public class DecisionModel {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
 
-//        IMPLog.d(Tag, "givens: " + givens);
-
         if(predictor == null) {
             // When tracking a decision like this:
             // DecisionModel("model_name").chooseFrom(variants).get()
@@ -698,6 +704,7 @@ public class DecisionModel {
      * @return a list of the variants ranked from best to worst by scores
      * @throws IllegalArgumentException Thrown if variants or scores is null; Thrown if
      * variants.size() not equal to scores.size().
+     * @hidden
      */
     protected static <T> List<T> rank(List<T> variants, List<Double> scores) {
         if(variants == null || scores == null) {

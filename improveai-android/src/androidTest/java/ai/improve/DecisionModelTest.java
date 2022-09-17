@@ -31,6 +31,7 @@ import java.util.concurrent.Semaphore;
 import ai.improve.log.IMPLog;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -331,6 +332,14 @@ public class DecisionModelTest {
         }
 
         return absfile;
+    }
+
+    @Test
+    public void testIsLoaded() throws Exception {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        assertFalse(decisionModel.isLoaded());
+        decisionModel.load(new URL(ModelURL));
+        assertTrue(decisionModel.isLoaded());
     }
 
     @Test
