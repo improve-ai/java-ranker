@@ -88,7 +88,7 @@ public class DecisionModel {
         this.givensProvider = defaultGivensProvider;
     }
 
-    public static DecisionModel getInstance(String modelName) {
+    public static DecisionModel get(String modelName) {
         return instances.get(modelName);
     }
 

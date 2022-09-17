@@ -127,7 +127,7 @@ public class DecisionModelTest {
     @Test
     public void testLoadAsync_no_callback() throws MalformedURLException {
         URL url = new URL(ModelURL);
-        DecisionModel.getInstance("greetings").loadAsync(url);
+        DecisionModel.get("greetings").loadAsync(url);
         try {
             Thread.sleep(10 * 1000);
         } catch (InterruptedException e) {

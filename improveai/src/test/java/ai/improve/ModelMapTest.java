@@ -27,22 +27,22 @@ public class ModelMapTest {
         assertEquals(0, DecisionModel.sizeOfInstances());
 
         // Create and cache model if not exist
-        DecisionModel decisionModel = DecisionModel.getInstance(modelName);
+        DecisionModel decisionModel = DecisionModel.get(modelName);
         assertNotNull(decisionModel);
         assertEquals(1, DecisionModel.sizeOfInstances());
-        assertEquals(decisionModel, DecisionModel.getInstance(modelName));
+        assertEquals(decisionModel, DecisionModel.get(modelName));
 
         DecisionModel.put(modelName, new DecisionModel(modelName));
-        assertEquals(modelName, DecisionModel.getInstance(modelName).getModelName());
+        assertEquals(modelName, DecisionModel.get(modelName).getModelName());
 
         // Same object
-        assertEquals(DecisionModel.getInstance(modelName), DecisionModel.getInstance(modelName));
+        assertEquals(DecisionModel.get(modelName), DecisionModel.get(modelName));
 
         // Overwrite existing model
         assertEquals(1, DecisionModel.sizeOfInstances());
-        DecisionModel oldModel = DecisionModel.getInstance(modelName);
+        DecisionModel oldModel = DecisionModel.get(modelName);
         DecisionModel.put(modelName, new DecisionModel(modelName));
-        DecisionModel newModel = DecisionModel.getInstance(modelName);
+        DecisionModel newModel = DecisionModel.get(modelName);
         assertNotEquals(oldModel, newModel);
         assertEquals(1, DecisionModel.sizeOfInstances());
 
