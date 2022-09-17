@@ -9,7 +9,7 @@ import ai.improve.downloader.ModelLoader;
 
 public class AssetModelLoader implements ModelLoader {
 
-    private Context context;
+    private final Context context;
 
     public AssetModelLoader(Context context) {
         this.context = context;

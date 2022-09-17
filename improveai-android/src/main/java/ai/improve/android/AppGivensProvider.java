@@ -27,8 +27,6 @@ import ai.improve.constants.BuildProperties;
 import ai.improve.provider.GivensProvider;
 
 public class AppGivensProvider implements GivensProvider {
-    private static final String Tag = "AppGivensProvider";
-
     private static final String APP_Givens_Key_Country = "$country";
     protected static final String APP_Givens_Key_Language = "$lang";
     private static final String APP_Givens_Key_Timezone_Offset = "$tz";
@@ -55,7 +53,7 @@ public class AppGivensProvider implements GivensProvider {
     public static final String SP_Key_Decision_Count = "decision_count-%s";
     public static final String SP_Key_Model_Reward = "rewards-%s";
 
-    private Context appContext;
+    private final Context appContext;
 
     public AppGivensProvider(Context context) {
         appContext = context.getApplicationContext();
@@ -200,6 +198,7 @@ public class AppGivensProvider implements GivensProvider {
             packageInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
             return AppGivensProviderUtils.versionToNumber(packageInfo.versionName);
         } catch (Exception e) {
+            e.printStackTrace();
         }
         return 0;
     }
@@ -226,7 +225,7 @@ public class AppGivensProvider implements GivensProvider {
      * */
     private double getDayOfWeek() {
         // I have not found any framework method that can do the conversion more elegantly.
-        Map weekDayMap = new HashMap() {
+        Map<Integer, Integer> weekDayMap = new HashMap<Integer, Integer>() {
             {
                 put(Calendar.MONDAY, 1);
                 put(Calendar.TUESDAY, 2);
@@ -240,7 +239,7 @@ public class AppGivensProvider implements GivensProvider {
         Calendar calendar = Calendar.getInstance();
         Date date = calendar.getTime();
         int seconds = date.getHours() * 3600 + date.getMinutes() * 60 + date.getSeconds();
-        double weekday = (int)weekDayMap.get(calendar.get(Calendar.DAY_OF_WEEK)) + seconds / SecondsPerDay;
+        double weekday = weekDayMap.get(calendar.get(Calendar.DAY_OF_WEEK)) + seconds / SecondsPerDay;
         return Math.round(weekday * 100000) / 100000.0;
     }
 

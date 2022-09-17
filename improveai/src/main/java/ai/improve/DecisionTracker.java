@@ -1,11 +1,8 @@
 package ai.improve;
 
 import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -13,7 +10,6 @@ import ai.improve.ksuid.KsuidGenerator;
 import ai.improve.log.IMPLog;
 import ai.improve.provider.PersistenceProvider;
 import ai.improve.util.HttpUtil;
-import ai.improve.util.ModelUtils;
 import ai.improve.util.Utils;
 
 class DecisionTracker {
@@ -40,7 +36,7 @@ class DecisionTracker {
 
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
 
-    private String trackURL;
+    private final String trackURL;
 
     private String trackApiKey;
 
@@ -77,7 +73,7 @@ class DecisionTracker {
      *                      0 disables runners up tracking
      * */
     public void setMaxRunnersUp(int maxRunnersUp) {
-        this.maxRunnersUp = maxRunnersUp >= 0 ? maxRunnersUp : 0;
+        this.maxRunnersUp = Math.max(maxRunnersUp, 0);
     }
 
     protected String getTrackApiKey() {
@@ -213,7 +209,7 @@ class DecisionTracker {
         }
     }
 
-    protected Map getAddDecisionRewardRequestBody(String ksuid, String modelName, String decisionId, double reward) {
+    protected Map<String, Object> getAddDecisionRewardRequestBody(String ksuid, String modelName, String decisionId, double reward) {
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, REWARD_TYPE);
         body.put(MODEL_KEY, modelName);

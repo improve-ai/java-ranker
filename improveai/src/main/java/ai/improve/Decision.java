@@ -8,7 +8,7 @@ import ai.improve.log.IMPLog;
 public class Decision<T> {
     public static final String Tag = "Decision";
 
-    private DecisionModel model;
+    private final DecisionModel model;
 
     protected Map<String, ?> givens;
 

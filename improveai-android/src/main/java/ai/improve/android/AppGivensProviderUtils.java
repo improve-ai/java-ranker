@@ -5,7 +5,6 @@ import static ai.improve.android.AppGivensProvider.SP_Key_Decision_Count;
 import static ai.improve.android.AppGivensProvider.SP_Key_Model_Reward;
 import static ai.improve.android.Constants.Improve_SP_File_Name;
 
-import android.app.Presentation;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
@@ -87,8 +86,7 @@ public class AppGivensProviderUtils {
 
             String[] versionArray = versionString.split("\\.");
             if (versionArray.length == 1) {
-                int major = Integer.parseInt(versionArray[0]);
-                return major;
+                return Integer.parseInt(versionArray[0]);
             } else if (versionArray.length == 2) {
                 int major = Integer.parseInt(versionArray[0]);
                 int minor = Integer.parseInt(versionArray[1]);
@@ -112,8 +110,7 @@ public class AppGivensProviderUtils {
         String[] versionArray = versionString.split("\\.");
         if(versionArray.length == 1) {
             try {
-                int major = Integer.parseInt(versionArray[0]);
-                version = major;
+                version = Integer.parseInt(versionArray[0]);
             } catch (Throwable t){
                 IMPLog.e(Tag, versionString + ", versionToInt error, " + t.getLocalizedMessage());
             }
