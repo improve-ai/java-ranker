@@ -68,13 +68,13 @@ public class AppGivensProviderTest {
 
     @Test
     public void testAddReward_decision() {
-        String modelName = "hello";
+        String modelName = "greetings";
         DecisionModel decisionModel = new DecisionModel(modelName);
         Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
         decision.get();
-        double oldTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
+        double oldTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(context, modelName);
         decision.addReward(0.1);
-        double newTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
+        double newTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(context, modelName);
         assertEquals(oldTotalRewardsOfModel+0.1, newTotalRewardsOfModel, 0.0000000001);
         IMPLog.d(Tag, "old reward: " + oldTotalRewardsOfModel +
                 ", new reward: " + newTotalRewardsOfModel);
@@ -82,11 +82,11 @@ public class AppGivensProviderTest {
 
     @Test
     public void testAddReward_decisionModel() {
-        String modelName = "hello";
+        String modelName = "greetings";
         DecisionModel decisionModel = new DecisionModel(modelName);
-        double oldTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
+        double oldTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(context, modelName);
         decisionModel.addReward(0.1);
-        double newTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(modelName);
+        double newTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(context, modelName);
         assertEquals(oldTotalRewardsOfModel+0.1, newTotalRewardsOfModel, 0.0000000001);
         IMPLog.d(Tag, "old reward: " + oldTotalRewardsOfModel +
                 ", new reward: " + newTotalRewardsOfModel);
@@ -94,11 +94,11 @@ public class AppGivensProviderTest {
 
     @Test
     public void testAddRewardForDecision() {
-        String modelName = "hello";
+        String modelName = "greetings";
         DecisionModel decisionModel = new DecisionModel(modelName);
-        double oldTotalRewards = AppGivensProviderUtils.rewardOfModel(modelName);
+        double oldTotalRewards = AppGivensProviderUtils.rewardOfModel(context, modelName);
         decisionModel.addReward(0.1, "decision_id");
-        double newTotalRewards = AppGivensProviderUtils.rewardOfModel(modelName);
+        double newTotalRewards = AppGivensProviderUtils.rewardOfModel(context, modelName);
         assertEquals(oldTotalRewards+0.1, newTotalRewards, 0.000000000001);
         IMPLog.d(Tag, "old reward: " + oldTotalRewards +
                 ", new reward: " + newTotalRewards);

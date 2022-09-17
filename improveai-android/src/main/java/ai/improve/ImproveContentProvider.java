@@ -21,41 +21,34 @@ import ai.improve.util.Utils;
  * The onCreate method is called for all registered content providers on the application main
  * thread at application launch time. So it's a perfect spot to initialize Android only stuff
  * here.
- * @ref https://developer.android.com/reference/android/content/ContentProvider#onCreate()
  */
 public class ImproveContentProvider extends ContentProvider {
-    public static final String Tag = "ImproveContentProvider";
-
     private static final String METADATA_DEFAULT_TRACK_URL = "ai.improve.DEFAULT_TRACK_URL";
 
-    private static Context sContext;
+    private Context mContext;
 
     private static long sSessionStartTime; // millisecond
 
     @Override
     public boolean onCreate() {
-        sContext = getContext();
+        mContext = getContext();
 
         // True app launch time
         sSessionStartTime = System.currentTimeMillis();
 
-        AppGivensProvider.setBornTime(sContext);
+        AppGivensProvider.setBornTime(mContext);
 
         IMPLog.setLogger(new Logger());
 
         setDefaultTrackURL();
 
-        DecisionModel.setDefaultGivensProvider(new AppGivensProvider(sContext));
+        DecisionModel.setDefaultGivensProvider(new AppGivensProvider(mContext));
 
-        DecisionTracker.setPersistenceProvider(new AndroidPersistenceProvider(sContext));
+        DecisionTracker.setPersistenceProvider(new AndroidPersistenceProvider(mContext));
 
-        ModelDownloader.setAssetModelLoader(new AssetModelLoader());
+        ModelDownloader.setAssetModelLoader(new AssetModelLoader(mContext));
 
         return true;
-    }
-
-    public static Context getAppContext() {
-        return sContext;
     }
 
     public static long getSessionStartTime() {
@@ -63,10 +56,10 @@ public class ImproveContentProvider extends ContentProvider {
     }
 
     private void setDefaultTrackURL() {
-        String packageName = sContext.getPackageName();
+        String packageName = mContext.getPackageName();
         ApplicationInfo info;
         try {
-            info = sContext.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
+            info = mContext.getPackageManager().getApplicationInfo(packageName, PackageManager.GET_META_DATA);
         } catch (PackageManager.NameNotFoundException e) {
             // This should never happen
             e.printStackTrace();

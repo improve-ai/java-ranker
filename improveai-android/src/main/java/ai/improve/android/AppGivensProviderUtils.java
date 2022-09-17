@@ -138,36 +138,32 @@ public class AppGivensProviderUtils {
         return Math.round(version * 1000000) / 1000000.0;
     }
 
-    public static void addRewardForModel(String modelName, double reward) {
-        Context context = ImproveContentProvider.getAppContext();
+    public static void addRewardForModel(Context context, String modelName, double reward) {
         String key = String.format(SP_Key_Model_Reward, modelName);
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         double curReward = Double.longBitsToDouble(sp.getLong(key, 0));
         sp.edit().putLong(key, Double.doubleToLongBits(curReward + reward)).apply();
     }
 
-    public static double rewardOfModel(String modelName) {
-        Context context = ImproveContentProvider.getAppContext();
+    public static double rewardOfModel(Context context, String modelName) {
         String key = String.format(SP_Key_Model_Reward, modelName);
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         return Double.longBitsToDouble(sp.getLong(key, 0));
     }
 
-    public static double roundedRewardOfModel(String modelName) {
-        double reward = rewardOfModel(modelName);
+    public static double roundedRewardOfModel(Context context, String modelName) {
+        double reward = rewardOfModel(context, modelName);
         return Math.round(reward * 1000000) / 1000000.0;
     }
 
-    public static double rewardsPerDecision(String modelName) {
-        Context context = ImproveContentProvider.getAppContext();
+    public static double rewardsPerDecision(Context context, String modelName) {
         int decisionCount = getDecisionCount(context, modelName);
-        double rewards = rewardOfModel(modelName);
+        double rewards = rewardOfModel(context, modelName);
         double result = decisionCount == 0 ? 0 : (rewards / decisionCount);
         return Math.round(result * 1000000) / 1000000.0;
     }
 
-    public static double decisionsPerDay(String modelName) {
-        Context context = ImproveContentProvider.getAppContext();
+    public static double decisionsPerDay(Context context, String modelName) {
         int decisionCount = getDecisionCount(context, modelName);
         double days = getSinceBorn(context);
         double result =  decisionCount / days;
