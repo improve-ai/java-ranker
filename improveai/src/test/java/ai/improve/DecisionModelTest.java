@@ -65,7 +65,7 @@ public class DecisionModelTest {
 
     private class AlphaGivensProvider implements GivensProvider {
         @Override
-        public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, Object> givens) {
+        public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, ?> givens) {
             return null;
         }
     }
@@ -478,8 +478,11 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("music");
         decisionModel.given(givens);
 
-        decisionModel.given(Map.of("lang", "en"));
-        decisionModel.given(Map.of("size", 1));
+        Map<String, Integer> str_int_map = Map.of("a", 1, "b", 2);
+        Map<String, String> str_str_map = Map.of("a", "aa", "b", "bb");
+
+        decisionModel.given(str_int_map);
+        decisionModel.given(str_str_map);
     }
 
     @Test
@@ -702,7 +705,7 @@ public class DecisionModelTest {
     public void testOptimize() {
         Map<String, ?> variantMap = Map.of("font", Arrays.asList("Italic", "Bold"), "size", Arrays.asList(12, 13));
         DecisionModel decisionModel = new DecisionModel("theme");
-        Map<String, Object> theme = decisionModel.optimize(variantMap);
+        Map<String, ?> theme = decisionModel.optimize(variantMap);
         assertEquals(2, theme.size());
         assertNotNull(theme.get("font"));
         assertNotNull(theme.get("size"));
@@ -724,7 +727,7 @@ public class DecisionModelTest {
         Map<String, ?> variantMap = Map.of("font", Arrays.asList("Italic", "Bold"),
                 "size", Arrays.asList(12, 13),
                 "color", new ArrayList<>());
-        Map<String, Object> theme = model().optimize(variantMap);
+        Map<String, ?> theme = model().optimize(variantMap);
         assertEquals(2, theme.size());
         assertNotNull(theme.get("font"));
         assertNotNull(theme.get("size"));

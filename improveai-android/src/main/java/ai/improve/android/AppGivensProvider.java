@@ -68,7 +68,7 @@ public class AppGivensProvider implements GivensProvider {
     }
 
     @Override
-    public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, Object> givens) {
+    public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, ?> givens) {
         Map<String, Object> appGivens = new HashMap<>();
 
         appGivens.put(APP_Givens_Key_Country, getCountry());

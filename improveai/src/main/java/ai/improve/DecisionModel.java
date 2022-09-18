@@ -405,7 +405,7 @@ public class DecisionModel {
      *     {"style":"bold", "size":3},
      *     {"style":"italic", "size":3},
      *     {"style":"bold", "size":5},
-     *     {"style":"italic", "size":5},
+     *     {"style":"italic", "size":5}
      * ]
      * @param variantMap The values of the variant map are expected to be lists of any JSON
      *                   encodeable data structure of arbitrary complexity. If they are not lists,
@@ -421,17 +421,17 @@ public class DecisionModel {
             throw new IllegalArgumentException("variantMap can't be null or empty");
         }
 
-        List<String> allKeys = new ArrayList();
+        List<String> allKeys = new ArrayList<>();
 
-        List<List<Object>> categories = new ArrayList();
+        List<List<?>> categories = new ArrayList<>();
         for(Map.Entry<String, ?> entry : variantMap.entrySet()) {
             if(entry.getValue() instanceof List) {
-                if(((List)entry.getValue()).size() > 0) {
-                    categories.add((List) entry.getValue());
+                if(((List<?>)entry.getValue()).size() > 0) {
+                    categories.add((List<?>) entry.getValue());
                     allKeys.add(entry.getKey());
                 }
             } else {
-                categories.add(Arrays.asList(entry.getValue()));
+                categories.add(Collections.singletonList(entry.getValue()));
                 allKeys.add(entry.getKey());
             }
         }
@@ -439,18 +439,18 @@ public class DecisionModel {
             throw new IllegalArgumentException("variantMap values are all empty lists.");
         }
 
-        List<Map<String, Object>> combinations = new ArrayList();
+        List<Map<String, Object>> combinations = new ArrayList<>();
         for(int i = 0; i < categories.size(); ++i) {
-            List<Object> category = categories.get(i);
-            List<Map<String, Object>> newCombinations = new ArrayList();
+            List<?> category = categories.get(i);
+            List<Map<String, Object>> newCombinations = new ArrayList<>();
             for(int m = 0; m < category.size(); ++m) {
                 if(combinations.size() == 0) {
-                    Map<String, Object> newVariant = new HashMap();
+                    Map<String, Object> newVariant = new HashMap<>();
                     newVariant.put(allKeys.get(i), category.get(m));
                     newCombinations.add(newVariant);
                 } else {
                     for(int n = 0; n < combinations.size(); ++n) {
-                        Map<String, Object> newVariant = new HashMap(combinations.get(n));
+                        Map<String, Object> newVariant = new HashMap<>(combinations.get(n));
                         newVariant.put(allKeys.get(i), category.get(m));
                         newCombinations.add(newVariant);
                     }
@@ -525,7 +525,7 @@ public class DecisionModel {
      * @deprecated Remove in 8.0; use decide({@link #fullFactorialVariants(Map)})
      */
     @Deprecated
-    public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
+    public Decision<Map<String, Object>> chooseMultivariate(Map<String, ?> variants) {
         return given(null).chooseMultivariate(variants);
     }
 
@@ -601,7 +601,7 @@ public class DecisionModel {
         return given(null).random(variants);
     }
 
-    protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
+    protected Map<String, ?> combinedGivens(Map<String, ?> givens) {
         GivensProvider provider = getGivensProvider();
         return provider == null ? givens : provider.givensForModel(this, givens);
     }

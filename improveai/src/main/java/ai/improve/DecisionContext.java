@@ -1,8 +1,6 @@
 package ai.improve;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -10,11 +8,11 @@ import ai.improve.util.ModelUtils;
 
 public class DecisionContext {
 
-    private DecisionModel decisionModel;
+    private final DecisionModel decisionModel;
 
-    private Map givens;
+    private final Map<String, ?> givens;
 
-    protected DecisionContext(DecisionModel decisionModel, Map givens) {
+    protected DecisionContext(DecisionModel decisionModel, Map<String, ?> givens) {
         this.decisionModel = decisionModel;
         this.givens = givens;
     }
@@ -23,7 +21,7 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#score(List)
      */
     public <T> List<Double> score(List<T> variants) {
-        Map allGivens = decisionModel.combinedGivens(givens);
+        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
         return decisionModel.scoreInternal(variants, allGivens);
     }
 
@@ -50,7 +48,7 @@ public class DecisionContext {
             List<Double> scores = decisionModel.scoreInternal(variants, allGivens);
             rankedVariants = DecisionModel.rank(variants, scores);
         }
-        return new Decision(decisionModel, rankedVariants, allGivens);
+        return new Decision<>(decisionModel, rankedVariants, allGivens);
     }
 
     /**
@@ -59,13 +57,14 @@ public class DecisionContext {
     public <T> Decision<T> decide(List<T> variants, List<Double> scores) {
         Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
         List<T> rankedVariants = DecisionModel.rank(variants, scores);
-        return new Decision(decisionModel, rankedVariants, allGivens);
+        return new Decision<>(decisionModel, rankedVariants, allGivens);
     }
 
     /**
      * @see ai.improve.DecisionModel#which(Object[])
      */
-    public <T> T which(T... variants) {
+    @SafeVarargs
+    public final <T> T which(T... variants) {
         if(variants == null || variants.length <= 0) {
             throw new IllegalArgumentException("should at least provide one variant.");
         }
@@ -120,7 +119,7 @@ public class DecisionContext {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
-        return chooseFrom(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+        return decide(variants, ModelUtils.generateDescendingGaussians(variants.size()));
     }
 
     /**
@@ -136,8 +135,9 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#first(Object...)
      * @deprecated Remove in 8.0.
      */
+    @SafeVarargs
     @Deprecated
-    public <T> T first(T... variants) {
+    public final <T> T first(T... variants) {
         return chooseFirst(Arrays.asList(variants)).get();
     }
 
@@ -157,8 +157,9 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#random(Object...)
      * @deprecated Remove in 8.0.
      */
+    @SafeVarargs
     @Deprecated
-    public <T> T random(T... variants) {
+    public final <T> T random(T... variants) {
         return chooseRandom(Arrays.asList(variants)).get();
     }
 
@@ -176,49 +177,7 @@ public class DecisionContext {
      * @deprecated Remove in 8.0.
      */
     @Deprecated
-    public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
-        if(variants == null || variants.size() <= 0) {
-            return chooseFrom(null);
-        }
-
-        List<String> allKeys = new ArrayList();
-
-        List<List> categories = new ArrayList();
-        for(Map.Entry<String, ?> entry : variants.entrySet()) {
-            if(entry.getValue() instanceof List) {
-                if(((List)entry.getValue()).size() > 0) {
-                    categories.add((List) entry.getValue());
-                    allKeys.add(entry.getKey());
-                }
-            } else {
-                categories.add(Arrays.asList(entry.getValue()));
-                allKeys.add(entry.getKey());
-            }
-        }
-        if(categories.size() <= 0) {
-            throw new IllegalArgumentException("valueMap values are all empty list!");
-        }
-
-        List<Map<String, ?>> combinations = new ArrayList();
-        for(int i = 0; i < categories.size(); ++i) {
-            List category = categories.get(i);
-            List<Map<String, ?>> newCombinations = new ArrayList();
-            for(int m = 0; m < category.size(); ++m) {
-                if(combinations.size() == 0) {
-                    Map<String, Object> newVariant = new HashMap();
-                    newVariant.put(allKeys.get(i), category.get(m));
-                    newCombinations.add(newVariant);
-                } else {
-                    for(int n = 0; n < combinations.size(); ++n) {
-                        Map newVariant = new HashMap(combinations.get(n));
-                        newVariant.put(allKeys.get(i), category.get(m));
-                        newCombinations.add(newVariant);
-                    }
-                }
-            }
-            combinations = newCombinations;
-        }
-
-        return chooseFrom(combinations);
+    public Decision<Map<String, Object>> chooseMultivariate(Map<String, ?> variants) {
+        return decide(decisionModel.fullFactorialVariants(variants));
     }
 }
