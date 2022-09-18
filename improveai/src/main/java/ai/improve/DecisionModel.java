@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -720,11 +721,11 @@ public class DecisionModel {
             indices[i] = i;
         }
 
-        Arrays.sort(indices, new Comparator<Integer>() {
+        Arrays.sort(indices, Collections.reverseOrder(new Comparator<>() {
             public int compare(Integer obj1, Integer obj2) {
-                return scores.get(obj1) < scores.get(obj2) ? 1 : -1;
+                return Double.compare(scores.get(obj1), scores.get(obj2));
             }
-        });
+        }));
 
         List<T> result = new ArrayList<>(variants.size());
         for(int i = 0; i < indices.length; ++i) {

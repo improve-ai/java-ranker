@@ -292,6 +292,7 @@ public class DecisionModelTest {
             scores.add((double)i);
         }
 
+
         Random random = new Random();
         // shuffle
         for(int i = 0; i < 100; ++i) {
@@ -302,7 +303,7 @@ public class DecisionModelTest {
         }
         IMPLog.d(Tag, "Shuffled.....");
         for(int i = 0; i < variants.size(); ++i) {
-            IMPLog.d(Tag, "" + variants.get(i));
+            IMPLog.d(Tag, "" + variants.get(i) + ", " + scores.get(i));
         }
 
         IMPLog.d(Tag, "Sorted.....");
@@ -312,7 +313,7 @@ public class DecisionModelTest {
         for(int i = 0; i < sorted.size(); ++i) {
             IMPLog.d(Tag, "" + sorted.get(i));
             if(i != variants.size()-1) {
-                assertTrue((Integer)sorted.get(i) > (Integer) sorted.get(i+1));
+                assertTrue(sorted.get(i) > sorted.get(i+1));
             }
         }
     }
