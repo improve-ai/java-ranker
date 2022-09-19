@@ -31,15 +31,6 @@ public class Decision<T> {
         this.givens = givens;
     }
 
-    /**
-     * Same as get() except that peek won't track the decision.
-     * @return Returns the chosen variant memoized.
-     * @throws IllegalStateException Thrown if called before chooseFrom()
-     */
-    public T peek() {
-        return rankedVariants.get(0);
-    }
-
     public T get() {
         return get(true);
     }
