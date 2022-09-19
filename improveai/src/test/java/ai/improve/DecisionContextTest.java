@@ -489,7 +489,7 @@ public class DecisionContextTest {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
         try {
-            decisionContext.which(variants);
+            decisionContext.whichFrom(variants);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -503,7 +503,7 @@ public class DecisionContextTest {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
         try {
-            decisionContext.which(variants);
+            decisionContext.whichFrom(variants);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;

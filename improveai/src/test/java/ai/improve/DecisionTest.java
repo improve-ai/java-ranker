@@ -2,13 +2,12 @@ package ai.improve;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import ai.improve.log.IMPLog;
 
@@ -25,65 +24,73 @@ public class DecisionTest {
         DecisionModel.setDefaultTrackURL(Track_URL);
     }
 
-    private List variants() {
+    private List<String> variants() {
         return Arrays.asList("Hello", "Hi", "Hey");
     }
 
-    @Test
-    public void testGet_track_only_once() throws InterruptedException {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        assertNotNull(decisionModel.getTracker());
-
-        Decision decision = decisionModel.chooseFrom(variants());
-        assertEquals(0, decision.tracked);
-
-        Semaphore semaphore = new Semaphore(0);
-        AtomicInteger count = new AtomicInteger(0);
-        int loop = 100;
-        for(int i = 0; i < loop; i++) {
-            new Thread() {
-                @Override
-                public void run() {
-                    decision.get();
-                    int cur = count.incrementAndGet();
-                    if(cur == loop) {
-                        semaphore.release();
-                    }
-                }
-            }.start();
-        }
-        semaphore.acquire();
-        assertEquals(1, decision.tracked);
+    private DecisionModel model() {
+        return new DecisionModel("greetings");
     }
 
     @Test
-    public void testGet_without_tracker() {
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseFrom(variants());
-        assertEquals(0, decision.tracked);
-        decision.get();
-        assertEquals(1, decision.tracked);
-
-        decision = decisionModel.chooseFrom(variants());
-        decisionModel.setTrackURL(null);
-        assertEquals(0, decision.tracked);
-        decision.get();
-        assertEquals(0, decision.tracked);
+    public void testGet() {
+        List<String> variants = Arrays.asList("hi", "hello", "Hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        // Unit test that no type cast needed here
+        String greeting = decisionModel.decide(variants).get();
+        assertEquals("hi", greeting);
     }
 
     @Test
     public void testGet_without_loading_model() {
-        List<Object> variants = new ArrayList<>();
-        variants.add("Hello, World!");
-        variants.add("hello, world!");
-        variants.add("hello");
-        variants.add("hi");
-        variants.add("Hello World!");
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        for(int i = 0; i < 100; ++i) {
+            String greeting = decisionModel.decide(variants).get();
+            assertEquals(greeting, variants.get(0));
+        }
+    }
 
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Decision decision = decisionModel.chooseFrom(variants);
-        String greeting = (String) decision.get();
-        assertEquals(greeting, variants.get(0));
+    @Test
+    public void testRanked() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        List<String> rankedVariants = model().decide(variants).ranked();
+        assertEquals(variants, rankedVariants);
+    }
+
+    @Test
+    public void testTrack() {
+        Decision decision = model().decide(variants());
+        assertNull(decision.id);
+        decision.track();
+        assertNotNull(decision.id);
+        assertTrue(!decision.id.isEmpty());
+    }
+
+    @Test
+    public void testTrack_nil_trackURL() {
+        DecisionModel decisionModel = model();
+        decisionModel.setTrackURL(null);
+        Decision decision = decisionModel.decide(variants());
+        try {
+            decision.track();
+            fail("trackURL not set for the underlying DecisionModel.");
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            assertEquals("trackURL not set for the underlying DecisionModel!", e.getMessage());
+        }
+    }
+
+    @Test
+    public void testTrack_called_twice() {
+        Decision decision = model().decide(variants());
+        decision.track();
+        try {
+            decision.track();
+            fail("decision already tracked.");
+        } catch (IllegalStateException e){
+            assertEquals("the decision is already tracked!", e.getMessage());
+        }
     }
 
     @Test
@@ -102,7 +109,7 @@ public class DecisionTest {
     public void testAddReward_nil_trackURL() {
         DecisionModel decisionModel = new DecisionModel("theme");
         decisionModel.setTrackURL(null);
-        Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
+        Decision decision = decisionModel.decide(Arrays.asList(1, 2, 3));
         // set trackURL to null
         decision.get();
         try {
@@ -119,7 +126,7 @@ public class DecisionTest {
         try {
             DecisionModel decisionModel = new DecisionModel("theme");
             Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
-            decision.get();
+            decision.track();
             decision.addReward(Double.NaN);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
@@ -132,7 +139,7 @@ public class DecisionTest {
     public void testAddReward_positive_infinity() {
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
-        decision.get();
+        decision.track();
         try {
             decision.addReward(Double.POSITIVE_INFINITY);
         } catch (IllegalArgumentException e) {
@@ -146,7 +153,7 @@ public class DecisionTest {
     public void testAddReward_negative_infinity() {
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
-        decision.get();
+        decision.track();
         try {
             decision.addReward(Double.NEGATIVE_INFINITY);
         } catch (IllegalArgumentException e) {
@@ -154,14 +161,5 @@ public class DecisionTest {
             return ;
         }
         fail(DefaultFailMessage);
-    }
-
-    @Test
-    public void testGet_generic() {
-        List<String> variants = Arrays.asList("hi", "hello", "Hey");
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        // Unit test that no type cast needed here
-        String greeting = decisionModel.chooseFrom(variants).get();
-        assertEquals("hi", greeting);
     }
 }
