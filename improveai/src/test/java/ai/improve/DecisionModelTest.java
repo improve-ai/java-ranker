@@ -747,7 +747,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhichVariadic() {
+    public void testWhich() {
         DecisionModel decisionModel = new DecisionModel("theme");
 
         int size = decisionModel.which(1, 2, 3);
@@ -758,13 +758,13 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhichVariadic_null() {
+    public void testWhich_null() {
         DecisionModel decisionModel = new DecisionModel("theme");
         decisionModel.which((String)null);
     }
 
     @Test
-    public void testWhichVariadic_empty() {
+    public void testWhich_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
             decisionModel.which();
@@ -776,7 +776,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhichVariadic_mixed_types() {
+    public void testWhich_mixed_types() {
         DecisionModel decisionModel = new DecisionModel("greetings");
         Object chosen = decisionModel.which("hi", 0, true, 1.2f);
         assertEquals("hi", chosen);

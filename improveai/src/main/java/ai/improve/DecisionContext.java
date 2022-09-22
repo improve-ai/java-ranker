@@ -68,20 +68,26 @@ public class DecisionContext {
         if(variants == null || variants.length <= 0) {
             throw new IllegalArgumentException("should at least provide one variant.");
         }
-        return chooseFrom(Arrays.asList(variants)).get();
+        Decision<T> decision = decide(Arrays.asList(variants));
+        decision.track(decisionModel.getTracker());
+        return decision.get();
     }
 
     /**
      * @see ai.improve.DecisionModel#which(Object[])
      */
     public <T> T whichFrom(List<T> variants) {
-        return chooseFrom(variants).get();
+        Decision<T> decision = decide(variants);
+        decision.track(decisionModel.getTracker());
+        return decide(variants).get();
     }
 
     /**
      * @see ai.improve.DecisionModel#rank(List) 
      */
     public <T> List<T> rank(List<T> variants) {
+        Decision<T> decision = decide(variants);
+        decision.track(decisionModel.getTracker());
         return decide(variants).ranked();
     }
 

@@ -24,7 +24,7 @@ public class Decision<T> {
     /**
      * Get the chosen variant.
      * @return Returns the chosen variant. Could be null if the variants list contains null members.
-     * */
+     */
     public T get() {
         return rankedVariants.get(0);
     }
@@ -38,8 +38,7 @@ public class Decision<T> {
 
     /**
      * Tracks the decision.
-     * @return Returns the id that uniquely identifies the tracked decision. It might be null when
-     * the system clock is beyond year 2014~2150 and the SDK fails to generate a valid id(ksuid).
+     * @return Returns the id that uniquely identifies the tracked decision.
      */
     public synchronized String track() {
         if(id != null) {
@@ -56,14 +55,21 @@ public class Decision<T> {
         return id;
     }
 
+    // For which(), whichFrom, rank() and optimize().
+    protected void track(DecisionTracker tracker) {
+        if(tracker != null) {
+            tracker.track(rankedVariants, givens, model.getModelName());
+        }
+    }
+
     /**
      * Adds a reward that only applies to this specific decision. Before calling this method, make
-     * sure that track() is called and a nonnull id that identifies the tracked decision is returned.
+     * sure that the decision is tracked by calling track().
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
      * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
      * @throws IllegalStateException Thrown if the trackURL of the underlying DecisionModel is null;
-     * Thrown if track() is not called, or called but the returned id is null.
-     * */
+     * Thrown if the decision is not tracked yet.
+     */
     public void addReward(double reward) {
         if(id == null) {
             throw new IllegalStateException("addReward() can't be called before track().");

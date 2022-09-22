@@ -1,6 +1,7 @@
 package ai.improve;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -17,8 +18,16 @@ import ai.improve.log.IMPLog;
 
 @RunWith(AndroidJUnit4.class)
 public class DecisionContextTest {
+    public static final String Tag = "DecisionContextTest";
+
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
+    }
+
+    private Map<String, String> givens() {
+        Map<String, String> givens = new HashMap<>();
+        givens.put("lang", "en");
+        return givens;
     }
 
     @Test
@@ -85,5 +94,119 @@ public class DecisionContextTest {
         assertEquals("hello", decision.get());
         assertEquals(21, decision.givens.size());
         assertEquals("en", decision.givens.get("lang"));
+    }
+
+    // Tests that decision is tracked when calling which().
+    @Test
+    public void testWhich_track() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).which(1, 2, 3);
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertNotEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is not tracked and no exceptions thrown.
+    @Test
+    public void testWhich_null_trackURL() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        decisionModel.setTrackURL(null);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).which(1, 2, 3);
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is tracked when calling whichFrom().
+    @Test
+    public void testWhichFrom_track() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).whichFrom(Arrays.asList(1, 2, 3));
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertNotEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is not tracked and no exceptions thrown.
+    @Test
+    public void testWhichFrom_null_trackURL() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        decisionModel.setTrackURL(null);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).whichFrom(Arrays.asList(1, 2, 3));
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is tracked when calling rank().
+    @Test
+    public void testRank_track() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).rank(Arrays.asList(1, 2, 3));
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertNotEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is not tracked and no exceptions thrown
+    @Test
+    public void testRank_null_trackURL() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        decisionModel.setTrackURL(null);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).rank(Arrays.asList(1, 2, 3));
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is tracked when calling optimize().
+    @Test
+    public void testOptimize_track() {
+        Map<String, List> variantMap = new HashMap<>();
+        variantMap.put("font", Arrays.asList(12, 13));
+        variantMap.put("color", Arrays.asList("white", "black"));
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).optimize(variantMap);
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertNotEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is not tracked and no exceptions thrown
+    @Test
+    public void testOptimize_null_trackURL() {
+        Map<String, List> variantMap = new HashMap<>();
+        variantMap.put("font", Arrays.asList(12, 13));
+        variantMap.put("color", Arrays.asList("white", "black"));
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        decisionModel.setTrackURL(null);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.given(givens()).optimize(variantMap);
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertEquals(lastDecisionId, newDecisionId);
     }
 }
