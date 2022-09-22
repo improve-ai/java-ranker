@@ -35,7 +35,7 @@ public class KsuidTest {
         long t = EPOCH - 1;
         byte[] payload = new byte[PAYLOAD_BYTES];
         KsuidGenerator ksuidGenerator = new KsuidGenerator();
-        assertNull(ksuidGenerator.next(t, payload));
+        assertEquals("aWgEPLxxrZOFaOlDVFHTB3ZiQOO", ksuidGenerator.next(t, payload));
     }
 
     @Test
@@ -78,6 +78,6 @@ public class KsuidTest {
         byte[] payload = new byte[PAYLOAD_BYTES];
         Arrays.fill(payload, (byte)255);
         KsuidGenerator ksuidGenerator = new KsuidGenerator();
-        assertNull(ksuidGenerator.next(t, payload));
+        assertEquals("000007n42DGM5Tflk9n8mt7Fhc7", ksuidGenerator.next(t, payload));
     }
 }
