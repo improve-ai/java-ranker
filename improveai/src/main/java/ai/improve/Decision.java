@@ -39,6 +39,8 @@ public class Decision<T> {
     /**
      * Tracks the decision.
      * @return Returns the id that uniquely identifies the tracked decision.
+     * @throws IllegalStateException Thrown if trackURL of the underlying DecisionModel is null;
+     * Thrown if the decision is already tracked.
      */
     public synchronized String track() {
         if(id != null) {

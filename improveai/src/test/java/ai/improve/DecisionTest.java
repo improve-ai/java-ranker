@@ -99,23 +99,24 @@ public class DecisionTest {
             DecisionModel decisionModel = new DecisionModel("theme");
             Decision decision = decisionModel.decide(variants());
             decision.addReward(0.1);
+            fail("addReward() can't be called before track().");
         } catch (IllegalStateException e) {
+            assertEquals("addReward() can't be called before track().", e.getMessage());
             return ;
         }
-        fail(DefaultFailMessage);
     }
 
     @Test
     public void testAddReward_nil_trackURL() {
         DecisionModel decisionModel = new DecisionModel("theme");
-        decisionModel.setTrackURL(null);
         Decision decision = decisionModel.decide(Arrays.asList(1, 2, 3));
-        // set trackURL to null
-        decision.get();
+        decision.track();
+        decisionModel.setTrackURL(null);
         try {
             decision.addReward(0.1);
         } catch (IllegalStateException e) {
             e.printStackTrace();
+            assertEquals("trackURL can't be null when calling addReward()", e.getMessage());
             return ;
         }
         fail(DefaultFailMessage);
