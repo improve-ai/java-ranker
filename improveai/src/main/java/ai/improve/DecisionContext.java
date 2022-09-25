@@ -1,5 +1,6 @@
 package ai.improve;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -43,10 +44,14 @@ public class DecisionContext {
         Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
         List<T> rankedVariants;
         if(ordered) {
-            rankedVariants = variants;
+            rankedVariants = new ArrayList<>(variants);
         } else {
-            List<Double> scores = decisionModel.scoreInternal(variants, allGivens);
-            rankedVariants = DecisionModel.rank(variants, scores);
+            if(decisionModel.isLoaded()) {
+                List<Double> scores = decisionModel.scoreInternal(variants, allGivens);
+                rankedVariants = DecisionModel.rank(variants, scores);
+            } else {
+                rankedVariants = new ArrayList<>(variants);
+            }
         }
         return new Decision<>(decisionModel, rankedVariants, allGivens);
     }

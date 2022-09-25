@@ -81,10 +81,18 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testDecide_false() {
+    public void testDecide_ordered_false() {
         List<String> variants = variants();
         String chosen = model().given(givens()).decide(variants, false).get();
         assertEquals(variants.get(0), chosen);
+    }
+
+    @Test
+    public void testDecide_ordered_true() {
+        List<String> variants = variants();
+        List<String> rankedVariants = model().given(givens()).decide(variants, true).ranked();
+        assertTrue(variants != rankedVariants); // different object
+        assertEquals(variants, rankedVariants);
     }
 
     @Test

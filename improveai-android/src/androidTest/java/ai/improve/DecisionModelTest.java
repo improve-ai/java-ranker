@@ -84,6 +84,20 @@ public class DecisionModelTest {
         return new DecisionModel(modelName);
     }
 
+    public DecisionModel model() {
+        return new DecisionModel("greetings");
+    }
+
+    public DecisionModel loadedModel() throws Exception {
+        DecisionModel decisionModel = new DecisionModel("greetings");
+        decisionModel.load(new URL(ModelURL));
+        return decisionModel;
+    }
+
+    private List<String> variants() {
+        return Arrays.asList("Hello", "Hi", "Hey");
+    }
+
     @Test
     public void testModelNameWithoutLoadingModel() {
         DecisionModel decisionModel = new DecisionModel("music");
@@ -840,5 +854,37 @@ public class DecisionModelTest {
         IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
         assertNotNull(newDecisionId);
         assertEquals(lastDecisionId, newDecisionId);
+    }
+
+    @Test
+    public void testDecide_ordered_true_not_loaded() {
+        List<String> variants = variants();
+        List<String> rankedVariants = model().decide(variants, true).ranked();
+        assertTrue(variants != rankedVariants); // different object
+        assertEquals(variants, rankedVariants);
+    }
+
+    @Test
+    public void testDecide_ordered_true_loaded() throws Exception {
+        List<String> variants = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
+        List<String> rankedVariants = loadedModel().decide(variants, true).ranked();
+        assertTrue(variants != rankedVariants); // different object
+        assertEquals(variants, rankedVariants);
+    }
+
+    @Test
+    public void testDecide_ordered_false_not_loaded() {
+        List<String> variants = variants();
+        List<String> rankedVariants = model().decide(variants, false).ranked();
+        assertTrue(variants != rankedVariants); // different object
+        assertEquals(variants, rankedVariants);
+    }
+
+    @Test
+    public void testDecide_ordered_false_loaded() throws Exception {
+        List<String> variants = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
+        List<String> rankedVariants = loadedModel().decide(variants, false).ranked();
+        assertTrue(variants != rankedVariants); // different object
+        assertNotEquals(variants, rankedVariants);
     }
 }
