@@ -499,6 +499,26 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testDecide_null_variants() {
+        try {
+            model().decide(null);
+            fail("variants can't be nil");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecide_empty_variants() {
+        try {
+            model().decide(new ArrayList());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testDecide_false() {
         model().decide(variants(), false).get();
     }
@@ -510,6 +530,61 @@ public class DecisionModelTest {
         Decision<String> decision = model().decide(variants, scores);
         assertEquals("Hello", decision.get());
         assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked());
+    }
+
+    @Test
+    public void testDecideWithScores_null_variants() {
+        List<Double> scores = Arrays.asList(1.1, 2.2, 3.3);
+        try {
+            model().decide(null, scores);
+            fail("variants can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_empty_variants() {
+        List<Double> scores = Arrays.asList(1.1, 2.2, 3.3);
+        try {
+            model().decide(new ArrayList(), scores);
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_empty_scores() {
+        try {
+            model().decide(variants(), new ArrayList<>());
+            fail("scores can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_too_few_variants() {
+        List<Double> scores = Arrays.asList(1.1, 2.2, 3.3);
+        try {
+            model().decide(Arrays.asList("hi", "hello"), scores);
+            fail("variants.size() not equal to scores.size()");
+        } catch (IllegalArgumentException e) {
+            assertEquals("variants.size() must be equal to scores.size()", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_too_few_scores() {
+        try {
+            model().decide(variants(), Arrays.asList(1.1, 1.2));
+            fail("variants.size() not equal to scores.size()");
+        } catch (IllegalArgumentException e) {
+            assertEquals("variants.size() must be equal to scores.size()", e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Test

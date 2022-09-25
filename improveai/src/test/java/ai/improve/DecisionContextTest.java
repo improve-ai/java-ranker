@@ -61,8 +61,30 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testDecide_null_variants() {
+        try {
+            model().given(givens()).decide(null);
+            fail("variants can't be nil");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecide_empty_variants() {
+        try {
+            model().given(givens()).decide(new ArrayList());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testDecide_false() {
-        model().given(givens()).decide(variants(), false).get();
+        List<String> variants = variants();
+        String chosen = model().given(givens()).decide(variants, false).get();
+        assertEquals(variants.get(0), chosen);
     }
 
     @Test
@@ -76,25 +98,22 @@ public class DecisionContextTest {
 
     @Test
     public void testChooseFrom() {
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
-        Decision decision = decisionContext.chooseFrom(variants());
-        assertNotNull(decision);
+        List<String> variants = variants();
+        Decision<String> decision = model().given(givens()).chooseFrom(variants());
+        assertEquals(variants.get(0), decision.get());
     }
 
     @Test
     public void testChooseFrom_generic() {
         DecisionModel decisionModel = new DecisionModel("greetings");
-        String greeting = decisionModel.given(null).chooseFrom(variants()).get();
+        String greeting = model().given(givens()).chooseFrom(variants()).get();
         IMPLog.d(Tag, "greeting is " + greeting);
     }
 
     @Test
     public void testChooseFrom_null_variants() {
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         try {
-            decisionContext.chooseFrom(null);
+            model().given(givens()).chooseFrom(null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -104,10 +123,8 @@ public class DecisionContextTest {
 
     @Test
     public void testChooseFrom_empty_variants() {
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         try {
-            decisionContext.chooseFrom(new ArrayList());
+            model().given(givens()).chooseFrom(new ArrayList());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -443,7 +460,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichVariadic() {
+    public void testWhich() {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
         int size = decisionContext.which(1, 2, 3);
@@ -454,7 +471,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichVariadic_null() {
+    public void testWhich_null() {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         String greeting = decisionContext.which((String)null);
@@ -462,7 +479,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichVariadic_empty() {
+    public void testWhich_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         try {

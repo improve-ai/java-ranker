@@ -713,7 +713,7 @@ public class DecisionModel {
         }
 
         if(variants.size() != scores.size()) {
-            throw new IllegalArgumentException("variants.size() must equal to scores.size()");
+            throw new IllegalArgumentException("variants.size() must be equal to scores.size()");
         }
 
         Integer[] indices = new Integer[variants.size()];
