@@ -787,4 +787,58 @@ public class DecisionModelTest {
         assertNotNull(newDecisionId);
         assertEquals(lastDecisionId, newDecisionId);
     }
+
+    // Tests that decision is tracked when calling optimize().
+    @Test
+    public void testFirst_track() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.first("hi", "hello", "hey");
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertNotEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is not tracked and no exceptions thrown
+    @Test
+    public void testFirst_null_trackURL() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        decisionModel.setTrackURL(null);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.first("hi", "hello", "hey");
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is tracked when calling optimize().
+    @Test
+    public void testRandom_track() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.random("hi", "hello", "hi");
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertNotEquals(lastDecisionId, newDecisionId);
+    }
+
+    // Tests that decision is not tracked and no exceptions thrown
+    @Test
+    public void testRandom_null_trackURL() {
+        String modelName = "greetings";
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        decisionModel.setTrackURL(null);
+        String lastDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        decisionModel.random("hi", "hello", "hi");
+        String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
+        IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
+        assertNotNull(newDecisionId);
+        assertEquals(lastDecisionId, newDecisionId);
+    }
 }

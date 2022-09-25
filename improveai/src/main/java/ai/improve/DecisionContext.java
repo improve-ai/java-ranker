@@ -144,7 +144,9 @@ public class DecisionContext {
     @SafeVarargs
     @Deprecated
     public final <T> T first(T... variants) {
-        return chooseFirst(Arrays.asList(variants)).get();
+        Decision<T> decision = chooseFirst(Arrays.asList(variants));
+        decision.track(decisionModel.getTracker());
+        return decision.get();
     }
 
     /**
@@ -166,7 +168,9 @@ public class DecisionContext {
     @SafeVarargs
     @Deprecated
     public final <T> T random(T... variants) {
-        return chooseRandom(Arrays.asList(variants)).get();
+        Decision<T> decision = chooseRandom(Arrays.asList(variants));
+        decision.track(decisionModel.getTracker());
+        return decision.get();
     }
 
     /**
