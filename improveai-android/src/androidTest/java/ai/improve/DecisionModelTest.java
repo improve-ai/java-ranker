@@ -113,14 +113,14 @@ public class DecisionModelTest {
 
     @Test
     public void testGet() throws Exception {
-        List<Object> variants = new ArrayList<>();
+        List<String> variants = new ArrayList<>();
         variants.add("Hello, World!");
         variants.add("hello, world!");
         variants.add("hello");
         variants.add("hi");
 
         URL url = new URL(ModelURL);
-        String greeting = (String) getDecisionModel("hello").load(url).chooseFrom(variants).get();
+        String greeting = getDecisionModel("hello").load(url).decide(variants).get();
         IMPLog.d(Tag, "testGet, greeting=" + greeting);
         assertNotNull(greeting);
     }

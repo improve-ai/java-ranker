@@ -1,6 +1,6 @@
 package ai.improve;
 
-import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +36,7 @@ class DecisionTracker {
 
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
 
-    private final String trackURL;
+    private final URL trackURL;
 
     private String trackApiKey;
 
@@ -50,13 +50,9 @@ class DecisionTracker {
      * */
     private int maxRunnersUp = DEFAULT_MAX_RUNNERS_UP;
 
-    public DecisionTracker(String trackURL, String trackApiKey) {
+    public DecisionTracker(URL trackURL, String trackApiKey) {
         this.trackURL = trackURL;
         this.trackApiKey = trackApiKey;
-        if(Utils.isEmpty(trackURL)) {
-            // Just give a warning
-            IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
-        }
     }
 
     protected static void setPersistenceProvider(PersistenceProvider persistenceProvider) {
@@ -95,16 +91,7 @@ class DecisionTracker {
             return null;
         }
 
-        if(Utils.isEmpty(trackURL)) {
-            IMPLog.e(Tag, "Improve.track error: trackURL is empty or null");
-            return null;
-        }
-
         String decisionId = createAndPersistDecisionIdForModel(modelName);
-        if(decisionId == null) {
-            IMPLog.e(Tag, "decisionId generated is null");
-            return null;
-        }
 
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, DECISION_TYPE);
@@ -225,20 +212,7 @@ class DecisionTracker {
         if(trackApiKey != null) {
             headers.put(TRACK_API_KEY_HEADER, trackApiKey);
         }
-
-        // It's not allowed to send network request in the main thread on Android.
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    // android.os.NetworkOnMainThreadException will be thrown if post() is called
-                    // in main thread
-                    HttpUtil.withUrl(trackURL).withHeaders(headers).withBody(body).post();
-                } catch (MalformedURLException e) {
-                    IMPLog.e(Tag, e.getLocalizedMessage());
-                }
-            }
-        }.start();
+        HttpUtil.withUrl(trackURL).withHeaders(headers).withBody(body).post();
     }
 
     private String createAndPersistDecisionIdForModel(String modelName) {

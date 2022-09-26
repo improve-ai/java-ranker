@@ -200,7 +200,7 @@ public class DecisionModelTest {
 
         try {
             decisionModel.setTrackURL("");
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             IMPLog.e(Tag, e.getMessage());
             return ;
         }

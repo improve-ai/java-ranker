@@ -12,6 +12,8 @@ import static ai.improve.DecisionTracker.SAMPLE_VARIANT_KEY;
 
 import com.google.gson.GsonBuilder;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +22,7 @@ import java.util.Map;
 
 import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
+import ai.improve.util.Utils;
 
 
 import org.junit.jupiter.api.Test;
@@ -41,7 +44,7 @@ public class DecisionTrackerTest {
     }
 
     private DecisionTracker newTracker() {
-        return new DecisionTracker(Track_URL, Track_Api_Key);
+        return new DecisionTracker(Utils.toURL(Track_URL), Track_Api_Key);
     }
 
     @Test

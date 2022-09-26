@@ -70,8 +70,8 @@ public class AppGivensProviderTest {
     public void testAddReward_decision() {
         String modelName = "greetings";
         DecisionModel decisionModel = new DecisionModel(modelName);
-        Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
-        decision.get();
+        Decision decision = decisionModel.decide(Arrays.asList(1, 2, 3));
+        decision.track();
         double oldTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(context, modelName);
         decision.addReward(0.1);
         double newTotalRewardsOfModel = AppGivensProviderUtils.rewardOfModel(context, modelName);

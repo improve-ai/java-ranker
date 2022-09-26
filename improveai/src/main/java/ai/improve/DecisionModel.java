@@ -201,7 +201,7 @@ public class DecisionModel {
         });
     }
 
-    public String getTrackURL() {
+    public synchronized String getTrackURL() {
         return trackURL;
     }
 
@@ -209,16 +209,12 @@ public class DecisionModel {
      * @param trackURL url for decision tracking. If set as null, no decisions would be tracked.
      * @throws IllegalArgumentException Thrown if trackURL is nonnull and not a valid URL.
      * */
-    public void setTrackURL(String trackURL) {
+    public synchronized void setTrackURL(String trackURL) {
+        this.trackURL = trackURL;
         if(trackURL == null) {
-            this.trackURL = null;
             this.tracker = null;
         } else {
-            if(!Utils.isValidURL(trackURL)) {
-                throw new IllegalArgumentException("invalid trackURL: [" + trackURL + "]");
-            }
-            this.trackURL = trackURL;
-            this.tracker = new DecisionTracker(trackURL, this.trackApiKey);
+            this.tracker = new DecisionTracker(Utils.toURL(trackURL), this.trackApiKey);
         }
     }
 
@@ -237,11 +233,11 @@ public class DecisionModel {
         sDefaultTrackURL = trackURL;
     }
 
-    public String getTrackApiKey() {
+    public synchronized String getTrackApiKey() {
         return trackApiKey;
     }
 
-    public void setTrackApiKey(String trackApiKey) {
+    public synchronized void setTrackApiKey(String trackApiKey) {
         this.trackApiKey = trackApiKey;
         if(tracker != null) {
             tracker.setTrackApiKey(trackApiKey);

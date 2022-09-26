@@ -19,17 +19,16 @@ public class HttpUtil {
     private static final String Tag = "HttpUtil";
 
     private Map<String, String> headers;
+
     private Map<String, Object> body;
 
     private URL url;
-    private HttpURLConnection connection;
 
-
-    HttpUtil(String url) throws MalformedURLException {
-            this.url = new URL(url);
+    HttpUtil(URL url) {
+        this.url = url;
     }
 
-    public static HttpUtil withUrl(String url) throws MalformedURLException {
+    public static HttpUtil withUrl(URL url) {
         return new HttpUtil(url);
     }
 
@@ -44,45 +43,51 @@ public class HttpUtil {
     }
 
     public void post() {
-        try {
-            if(!isJsonEncodable(body)) {
-                IMPLog.w(Tag, "track request body not json encodable");
-                return ;
-            }
-
-            connection = (HttpURLConnection) url.openConnection();
-            try {
-                for(Map.Entry<String, String> header: headers.entrySet()) {
-                    connection.setRequestProperty(header.getKey(), header.getValue());
-                }
-                connection.setRequestMethod("POST");
-                connection.setDoOutput(true);
-                connection.setChunkedStreamingMode(0);
-                String jsonBody = serializeBody(body);
-                IMPLog.d(Tag, "tracker request body, " + jsonBody);
-                connection.getOutputStream().write(jsonBody.getBytes());
-                connection.getOutputStream().flush();
-                int code = connection.getResponseCode();
-                if(code == 200) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                    String body = "";
-                    String line;
-                    while ((line = br.readLine()) != null) {
-                        body += line;
-                    }
-                    IMPLog.d(Tag, "tracker response 200, " + body);
-                }
-                if(code >= 400) {
-                    IMPLog.e(Tag, "Error posting HTTP Data to " + url.toString() + ": status code " + code);
-                }
-            } finally {
-                connection.disconnect();
-            }
-        } catch (Exception e) {
-            IMPLog.e(Tag, "Error posting HTTP data, " + e);
+        if(!isJsonEncodable(body)) {
+            IMPLog.w(Tag, "track request body not json encodable");
+            return ;
         }
-    }
 
+        String jsonBody = serializeBody(body);
+
+        new Thread() {
+            @Override
+            public void run() {
+                try {
+                    HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+                    try {
+                        for(Map.Entry<String, String> header: headers.entrySet()) {
+                            connection.setRequestProperty(header.getKey(), header.getValue());
+                        }
+                        connection.setRequestMethod("POST");
+                        connection.setDoOutput(true);
+                        connection.setChunkedStreamingMode(0);
+                        IMPLog.d(Tag, "tracker request body, " + jsonBody);
+                        connection.getOutputStream().write(jsonBody.getBytes());
+                        connection.getOutputStream().flush();
+                        int code = connection.getResponseCode();
+                        if(code == 200) {
+                            BufferedReader br = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+                            String body = "";
+                            String line;
+                            while ((line = br.readLine()) != null) {
+                                body += line;
+                            }
+                            IMPLog.d(Tag, "tracker response 200, " + body);
+                        }
+                        if(code >= 400) {
+                            IMPLog.e(Tag, "Error posting HTTP Data to " + url.toString() + ": status code " + code);
+                        }
+                    } finally {
+                        connection.disconnect();
+                    }
+                }
+                catch (Exception e) {
+                    IMPLog.e(Tag, "Error posting HTTP data, " + e);
+                }
+            }
+        }.start();
+    }
 
     /**
      * Streams the file as an InputStream, handles gzip compression on the fly
