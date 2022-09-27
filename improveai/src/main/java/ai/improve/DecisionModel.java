@@ -475,6 +475,16 @@ public class DecisionModel {
     }
 
     /**
+     * Perform low level tracking of the variant. This is considered a tracked decision for the
+     * purposes of updating the decision_id for DecisionModel.addReward(). Only use this if
+     * necessary, for example for scoring purposes where no decision is made.
+     * @return Returns the tracked decision id.
+     */
+    protected String track(Object variant, List<?>  runnersUp, Object sample, int samplePoolSize) {
+        return given(null).track(variant, runnersUp, sample, samplePoolSize);
+    }
+
+    /**
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.

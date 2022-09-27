@@ -103,6 +103,25 @@ public class DecisionContext {
         return whichFrom(decisionModel.fullFactorialVariants(variantMap));
     }
 
+    protected String track(Object variant, List<?> runnersUp, Object sample, int samplePoolSize) {
+        if(samplePoolSize < 0) {
+            throw new IllegalArgumentException("samplePoolSize can't be smaller than 0!");
+        }
+
+        if(samplePoolSize == 0 && sample != null) {
+            throw new IllegalArgumentException("sample pool of size 0 can't produce a nonnull sample!");
+        }
+
+        DecisionTracker tracker = decisionModel.getTracker();
+        if(tracker == null) {
+            throw new IllegalStateException("trackURL of the DecisionModel is null!");
+        }
+
+        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
+
+        return tracker.track(variant, allGivens, runnersUp, sample, samplePoolSize, decisionModel.getModelName());
+    }
+
     /**
      * @see ai.improve.DecisionModel#chooseFrom(List)
      * @deprecated Remove in 8.0.

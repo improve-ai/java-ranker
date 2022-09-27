@@ -24,6 +24,10 @@ public class DecisionContextTest {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
     }
 
+    public DecisionModel model() {
+        return new DecisionModel("greetings");
+    }
+
     private Map<String, String> givens() {
         Map<String, String> givens = new HashMap<>();
         givens.put("lang", "en");
@@ -208,5 +212,16 @@ public class DecisionContextTest {
         IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
         assertNotNull(newDecisionId);
         assertEquals(lastDecisionId, newDecisionId);
+    }
+
+    @Test
+    public void testTrack() throws InterruptedException {
+        String variant = "hi";
+        List<String> runnersUp = Arrays.asList("hello", "hey");
+        String sample = "ha";
+        int samplePoolSize = 4;
+        String decisionId = model().given(givens()).track(variant, runnersUp, sample, samplePoolSize);
+        assertNotNull(decisionId);
+        Thread.sleep(3000);
     }
 }

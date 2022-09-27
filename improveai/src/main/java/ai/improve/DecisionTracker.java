@@ -121,6 +121,41 @@ class DecisionTracker {
         return decisionId;
     }
 
+    protected String track(Object variant, Map<String, ?> givens, List<?> runnersUp, Object sample,
+                           int samplePoolSize, String modelName) {
+        int variantCount = 1 + samplePoolSize;
+        if(runnersUp != null) {
+            variantCount += runnersUp.size();
+        }
+
+        String decisionId = createAndPersistDecisionIdForModel(modelName);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put(TYPE_KEY, DECISION_TYPE);
+        body.put(MODEL_KEY, modelName);
+        body.put(MESSAGE_ID_KEY, decisionId);
+        body.put(COUNT_KEY, variantCount);
+        body.put(DECISION_BEST_KEY, variant);
+
+        if(givens != null) {
+            body.put(GIVENS_KEY, givens);
+        }
+
+        if(runnersUp != null && runnersUp.size() > 0) {
+            body.put(RUNNERS_UP_KEY, runnersUp);
+        }
+
+        if(samplePoolSize > 0) {
+            body.put(SAMPLE_VARIANT_KEY, sample);
+        }
+
+        if(HttpUtil.isJsonEncodable(body)) {
+            postTrackingRequest(body);
+        }
+
+        return decisionId;
+    }
+
     protected void setBestVariant(Object variant, Map<String, Object> body) {
         body.put(DECISION_BEST_KEY, variant);
     }

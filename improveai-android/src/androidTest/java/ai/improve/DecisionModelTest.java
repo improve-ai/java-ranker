@@ -887,4 +887,15 @@ public class DecisionModelTest {
         assertTrue(variants != rankedVariants); // different object
         assertNotEquals(variants, rankedVariants);
     }
+
+    @Test
+    public void testTrack() throws InterruptedException {
+        String variant = "hi";
+        List<String> runnersUp = Arrays.asList("hello", "hey");
+        String sample = "ha";
+        int samplePoolSize = 4;
+        String decisionId = model().track(variant, runnersUp, sample, samplePoolSize);
+        assertNotNull(decisionId);
+        Thread.sleep(3000);
+    }
 }
