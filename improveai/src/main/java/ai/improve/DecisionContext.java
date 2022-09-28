@@ -84,15 +84,13 @@ public class DecisionContext {
     public <T> T whichFrom(List<T> variants) {
         Decision<T> decision = decide(variants);
         decision.track(decisionModel.getTracker());
-        return decide(variants).get();
+        return decision.get();
     }
 
     /**
      * @see ai.improve.DecisionModel#rank(List) 
      */
     public <T> List<T> rank(List<T> variants) {
-        Decision<T> decision = decide(variants);
-        decision.track(decisionModel.getTracker());
         return decide(variants).ranked();
     }
 

@@ -154,7 +154,7 @@ public class DecisionContextTest {
         assertEquals(lastDecisionId, newDecisionId);
     }
 
-    // Tests that decision is tracked when calling rank().
+    // Tests that decision is not tracked when calling rank().
     @Test
     public void testRank_track() {
         String modelName = "greetings";
@@ -164,7 +164,7 @@ public class DecisionContextTest {
         String newDecisionId = DecisionTracker.persistenceProvider.lastDecisionIdForModel(modelName);
         IMPLog.d(Tag, "decisionId: " + lastDecisionId + ", " + newDecisionId);
         assertNotNull(newDecisionId);
-        assertNotEquals(lastDecisionId, newDecisionId);
+        assertEquals(lastDecisionId, newDecisionId);
     }
 
     // Tests that decision is not tracked and no exceptions thrown
