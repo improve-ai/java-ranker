@@ -33,10 +33,46 @@ public class DecisionTest {
     }
 
     @Test
+    public void testBest() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = model();
+        for(int i = 0; i < 100; ++i) {
+            String greeting = decisionModel.decide(variants).best;
+            assertEquals(greeting, variants.get(0));
+        }
+    }
+
+    @Test
+    public void testRanked() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        List<String> rankedVariants = model().decide(variants).ranked;
+        assertEquals(variants, rankedVariants);
+    }
+
+    @Test
+    public void testPeek() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        DecisionModel decisionModel = model();
+        for(int i = 0; i < 100; ++i) {
+            String greeting = decisionModel.decide(variants).peek();
+            assertEquals(greeting, variants.get(0));
+        }
+    }
+
+    @Test
     public void testGet() {
+        String modelName = "greetings";
+        List<String> variants = Arrays.asList("hi", "hello", "Hey");
+        DecisionModel decisionModel = new DecisionModel(modelName);
+        String greeting = decisionModel.decide(variants).get();
+        assertEquals("hi", greeting);
+    }
+
+    @Test
+    public void testGet_nil_trackURL() {
         List<String> variants = Arrays.asList("hi", "hello", "Hey");
         DecisionModel decisionModel = new DecisionModel("greetings");
-        // Unit test that no type cast needed here
+        decisionModel.setTrackURL(null);
         String greeting = decisionModel.decide(variants).get();
         assertEquals("hi", greeting);
     }
@@ -49,13 +85,6 @@ public class DecisionTest {
             String greeting = decisionModel.decide(variants).get();
             assertEquals(greeting, variants.get(0));
         }
-    }
-
-    @Test
-    public void testRanked() {
-        List<String> variants = Arrays.asList("hi", "hello", "hey");
-        List<String> rankedVariants = model().decide(variants).ranked();
-        assertEquals(variants, rankedVariants);
     }
 
     @Test

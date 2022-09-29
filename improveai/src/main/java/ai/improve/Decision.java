@@ -3,6 +3,8 @@ package ai.improve;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.log.IMPLog;
+
 public class Decision<T> {
     public static final String Tag = "Decision";
 
@@ -10,30 +12,53 @@ public class Decision<T> {
 
     protected Map<String, ?> givens;
 
-    protected List<T> rankedVariants;
+    /**
+     * The ranked variants
+     */
+    public final List<T> ranked;
+
+    /**
+     * The best variant. Could be null if the variants list contains null members.
+     */
+    public final T best;
 
     // The message_id of the tracked decision
     protected String id;
 
     protected Decision(DecisionModel model, List<T> rankedVariants, Map<String, ?> givens) {
         this.model = model;
-        this.rankedVariants = rankedVariants;
+        this.ranked = rankedVariants;
         this.givens = givens;
+        this.best = rankedVariants.get(0);
     }
 
     /**
-     * Get the chosen variant.
-     * @return Returns the chosen variant. Could be null if the variants list contains null members.
+     * Gets the best variant.
+     * @return Returns the best variant. Could be null if the variants list contains null members.
+     * @deprecated Remove in 8.0.
      */
-    public T get() {
-        return rankedVariants.get(0);
+    @Deprecated
+    public T peek() {
+        return best;
     }
 
     /**
-     * Get the ranked variants.
+     * Gets the best variant, and also track the decision if it's not been tracked yet.
+     * @return Returns the best variant. Could be null if the variants list contains null members.
+     * @deprecated Remove in 8.0.
      */
-    public List<T> ranked() {
-        return rankedVariants;
+    @Deprecated
+    public synchronized T get() {
+        if(id == null) {
+            DecisionTracker tracker = model.getTracker();
+            if(tracker == null) {
+                IMPLog.w(Tag, "trackURL not set for the underlying DecisionModel. The decision " +
+                        "won't be tracked.");
+            } else {
+                id = tracker.track(ranked, givens, model.getModelName());
+            }
+        }
+        return best;
     }
 
     /**
@@ -52,15 +77,15 @@ public class Decision<T> {
             throw new IllegalStateException("trackURL not set for the underlying DecisionModel!");
         }
 
-        id = tracker.track(rankedVariants, givens, model.getModelName());
+        id = tracker.track(ranked, givens, model.getModelName());
 
         return id;
     }
 
-    // For which(), whichFrom, rank() and optimize().
+    // For which(), whichFrom, and optimize().
     protected void track(DecisionTracker tracker) {
         if(tracker != null) {
-            tracker.track(rankedVariants, givens, model.getModelName());
+            tracker.track(ranked, givens, model.getModelName());
         }
     }
 

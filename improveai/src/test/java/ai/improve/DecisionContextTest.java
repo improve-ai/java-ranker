@@ -53,7 +53,7 @@ public class DecisionContextTest {
 
         Decision<String> decision = decisionContext.decide(Arrays.asList("Hi", "Hello", "Hey"));
         assertEquals("Hi", decision.get());
-        assertEquals(3, decision.ranked().size());
+        assertEquals(3, decision.ranked.size());
 
         String greeting = decisionContext.decide(Arrays.asList("Hi", "Hello", "Hey")).get();
         int size = decisionContext.decide(Arrays.asList(1, 2, 3)).get();
@@ -90,7 +90,7 @@ public class DecisionContextTest {
     @Test
     public void testDecide_ordered_true() {
         List<String> variants = variants();
-        List<String> rankedVariants = model().given(givens()).decide(variants, true).ranked();
+        List<String> rankedVariants = model().given(givens()).decide(variants, true).ranked;
         assertTrue(variants != rankedVariants); // different object
         assertEquals(variants, rankedVariants);
     }
@@ -101,7 +101,7 @@ public class DecisionContextTest {
         List<Double> scores = Arrays.asList(1.1, 3.3, 2.2);
         Decision<String> decision = model().given(givens()).decide(variants, scores);
         assertEquals("Hello", decision.get());
-        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked());
+        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked);
     }
 
     @Test

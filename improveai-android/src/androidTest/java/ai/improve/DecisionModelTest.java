@@ -859,7 +859,7 @@ public class DecisionModelTest {
     @Test
     public void testDecide_ordered_true_not_loaded() {
         List<String> variants = variants();
-        List<String> rankedVariants = model().decide(variants, true).ranked();
+        List<String> rankedVariants = model().decide(variants, true).ranked;
         assertTrue(variants != rankedVariants); // different object
         assertEquals(variants, rankedVariants);
     }
@@ -867,7 +867,7 @@ public class DecisionModelTest {
     @Test
     public void testDecide_ordered_true_loaded() throws Exception {
         List<String> variants = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
-        List<String> rankedVariants = loadedModel().decide(variants, true).ranked();
+        List<String> rankedVariants = loadedModel().decide(variants, true).ranked;
         assertTrue(variants != rankedVariants); // different object
         assertEquals(variants, rankedVariants);
     }
@@ -875,7 +875,7 @@ public class DecisionModelTest {
     @Test
     public void testDecide_ordered_false_not_loaded() {
         List<String> variants = variants();
-        List<String> rankedVariants = model().decide(variants, false).ranked();
+        List<String> rankedVariants = model().decide(variants, false).ranked;
         assertTrue(variants != rankedVariants); // different object
         assertEquals(variants, rankedVariants);
     }
@@ -883,7 +883,7 @@ public class DecisionModelTest {
     @Test
     public void testDecide_ordered_false_loaded() throws Exception {
         List<String> variants = Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j");
-        List<String> rankedVariants = loadedModel().decide(variants, false).ranked();
+        List<String> rankedVariants = loadedModel().decide(variants, false).ranked;
         assertTrue(variants != rankedVariants); // different object
         assertNotEquals(variants, rankedVariants);
     }

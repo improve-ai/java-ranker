@@ -491,7 +491,7 @@ public class DecisionModelTest {
 
         Decision<String> decision = decisionModel.decide(Arrays.asList("Hi", "Hello", "Hey"));
         assertEquals("Hi", decision.get());
-        assertEquals(3, decision.ranked().size());
+        assertEquals(3, decision.ranked.size());
 
         String greeting = decisionModel.decide(Arrays.asList("Hi", "Hello", "Hey")).get();
         int size = decisionModel.decide(Arrays.asList(1, 2, 3)).get();
@@ -529,7 +529,7 @@ public class DecisionModelTest {
         List<Double> scores = Arrays.asList(1.1, 3.3, 2.2);
         Decision<String> decision = model().decide(variants, scores);
         assertEquals("Hello", decision.get());
-        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked());
+        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked);
     }
 
     @Test
@@ -744,7 +744,7 @@ public class DecisionModelTest {
         variants.put("font", Arrays.asList("Italic", "Bold"));
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseMultivariate(variants);
-        assertEquals(Arrays.asList(Map.of("font", "Italic"), Map.of("font", "Bold")), decision.ranked());
+        assertEquals(Arrays.asList(Map.of("font", "Italic"), Map.of("font", "Bold")), decision.ranked);
     }
 
     @Test
@@ -758,7 +758,7 @@ public class DecisionModelTest {
                 Map.of("font", "Italic", "color", "#000000"),
                 Map.of("font", "Italic", "color", "#ffffff"),
                 Map.of("font", "Bold", "color", "#000000"),
-                Map.of("font", "Bold", "color", "#ffffff")), decision.ranked());
+                Map.of("font", "Bold", "color", "#ffffff")), decision.ranked);
     }
 
     @Test
@@ -773,7 +773,7 @@ public class DecisionModelTest {
                 Map.of("font", "Italic", "color", "#000000", "size", 3),
                 Map.of("font", "Italic", "color", "#ffffff", "size", 3),
                 Map.of("font", "Bold", "color", "#000000", "size", 3),
-                Map.of("font", "Bold", "color", "#ffffff", "size", 3)), decision.ranked());
+                Map.of("font", "Bold", "color", "#ffffff", "size", 3)), decision.ranked);
     }
 
     @Test
@@ -946,7 +946,7 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision decision = decisionModel.chooseFirst(variants);
         assertEquals("hi", decision.get());
-        assertEquals(variants, decision.ranked());
+        assertEquals(variants, decision.ranked);
         assertNull(decision.givens);
     }
 

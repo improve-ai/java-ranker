@@ -91,7 +91,7 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#rank(List) 
      */
     public <T> List<T> rank(List<T> variants) {
-        return decide(variants).ranked();
+        return decide(variants).ranked;
     }
 
     /**
