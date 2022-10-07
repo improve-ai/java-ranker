@@ -98,7 +98,7 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#optimize(Map) 
      */
     public Map<String, Object> optimize(Map<String, ?> variantMap) {
-        return whichFrom(decisionModel.fullFactorialVariants(variantMap));
+        return whichFrom(DecisionModel.fullFactorialVariants(variantMap));
     }
 
     protected String track(Object variant, List<?> runnersUp, Object sample, int samplePoolSize) {
@@ -210,6 +210,6 @@ public class DecisionContext {
      */
     @Deprecated
     public Decision<Map<String, Object>> chooseMultivariate(Map<String, ?> variants) {
-        return decide(decisionModel.fullFactorialVariants(variants));
+        return decide(DecisionModel.fullFactorialVariants(variants));
     }
 }

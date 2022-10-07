@@ -924,7 +924,7 @@ public class DecisionModelTest {
 
     @Test
     public void testFullFactorialVariants() {
-        List variants = model().fullFactorialVariants(Map.of(
+        List variants = DecisionModel.fullFactorialVariants(Map.of(
                 "color", Arrays.asList("black", "white"),
                 "fontSize", Arrays.asList(12, 13),
                 "style", "bold",

@@ -395,7 +395,24 @@ public class DecisionModel {
     }
 
     /**
-     * An example here might be more expressive:
+     * Generates all combinations of variants from the variantMap, and choose the best one.
+     * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable
+     *                   data structure of arbitrary complexity. If they are not lists, they are
+     *                   automatically wrapped as a list containing a single item.
+     *                   So optimize({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                   optimize({"style":["bold", "italic"], "size":[3]})
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if the variants to choose from is nil or empty;
+     * Thrown if variantMap values
+     * are all empty lists.
+     */
+    public Map<String, Object> optimize(Map<String, ?> variantMap) {
+        return given(null).optimize(variantMap);
+    }
+
+    /**
+     * Generates all combinations of variants from the variantMap. An example here might be more
+     * expressive:
      * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
      * [
      *     {"style":"bold", "size":3},
@@ -412,7 +429,7 @@ public class DecisionModel {
      * @throws IllegalArgumentException Thrown if variantMap is nil or empty; Thrown if variantMap values
      * are all empty lists.
      */
-    public List<Map<String, Object>> fullFactorialVariants(Map<String, ?> variantMap) {
+    protected static List<Map<String, Object>> fullFactorialVariants(Map<String, ?> variantMap) {
         if(variantMap == null || variantMap.size() <= 0) {
             throw new IllegalArgumentException("variantMap can't be null or empty");
         }
@@ -456,22 +473,6 @@ public class DecisionModel {
         }
 
         return combinations;
-    }
-
-    /**
-     * This method is a short hand of chooseMultivariate(variants).get().
-     * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable
-     *                   data structure of arbitrary complexity. If they are not lists, they are
-     *                   automatically wrapped as a list containing a single item.
-     *                   So optimize({"style":["bold", "italic"], "size":3}) is equivalent to
-     *                   optimize({"style":["bold", "italic"], "size":[3]})
-     * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if the variants to choose from is nil or empty;
-     * Thrown if variantMap values
-     * are all empty lists.
-     */
-    public Map<String, Object> optimize(Map<String, ?> variantMap) {
-        return given(null).optimize(variantMap);
     }
 
     /**
