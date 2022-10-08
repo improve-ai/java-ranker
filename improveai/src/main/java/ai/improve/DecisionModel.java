@@ -23,6 +23,7 @@ import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
 public class DecisionModel {
+    /** @hidden */
     public static final String Tag = "DecisionModel";
 
     private static String sDefaultTrackURL = null;
@@ -45,6 +46,7 @@ public class DecisionModel {
 
     private static final AtomicInteger seq = new AtomicInteger(0);
 
+    /** @hidden */
     protected boolean enableTieBreaker = true;
 
     private GivensProvider givensProvider;
@@ -266,7 +268,7 @@ public class DecisionModel {
         defaultGivensProvider = givensProvider;
     }
 
-    public synchronized void setModel(ImprovePredictor predictor) {
+    private synchronized void setModel(ImprovePredictor predictor) {
         if(predictor == null) {
             IMPLog.e(Tag, "predictor is null");
             return ;
@@ -284,18 +286,16 @@ public class DecisionModel {
                 predictor.getModelMetadata().getModelFeatureNames());
     }
 
-    public synchronized ImprovePredictor getModel() {
-        return predictor;
-    }
-
     public String getModelName() {
         return modelName;
     }
 
+    /** @hidden */
     protected DecisionTracker getTracker() {
         return tracker;
     }
 
+    /** @hidden */
     protected FeatureEncoder getFeatureEncoder() {
         return featureEncoder;
     }
@@ -303,6 +303,7 @@ public class DecisionModel {
     /**
      * Check whether the model is loaded.
      * @return {@code true} if the model is loaded.
+     * @hidden
      */
     protected boolean isLoaded() {
         return predictor != null;
@@ -331,18 +332,27 @@ public class DecisionModel {
     }
 
     /**
-     * Equivalent to decide(variants, false)
+     * Equivalent to decide(variants, false).
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                 booleans.
+     * @return A Decision object
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
     public <T> Decision<T> decide(List<T> variants) {
         return decide(variants, false);
     }
 
     /**
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.
      * @param ordered True means the variants are already in order starting with the best variant.
-     * @return an IMPDecision object.
+     * @return A Decision object.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      */
     public <T> Decision<T> decide(List<T> variants, boolean ordered) {
@@ -350,11 +360,14 @@ public class DecisionModel {
     }
 
     /**
+     * The chosen variant is the one with highest score.
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.
      * @param scores Scores of the variants.
-     * @return an IMPDecision object.
+     * @return A Decision object.
      * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
      * variants.size() != scores.size().
      */
@@ -364,6 +377,8 @@ public class DecisionModel {
 
     /**
      * The variadic version of whichFrom(variants).
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity,
      *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and booleans.
      * @return Returns the chosen variant
@@ -376,6 +391,8 @@ public class DecisionModel {
 
     /**
      * A shorthand of decide(variants).get()
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants See chooseFrom().
      * @return Returns the chosen variant
      * @throws IllegalArgumentException Thrown if variants is null or empty.
@@ -386,6 +403,8 @@ public class DecisionModel {
 
     /**
      * A shorthand of decide(variants).ranked()
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants See chooseFrom().
      * @return Ranked variants list starting with the best.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
@@ -428,6 +447,7 @@ public class DecisionModel {
      * @return Returns the full factorial combinations of key and values specified by the input variant map.
      * @throws IllegalArgumentException Thrown if variantMap is nil or empty; Thrown if variantMap values
      * are all empty lists.
+     * @hidden
      */
     protected static List<Map<String, Object>> fullFactorialVariants(Map<String, ?> variantMap) {
         if(variantMap == null || variantMap.size() <= 0) {
@@ -480,16 +500,19 @@ public class DecisionModel {
      * purposes of updating the decision_id for DecisionModel.addReward(). Only use this if
      * necessary, for example for scoring purposes where no decision is made.
      * @return Returns the tracked decision id.
+     * @hidden
      */
-    protected String track(Object variant, List<?>  runnersUp, Object sample, int samplePoolSize) {
+    protected String track(Object variant, List<?> runnersUp, Object sample, int samplePoolSize) {
         return given(null).track(variant, runnersUp, sample, samplePoolSize);
     }
 
     /**
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.
-     * @return an IMPDecision object.
+     * @return A Decision object.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
      * @deprecated Remove in 8.0; use {@link #decide(List)} instead.
      */
@@ -499,6 +522,8 @@ public class DecisionModel {
     }
 
     /**
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                 booleans.
@@ -528,7 +553,7 @@ public class DecisionModel {
      *                 If not, it would be automatically wrapped as a list containing a single item.
      *                 So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to
      *                 chooseMultivariate({"style":["bold", "italic"], "size":[3]})
-     * @return An IMPDecision object.
+     * @return A Decision object.
      * @deprecated Remove in 8.0; use decide({@link #fullFactorialVariants(Map)})
      */
     @Deprecated
@@ -608,6 +633,7 @@ public class DecisionModel {
         return given(null).random(variants);
     }
 
+    /** @hidden */
     protected Map<String, ?> combinedGivens(Map<String, ?> givens) {
         GivensProvider provider = getGivensProvider();
         return provider == null ? givens : provider.givensForModel(this, givens);
@@ -625,6 +651,7 @@ public class DecisionModel {
      *               other custom GivensProvider.
      * @throws IllegalArgumentException Thrown if variants is null or empty
      * @return scores of the variants
+     * @hidden
      */
     protected List<Double> scoreInternal(List<?> variants, Map<String, ?> givens) {
         if(variants == null || variants.size() <= 0) {
@@ -756,10 +783,12 @@ public class DecisionModel {
         return modelName != null && modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
     }
 
+    /** @hidden */
     protected static void clearInstances() {
         instances.clear();
     }
 
+    /** @hidden */
     protected static int sizeOfInstances() {
         return instances.size();
     }

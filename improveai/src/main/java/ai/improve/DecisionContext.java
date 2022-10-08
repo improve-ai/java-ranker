@@ -101,6 +101,7 @@ public class DecisionContext {
         return whichFrom(DecisionModel.fullFactorialVariants(variantMap));
     }
 
+    /** @hidden */
     protected String track(Object variant, List<?> runnersUp, Object sample, int samplePoolSize) {
         if(samplePoolSize < 0) {
             throw new IllegalArgumentException("samplePoolSize can't be smaller than 0!");

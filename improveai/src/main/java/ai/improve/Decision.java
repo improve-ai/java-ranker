@@ -6,23 +6,24 @@ import java.util.Map;
 import ai.improve.log.IMPLog;
 
 public class Decision<T> {
+    /** @hidden */
     public static final String Tag = "Decision";
 
     private final DecisionModel model;
 
+    /** @hidden */
     protected Map<String, ?> givens;
 
-    /**
-     * The ranked variants
-     */
+    /** The ranked variants */
     public final List<T> ranked;
 
-    /**
-     * The best variant. Could be null if the variants list contains null members.
-     */
+    /** The best variant. Could be null if the variants list contains null members. */
     public final T best;
 
-    // The message_id of the tracked decision
+    /**
+     * The message_id of the tracked decision.
+     * @hidden
+     */
     protected String id;
 
     protected Decision(DecisionModel model, List<T> rankedVariants, Map<String, ?> givens) {
@@ -82,7 +83,10 @@ public class Decision<T> {
         return id;
     }
 
-    // For which(), whichFrom, and optimize().
+    /**
+     * For which(), whichFrom, and optimize().
+     * @hidden
+     */
     protected void track(DecisionTracker tracker) {
         if(tracker != null) {
             tracker.track(ranked, givens, model.getModelName());

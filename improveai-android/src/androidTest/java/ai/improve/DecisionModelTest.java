@@ -218,7 +218,7 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("greetings");
         decisionModel.loadAsync(modelURL, null);
         Thread.sleep(3 * 1000);
-        assertNotNull(decisionModel.getModel());
+        assertTrue(decisionModel.isLoaded());
     }
 
     @Test
