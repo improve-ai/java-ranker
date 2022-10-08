@@ -256,16 +256,12 @@ public class DecisionModelTest {
     @Test
     public void testDefaultTrackURL() {
         DecisionModel.setDefaultTrackURL(null);
-
         assertNull(DecisionModel.getDefaultTrackURL());
-        DecisionModel decisionModel = new DecisionModel("hello");
-        assertNull(decisionModel.getTrackURL());
+        assertNull(model().getTrackURL());
 
         DecisionModel.setDefaultTrackURL(Track_URL);
-
-        decisionModel = new DecisionModel("hello");
-        assertNotNull(decisionModel.getTrackURL());
-        assertEquals(Track_URL, decisionModel.getTrackURL());
+        assertNotNull(model().getTrackURL());
+        assertEquals(Track_URL, model().getTrackURL());
     }
 
     @Test
@@ -279,6 +275,38 @@ public class DecisionModelTest {
             return;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testDefaultApiKey() {
+        DecisionModel.setDefaultTrackApiKey(null);
+        assertNull(model().getTrackApiKey());
+        DecisionModel.setDefaultTrackApiKey("api-key");
+        assertEquals("api-key", model().getTrackApiKey());
+    }
+
+    @Test
+    public void testTrackURL() {
+        DecisionModel model = model();
+        assertNotNull(model.getTrackURL());
+
+        model.setTrackURL(null);
+        assertNull(model.getTrackURL());
+
+        model.setTrackURL(Track_URL);
+        assertEquals(Track_URL, model.getTrackURL());
+    }
+
+    @Test
+    public void testTrackApiKey() {
+        DecisionModel model = model();
+        assertNotNull(model.getTrackApiKey());
+
+        model.setTrackApiKey(null);
+        assertNull(model.getTrackApiKey());
+
+        model.setTrackApiKey("api-key");
+        assertEquals("api-key", model.getTrackApiKey());
     }
 
     @Test

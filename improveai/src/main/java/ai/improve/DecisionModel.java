@@ -244,7 +244,7 @@ public class DecisionModel {
         }
     }
 
-    public String getDefaultTrackApiKey() {
+    public static String getDefaultTrackApiKey() {
         return sDefaultTrackApiKey;
     }
 
