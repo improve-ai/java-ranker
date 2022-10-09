@@ -51,7 +51,6 @@ public class DecisionModel {
 
     private GivensProvider givensProvider;
 
-    // Currently only set on Android; null on other platform
     private static GivensProvider defaultGivensProvider;
 
     private final static ModelMap instances = new ModelMap();
@@ -254,16 +253,18 @@ public class DecisionModel {
         sDefaultTrackApiKey = defaultTrackApiKey;
     }
 
-    // TODO: defaultGivensProvider is returned anyway even if setGivensProvider(null) is called.
     public GivensProvider getGivensProvider() {
-        return givensProvider != null ? givensProvider : defaultGivensProvider;
+        return givensProvider;
     }
 
     public void setGivensProvider(GivensProvider givensProvider) {
         this.givensProvider = givensProvider;
     }
 
-    // Currently only called on Android platform
+    public static GivensProvider getDefaultGivensProvider() {
+        return defaultGivensProvider;
+    }
+
     public static void setDefaultGivensProvider(GivensProvider givensProvider) {
         defaultGivensProvider = givensProvider;
     }
@@ -328,7 +329,7 @@ public class DecisionModel {
      * @return scores of the variants
      */
     public List<Double> score(List<?> variants) {
-        return scoreInternal(variants, combinedGivens(null));
+        return given(null).score(variants);
     }
 
     /**
@@ -634,10 +635,10 @@ public class DecisionModel {
     }
 
     /** @hidden */
-    protected Map<String, ?> combinedGivens(Map<String, ?> givens) {
-        GivensProvider provider = getGivensProvider();
-        return provider == null ? givens : provider.givensForModel(this, givens);
-    }
+//    protected Map<String, ?> combinedGivens(Map<String, ?> givens) {
+//        GivensProvider provider = getGivensProvider();
+//        return provider == null ? givens : provider.givensForModel(this, givens);
+//    }
 
     /**
      * If this method is called before the model is loaded, or errors occurred

@@ -34,6 +34,22 @@ public class DecisionContextTest {
         return givens;
     }
 
+    private List<String> variants() {
+        return Arrays.asList("Hello", "Hi", "Hey");
+    }
+
+    @Test
+    public void testGivens() {
+        DecisionModel decisionModel = model();
+        Decision decision = decisionModel.given(givens()).decide(variants());
+        assertEquals(21, decision.givens.size());
+
+        // If givensProvider is null, givens set by calling given() will still be used.
+        decisionModel.setGivensProvider(null);
+        decision = decisionModel.given(givens()).decide(variants());
+        assertEquals(1, decision.givens.size());
+    }
+
     @Test
     public void testChooseFrom() {
         Map givens = new HashMap();

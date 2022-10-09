@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelUtils;
 
 public class DecisionContext {
@@ -22,7 +23,7 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#score(List)
      */
     public <T> List<Double> score(List<T> variants) {
-        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
+        Map<String, ?> allGivens = getAllGivens();
         return decisionModel.scoreInternal(variants, allGivens);
     }
 
@@ -41,7 +42,7 @@ public class DecisionContext {
             throw new IllegalArgumentException("variants to choose from can't be null or empty");
         }
 
-        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
+        Map<String, ?> allGivens = getAllGivens();
         List<T> rankedVariants;
         if(ordered) {
             rankedVariants = new ArrayList<>(variants);
@@ -60,7 +61,7 @@ public class DecisionContext {
      * @see ai.improve.DecisionModel#decide(List, List)
      */
     public <T> Decision<T> decide(List<T> variants, List<Double> scores) {
-        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
+        Map<String, ?> allGivens = getAllGivens();
         List<T> rankedVariants = DecisionModel.rank(variants, scores);
         return new Decision<>(decisionModel, rankedVariants, allGivens);
     }
@@ -116,9 +117,18 @@ public class DecisionContext {
             throw new IllegalStateException("trackURL of the DecisionModel is null!");
         }
 
-        Map<String, ?> allGivens = decisionModel.combinedGivens(givens);
+        Map<String, ?> allGivens = getAllGivens();
 
         return tracker.track(variant, allGivens, runnersUp, sample, samplePoolSize, decisionModel.getModelName());
+    }
+
+    private Map<String, ?> getAllGivens() {
+        Map<String, ?> allGivens = this.givens;
+        GivensProvider givensProvider = decisionModel.getGivensProvider();
+        if(givensProvider != null) {
+            allGivens = givensProvider.givensForModel(decisionModel, this.givens);
+        }
+        return allGivens;
     }
 
     /**

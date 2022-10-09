@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
+import ai.improve.android.AppGivensProvider;
 import ai.improve.log.IMPLog;
 
 import static org.junit.Assert.assertEquals;
@@ -109,6 +110,18 @@ public class DecisionModelTest {
         URL url = new URL(ModelURL);
         DecisionModel decisionModel = getDecisionModel("hello").load(url);
         assertEquals("hello", decisionModel.getModelName());
+    }
+
+    @Test
+    public void testGivensProvider() {
+        assertTrue(model().getGivensProvider() instanceof AppGivensProvider);
+        DecisionModel.setDefaultGivensProvider(null);
+        assertNull(model().getGivensProvider());
+    }
+
+    @Test
+    public void testDefaultGivensProvider() {
+        assertTrue(DecisionModel.getDefaultGivensProvider() instanceof AppGivensProvider);
     }
 
     @Test

@@ -66,7 +66,7 @@ public class DecisionModelTest {
     private class AlphaGivensProvider implements GivensProvider {
         @Override
         public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, ?> givens) {
-            return null;
+            return Map.of("lang", "mars");
         }
     }
 
@@ -280,8 +280,10 @@ public class DecisionModelTest {
     @Test
     public void testDefaultApiKey() {
         DecisionModel.setDefaultTrackApiKey(null);
+        assertNull(DecisionModel.getDefaultTrackApiKey());
         assertNull(model().getTrackApiKey());
         DecisionModel.setDefaultTrackApiKey("api-key");
+        assertEquals("api-key", DecisionModel.getDefaultTrackApiKey());
         assertEquals("api-key", model().getTrackApiKey());
     }
 
@@ -1352,8 +1354,14 @@ public class DecisionModelTest {
         assertNull(decisionModel.getGivensProvider());
 
         DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
-        assertNotNull(decisionModel.getGivensProvider());
-
+        assertNull(decisionModel.getGivensProvider());
         assertNotNull(new DecisionModel("hello").getGivensProvider());
+    }
+
+    @Test
+    public void testDefaultGivensProvider() {
+        assertNull(DecisionModel.getDefaultGivensProvider());
+        DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
+        assertTrue(DecisionModel.getDefaultGivensProvider() instanceof AlphaGivensProvider);
     }
 }
