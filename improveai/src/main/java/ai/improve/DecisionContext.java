@@ -2,6 +2,7 @@ package ai.improve;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -16,7 +17,7 @@ public class DecisionContext {
 
     protected DecisionContext(DecisionModel decisionModel, Map<String, ?> givens) {
         this.decisionModel = decisionModel;
-        this.givens = givens;
+        this.givens = new HashMap<>(givens);
     }
 
     /**

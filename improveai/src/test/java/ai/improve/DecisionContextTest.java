@@ -48,6 +48,15 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testGivens() {
+        Map<String, String> givens = new HashMap<>();
+        givens.put("lang", "en");
+        DecisionContext decisionContext = model().given(givens);
+        givens.clear();
+        assertEquals("en", decisionContext.decide(variants()).givens.get("lang"));
+    }
+
+    @Test
     public void testDecide() {
         DecisionContext decisionContext = model().given(givens());
 
