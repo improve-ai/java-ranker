@@ -90,10 +90,10 @@ public class DecisionTest {
     @Test
     public void testTrack() {
         Decision decision = model().decide(variants());
-        assertNull(decision.id);
+        assertNull(decision.getId());
         decision.track();
-        assertNotNull(decision.id);
-        assertTrue(!decision.id.isEmpty());
+        assertNotNull(decision.getId());
+        assertTrue(!decision.getId().isEmpty());
     }
 
     @Test

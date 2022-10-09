@@ -11,8 +11,17 @@ public class Decision<T> {
 
     private final DecisionModel model;
 
-    /** @hidden */
-    protected Map<String, ?> givens;
+    /**
+     * The id that uniquely identifies the decision after it's been tracked. It's null until
+     * the decision is tracked by calling track().
+     */
+    private String id = null;
+
+    /**
+     * Additional context info that was used to score each of the variants.
+     *  It's also included in tracking.
+     */
+    public final Map<String, ?> givens;
 
     /** The ranked variants */
     public final List<T> ranked;
@@ -20,17 +29,19 @@ public class Decision<T> {
     /** The best variant. Could be null if the variants list contains null members. */
     public final T best;
 
-    /**
-     * The message_id of the tracked decision.
-     * @hidden
-     */
-    protected String id;
-
     protected Decision(DecisionModel model, List<T> rankedVariants, Map<String, ?> givens) {
         this.model = model;
         this.ranked = rankedVariants;
         this.givens = givens;
         this.best = rankedVariants.get(0);
+    }
+
+    /**
+     * Getter of id.
+     * @return Returns id.
+     */
+    public String getId() {
+        return id;
     }
 
     /**

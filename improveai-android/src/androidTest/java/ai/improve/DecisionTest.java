@@ -3,6 +3,7 @@ package ai.improve;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
 import static ai.improve.DecisionModelTest.ModelURL;
 
@@ -39,6 +40,20 @@ public class DecisionTest {
 
     private List<String> variants() {
         return Arrays.asList("Hello", "Hi", "Hey");
+    }
+
+    @Test
+    public void testId() {
+        Decision<String> decision = model().decide(variants());
+        assertNull(decision.getId());
+        decision.track();
+        assertNotNull(decision.getId());
+    }
+
+    @Test
+    public void testGivens() {
+        Decision<String> decision = model().decide(variants());
+        assertEquals(20, decision.givens.size());
     }
 
     @Test

@@ -64,10 +64,10 @@ public class DecisionTrackerTest {
         decision.track();
         String decisionIdAfterGet = decisionModel.getTracker().lastDecisionIdOfModel(modelName);
 
-        assertNotNull(decision.id);
-        assertEquals(decision.id, decisionIdAfterGet);
+        assertNotNull(decision.getId());
+        assertEquals(decision.getId(), decisionIdAfterGet);
         assertNotEquals(decisionIdBeforeGet, decisionIdAfterGet);
-        IMPLog.d(Tag, "decisionId: " + decision.id + ", " + decisionIdBeforeGet +
+        IMPLog.d(Tag, "decisionId: " + decision.getId() + ", " + decisionIdBeforeGet +
                 ", " + decisionIdAfterGet);
     }
 }
