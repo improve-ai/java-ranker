@@ -902,6 +902,31 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testDecided_loaded_scores() throws Exception {
+        List<String> variants = new ArrayList<>();
+        for(int i = 0; i < 100; ++i) {
+            variants.add(UUID.randomUUID().toString());
+        }
+
+        Decision decision = loadedModel().decide(variants);
+        assertEquals(variants.size(), decision.scores.size());
+
+        // assert best variant is the one with highest score
+        int indexOfBest = variants.indexOf(decision.best);
+        assertTrue(indexOfBest != -1);
+
+        for(int i = 0; i < decision.scores.size(); ++i) {
+            if(i == indexOfBest) {
+                continue;
+            }
+            assertEquals(-1, Double.compare((double)decision.scores.get(i), (double)decision.scores.get(indexOfBest)));
+        }
+
+        List<String> rankedVariants = DecisionModel.rank(variants, decision.scores);
+        assertEquals(rankedVariants, decision.ranked);
+    }
+
+    @Test
     public void testTrack() throws InterruptedException {
         String variant = "hi";
         List<String> runnersUp = Arrays.asList("hello", "hey");

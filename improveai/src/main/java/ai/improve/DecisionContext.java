@@ -13,11 +13,13 @@ public class DecisionContext {
 
     private final DecisionModel decisionModel;
 
-    private final Map<String, ?> givens;
+    private Map<String, ?> givens = null;
 
     protected DecisionContext(DecisionModel decisionModel, Map<String, ?> givens) {
         this.decisionModel = decisionModel;
-        this.givens = new HashMap<>(givens);
+        if(givens != null) {
+            this.givens = new HashMap<>(givens);
+        }
     }
 
     /**
@@ -44,18 +46,19 @@ public class DecisionContext {
         }
 
         Map<String, ?> allGivens = getAllGivens();
+        List<Double> scores = null;
         List<T> rankedVariants;
         if(ordered) {
             rankedVariants = new ArrayList<>(variants);
         } else {
             if(decisionModel.isLoaded()) {
-                List<Double> scores = decisionModel.scoreInternal(variants, allGivens);
+                scores = decisionModel.scoreInternal(variants, allGivens);
                 rankedVariants = DecisionModel.rank(variants, scores);
             } else {
                 rankedVariants = new ArrayList<>(variants);
             }
         }
-        return new Decision<>(decisionModel, rankedVariants, allGivens);
+        return new Decision<>(decisionModel, rankedVariants, allGivens, scores);
     }
 
     /**
@@ -64,7 +67,7 @@ public class DecisionContext {
     public <T> Decision<T> decide(List<T> variants, List<Double> scores) {
         Map<String, ?> allGivens = getAllGivens();
         List<T> rankedVariants = DecisionModel.rank(variants, scores);
-        return new Decision<>(decisionModel, rankedVariants, allGivens);
+        return new Decision<>(decisionModel, rankedVariants, allGivens, scores);
     }
 
     /**

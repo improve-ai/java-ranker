@@ -29,11 +29,15 @@ public class Decision<T> {
     /** The best variant. Could be null if the variants list contains null members. */
     public final T best;
 
-    protected Decision(DecisionModel model, List<T> rankedVariants, Map<String, ?> givens) {
+    /** @hidden  */
+    protected final List<Double> scores;
+
+    protected Decision(DecisionModel model, List<T> rankedVariants, Map<String, ?> givens, List<Double> scores) {
         this.model = model;
         this.ranked = rankedVariants;
         this.givens = givens;
         this.best = rankedVariants.get(0);
+        this.scores = scores;
     }
 
     /**
