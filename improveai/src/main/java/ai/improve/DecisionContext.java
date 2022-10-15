@@ -78,9 +78,7 @@ public class DecisionContext {
         if(variants == null || variants.length <= 0) {
             throw new IllegalArgumentException("should at least provide one variant.");
         }
-        Decision<T> decision = decide(Arrays.asList(variants));
-        decision.track(decisionModel.getTracker());
-        return decision.get();
+        return whichFrom(Arrays.asList(variants));
     }
 
     /**
@@ -88,8 +86,13 @@ public class DecisionContext {
      */
     public <T> T whichFrom(List<T> variants) {
         Decision<T> decision = decide(variants);
-        decision.track(decisionModel.getTracker());
-        return decision.get();
+
+        DecisionTracker tracker = decisionModel.getTracker();
+        if(tracker != null) {
+            tracker.track(decision.ranked, decision.givens, decisionModel.getModelName());
+        }
+
+        return decision.best;
     }
 
     /**
@@ -162,7 +165,7 @@ public class DecisionContext {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
-        return decide(variants, ModelUtils.generateDescendingGaussians(variants.size()));
+        return decide(variants, true);
     }
 
     /**
@@ -181,9 +184,7 @@ public class DecisionContext {
     @SafeVarargs
     @Deprecated
     public final <T> T first(T... variants) {
-        Decision<T> decision = chooseFirst(Arrays.asList(variants));
-        decision.track(decisionModel.getTracker());
-        return decision.get();
+        return chooseFirst(Arrays.asList(variants)).get();
     }
 
     /**
@@ -195,7 +196,7 @@ public class DecisionContext {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
-        return chooseFrom(variants, ModelUtils.generateRandomGaussians(variants.size()));
+        return decide(variants, ModelUtils.generateRandomGaussians(variants.size()));
     }
 
     /**
@@ -205,9 +206,7 @@ public class DecisionContext {
     @SafeVarargs
     @Deprecated
     public final <T> T random(T... variants) {
-        Decision<T> decision = chooseRandom(Arrays.asList(variants));
-        decision.track(decisionModel.getTracker());
-        return decision.get();
+        return chooseRandom(Arrays.asList(variants)).get();
     }
 
     /**

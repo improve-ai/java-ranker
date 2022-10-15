@@ -99,16 +99,6 @@ public class Decision<T> {
     }
 
     /**
-     * For which(), whichFrom, and optimize().
-     * @hidden
-     */
-    protected void track(DecisionTracker tracker) {
-        if(tracker != null) {
-            tracker.track(ranked, givens, model.getModelName());
-        }
-    }
-
-    /**
      * Adds a reward that only applies to this specific decision. Before calling this method, make
      * sure that the decision is tracked by calling track().
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity

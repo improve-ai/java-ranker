@@ -509,6 +509,16 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testWhich_mixed_types() {
+        Object chosen = model().which(1, "hi", true);
+        IMPLog.d(Tag,"chosen = " + chosen);
+        assertEquals(1, chosen);
+
+        chosen = model().which("hi", 1, true);
+        assertEquals("hi", chosen);
+    }
+
+    @Test
     public void testWhichFrom() {
         List<String> variants = Arrays.asList("Hello", "Hi", "Hey");
         DecisionModel decisionModel = new DecisionModel("theme");
