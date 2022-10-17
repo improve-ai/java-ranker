@@ -90,10 +90,23 @@ public class DecisionModel {
         this.givensProvider = defaultGivensProvider;
     }
 
+    /**
+     * Get a shared model instance. If a DecisionModel instance with the given modelName has not
+     * been created yet, get(modelName) would create one and cache it, and subsequent calls would
+     * simply return the cached DecisionModel instance.
+     * @param modelName name of the model
+     * @return A DecisionModel instance.
+     */
     public static DecisionModel get(String modelName) {
         return instances.get(modelName);
     }
 
+    /**
+     * Override the cached DecisionModel instance.
+     * @param modelName name of the model.
+     * @param decisionModel the new DecisionModel instance. When null, the cached DecisionModel instance
+     *                      would be removed.
+     */
     public static void put(String modelName, DecisionModel decisionModel) {
         instances.put(modelName, decisionModel);
     }
@@ -226,7 +239,7 @@ public class DecisionModel {
     /**
      * @param trackURL default trackURL for tracking decisions.
      * @throws IllegalArgumentException if trackURL is nonnull and not a valid url
-     * */
+     */
     public static void setDefaultTrackURL(String trackURL) {
         if(trackURL != null && !Utils.isValidURL(trackURL)) {
             throw new IllegalArgumentException("invalid trackURL: " + trackURL);
@@ -633,12 +646,6 @@ public class DecisionModel {
     public final <T> T random(T... variants) {
         return given(null).random(variants);
     }
-
-    /** @hidden */
-//    protected Map<String, ?> combinedGivens(Map<String, ?> givens) {
-//        GivensProvider provider = getGivensProvider();
-//        return provider == null ? givens : provider.givensForModel(this, givens);
-//    }
 
     /**
      * If this method is called before the model is loaded, or errors occurred

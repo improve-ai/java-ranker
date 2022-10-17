@@ -18,8 +18,9 @@ public class Decision<T> {
     private String id = null;
 
     /**
-     * Additional context info that was used to score each of the variants.
-     *  It's also included in tracking.
+     * Additional context info that was used along with each of the variants to score them, including the givens
+     * passed by IMPDecisionModel.given() and givens that was provided by the givensProvider. The givens here
+     * would also be included in tracking.
      */
     public final Map<String, ?> givens;
 
@@ -32,6 +33,7 @@ public class Decision<T> {
     /** @hidden  */
     protected final List<Double> scores;
 
+    /** @hidden */
     protected Decision(DecisionModel model, List<T> rankedVariants, Map<String, ?> givens, List<Double> scores) {
         this.model = model;
         this.ranked = rankedVariants;
