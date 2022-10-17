@@ -1356,6 +1356,9 @@ public class DecisionModelTest {
         DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
         assertNull(decisionModel.getGivensProvider());
         assertNotNull(new DecisionModel("hello").getGivensProvider());
+
+        // reset to null
+        DecisionModel.setDefaultGivensProvider(null);
     }
 
     @Test
@@ -1363,5 +1366,8 @@ public class DecisionModelTest {
         assertNull(DecisionModel.getDefaultGivensProvider());
         DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
         assertTrue(DecisionModel.getDefaultGivensProvider() instanceof AlphaGivensProvider);
+
+        // reset to null
+        DecisionModel.setDefaultGivensProvider(null);
     }
 }

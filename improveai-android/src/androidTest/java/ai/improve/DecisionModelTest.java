@@ -85,6 +85,10 @@ public class DecisionModelTest {
         return new DecisionModel(modelName);
     }
 
+    private Context context() {
+        return InstrumentationRegistry.getInstrumentation().getTargetContext();
+    }
+
     public DecisionModel model() {
         return new DecisionModel("greetings");
     }
@@ -117,6 +121,9 @@ public class DecisionModelTest {
         assertTrue(model().getGivensProvider() instanceof AppGivensProvider);
         DecisionModel.setDefaultGivensProvider(null);
         assertNull(model().getGivensProvider());
+        
+        // reset to AppGivensProvider
+        DecisionModel.setDefaultGivensProvider(new AppGivensProvider(context()));
     }
 
     @Test
