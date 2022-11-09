@@ -12,6 +12,7 @@ import static ai.improve.DecisionTrackerTest.Track_URL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -849,6 +850,15 @@ public class DecisionModelTest {
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
         }
+    }
+
+    @Test
+    public void testOptimize_deserialize() {
+        Map<String, ?> variantMap = Map.of(
+                "fontColor", Arrays.asList("#ffffff", "#000000"),
+                "fontSizes", Arrays.asList(12, 13, 14));
+        Theme theme = model().optimize(variantMap, Theme.class);
+        IMPLog.d(Tag, theme.fontColor + ", " + theme.fontSize + ", " + theme.name);
     }
 
     @Test

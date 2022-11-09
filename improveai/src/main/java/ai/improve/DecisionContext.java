@@ -1,5 +1,7 @@
 package ai.improve;
 
+import com.google.gson.Gson;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -14,6 +16,8 @@ public class DecisionContext {
     private final DecisionModel decisionModel;
 
     private Map<String, ?> givens = null;
+
+    private Gson gson = new Gson();
 
     protected DecisionContext(DecisionModel decisionModel, Map<String, ?> givens) {
         this.decisionModel = decisionModel;
@@ -107,6 +111,12 @@ public class DecisionContext {
      */
     public Map<String, Object> optimize(Map<String, ?> variantMap) {
         return whichFrom(DecisionModel.fullFactorialVariants(variantMap));
+    }
+
+    /** @see ai.improve.DecisionModel#optimize(Map, Class)  */
+    public <T> T optimize(Map<String, ?> variantMap, Class<T> classOfT) {
+        Map<String, ?> variant = whichFrom(DecisionModel.fullFactorialVariants(variantMap));
+        return gson.fromJson(gson.toJsonTree(variant), classOfT);
     }
 
     /** @hidden */

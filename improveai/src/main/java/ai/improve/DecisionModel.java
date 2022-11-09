@@ -444,6 +444,25 @@ public class DecisionModel {
     }
 
     /**
+     * A handy alternative of optimize(variantMap) that converts the chosen map object to a
+     * POJO using Gson.
+     * @param <T> Type of POJO.
+     * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable
+     *                   data structure of arbitrary complexity. If they are not lists, they are
+     *                   automatically wrapped as a list containing a single item.
+     *                   So optimize({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                   optimize({"style":["bold", "italic"], "size":[3]})
+     * @param classOfT The class of the POJO.
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if the variants to choose from is nil or empty;
+     * Thrown if variantMap values
+     * are all empty lists.
+     */
+    public <T> T optimize(Map<String, ?> variantMap, Class<T> classOfT) {
+        return given(null).optimize(variantMap, classOfT);
+    }
+
+    /**
      * Generates all combinations of variants from the variantMap. An example here might be more
      * expressive:
      * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns

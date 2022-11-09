@@ -477,6 +477,15 @@ public class DecisionContextTest {
     }
 
     @Test
+    public void testOptimize_deserialize() {
+        Map<String, ?> variantMap = Map.of(
+                "fontColor", Arrays.asList("#ffffff", "#000000"),
+                "fontSize", Arrays.asList(12, 13, 14));
+        Theme theme = model().given(givens()).optimize(variantMap, Theme.class);
+        IMPLog.d(Tag, theme.fontColor + ", " + theme.fontSize);
+    }
+
+    @Test
     public void testWhich() {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
