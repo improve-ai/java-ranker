@@ -1,8 +1,6 @@
-package ai.improve.provider;
+package ai.improve;
 
 import java.util.Map;
-
-import ai.improve.DecisionModel;
 
 public interface GivensProvider {
     Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, ?> givens);

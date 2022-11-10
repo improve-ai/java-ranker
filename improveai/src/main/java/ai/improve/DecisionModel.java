@@ -15,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
 import ai.improve.log.IMPLog;
-import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelMap;
 import ai.improve.util.ModelUtils;
 import ai.improve.util.Utils;
@@ -465,12 +464,12 @@ public class DecisionModel {
     /**
      * Generates all combinations of variants from the variantMap. An example here might be more
      * expressive:
-     * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5]}) returns
+     * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5], "width":100}) returns
      * [
-     *     {"style":"bold", "size":3},
-     *     {"style":"italic", "size":3},
-     *     {"style":"bold", "size":5},
-     *     {"style":"italic", "size":5}
+     *     {"style":"bold", "size":3, "width":100},
+     *     {"style":"italic", "size":3, "width":100},
+     *     {"style":"bold", "size":5, "width":100},
+     *     {"style":"italic", "size":5, "width":100}
      * ]
      * @param variantMap The values of the variant map are expected to be lists of any JSON
      *                   encodeable data structure of arbitrary complexity. If they are not lists,

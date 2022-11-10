@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.TimeZone;
 
 import ai.improve.DecisionModel;
+import ai.improve.GivensProvider;
 import ai.improve.constants.BuildProperties;
-import ai.improve.provider.GivensProvider;
 
 public class AppGivensProvider implements GivensProvider {
     private static final String APP_Givens_Key_Country = "$country";
