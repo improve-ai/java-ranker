@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import ai.improve.constants.BuildProperties;
 import ai.improve.log.IMPLog;
 import ai.improve.util.ModelUtils;
 
@@ -1377,5 +1378,10 @@ public class DecisionModelTest {
 
         // reset to null
         DecisionModel.setDefaultGivensProvider(null);
+    }
+
+    @Test
+    public void testVersionCode() {
+        assertEquals("7.2.0", BuildProperties.getSDKVersion());
     }
 }
