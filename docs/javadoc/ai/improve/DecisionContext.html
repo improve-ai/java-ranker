@@ -26,8 +26,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":42,"i1":42,"i2":42,"i3":42,"i4":42,"i5":10,"i6":10,"i7":10,"i8":42,"i9":42,"i10":10,"i11":10,"i12":42,"i13":42,"i14":10,"i15":10,"i16":10,"i17":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -155,7 +155,7 @@ extends java.lang.Object</pre>
 <tr class="altColor">
 <td class="colFirst"><code>protected </code></td>
 <th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(ai.improve.DecisionModel,java.util.Map)">DecisionContext</a></span>&#8203;(<a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a>&nbsp;decisionModel,
-               java.util.Map&nbsp;givens)</code></th>
+               java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -170,7 +170,7 @@ extends java.lang.Object</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -179,28 +179,48 @@ extends java.lang.Object</pre>
 <tr id="i0" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFirst(java.util.List)">chooseFirst</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i1" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i2" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseFrom(java.util.List,java.util.List)">chooseFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
           java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;?&gt;&gt;</code></td>
+<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseMultivariate(java.util.Map)">chooseMultivariate</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i4" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseRandom(java.util.List)">chooseRandom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i5" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
@@ -222,12 +242,20 @@ extends java.lang.Object</pre>
 <tr id="i8" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(java.util.List)">first</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i9" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(T...)">first</a></span>&#8203;(T...&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i10" class="altColor">
 <td class="colFirst"><code>java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;</code></td>
@@ -236,30 +264,44 @@ extends java.lang.Object</pre>
 </tr>
 <tr id="i11" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(java.util.List)">random</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#optimize(java.util.Map,java.lang.Class)">optimize</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap,
+        java.lang.Class&lt;T&gt;&nbsp;classOfT)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i12" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(T...)">random</a></span>&#8203;(T...&nbsp;variants)</code></th>
-<td class="colLast">&nbsp;</td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(java.util.List)">random</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
 </tr>
 <tr id="i13" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(T...)">random</a></span>&#8203;(T...&nbsp;variants)</code></th>
+<td class="colLast">
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;java.util.List&lt;T&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rank(java.util.List)">rank</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i14" class="altColor">
+<tr id="i15" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#score(java.util.List)">score</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i15" class="rowColor">
+<tr id="i16" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#which(T...)">which</a></span>&#8203;(T...&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i16" class="altColor">
+<tr id="i17" class="rowColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#whichFrom(java.util.List)">whichFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
@@ -295,7 +337,7 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>DecisionContext</h4>
 <pre>protected&nbsp;DecisionContext&#8203;(<a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a>&nbsp;decisionModel,
-                          java.util.Map&nbsp;givens)</pre>
+                          java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;givens)</pre>
 </li>
 </ul>
 </li>
@@ -370,7 +412,8 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>which</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;which&#8203;(T...&nbsp;variants)</pre>
+<pre class="methodSignature">@SafeVarargs
+public final&nbsp;&lt;T&gt;&nbsp;T&nbsp;which&#8203;(T...&nbsp;variants)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#which(T...)"><code>DecisionModel.which(Object[])</code></a></dd>
@@ -416,13 +459,31 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
+<a id="optimize(java.util.Map,java.lang.Class)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>optimize</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;optimize&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap,
+                      java.lang.Class&lt;T&gt;&nbsp;classOfT)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#optimize(java.util.Map,java.lang.Class)"><code>DecisionModel.optimize(Map, Class)</code></a></dd>
+</dl>
+</li>
+</ul>
 <a id="chooseFrom(java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseFrom(java.util.List)"><code>DecisionModel.chooseFrom(List)</code></a></dd>
@@ -435,8 +496,12 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFrom</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
                                   java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseFrom(java.util.List,java.util.List)"><code>DecisionModel.chooseFrom(List, List)</code></a></dd>
@@ -449,7 +514,11 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseFirst</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFirst&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseFirst&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseFrom(java.util.List)"><code>DecisionModel.chooseFrom(List)</code></a></dd>
@@ -462,7 +531,15 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>first</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#first(java.util.List)"><code>DecisionModel.first(List)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a id="first(java.lang.Object[])">
@@ -473,7 +550,12 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>first</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(T...&nbsp;variants)</pre>
+<pre class="methodSignature">@SafeVarargs
+@Deprecated
+public final&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(T...&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#first(T...)"><code>DecisionModel.first(Object...)</code></a></dd>
@@ -486,7 +568,11 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>chooseRandom</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseRandom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;chooseRandom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseRandom(java.util.List)"><code>DecisionModel.chooseRandom(List)</code></a></dd>
@@ -501,7 +587,12 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>random</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(T...&nbsp;variants)</pre>
+<pre class="methodSignature">@SafeVarargs
+@Deprecated
+public final&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(T...&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#random(T...)"><code>DecisionModel.random(Object...)</code></a></dd>
@@ -514,7 +605,15 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>random</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">@Deprecated
+public&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#random(java.util.List)"><code>DecisionModel.random(List)</code></a></dd>
+</dl>
 </li>
 </ul>
 <a id="chooseMultivariate(java.util.Map)">
@@ -523,7 +622,11 @@ extends java.lang.Object</pre>
 <ul class="blockListLast">
 <li class="blockList">
 <h4>chooseMultivariate</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;?&gt;&gt;&nbsp;chooseMultivariate&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</pre>
+<pre class="methodSignature">@Deprecated
+public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&gt;&nbsp;chooseMultivariate&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
 <dd><a href="DecisionModel.html#chooseMultivariate(java.util.Map)"><code>DecisionModel.chooseMultivariate(Map)</code></a></dd>
