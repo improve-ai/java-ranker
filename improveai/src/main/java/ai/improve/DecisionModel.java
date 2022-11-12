@@ -4,7 +4,9 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -13,7 +15,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import ai.improve.downloader.ModelDownloader;
 import ai.improve.encoder.FeatureEncoder;
 import ai.improve.log.IMPLog;
-import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelMap;
 import ai.improve.util.ModelUtils;
 import ai.improve.util.Utils;
@@ -21,6 +22,7 @@ import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
 public class DecisionModel {
+    /** @hidden */
     public static final String Tag = "DecisionModel";
 
     private static String sDefaultTrackURL = null;
@@ -43,11 +45,11 @@ public class DecisionModel {
 
     private static final AtomicInteger seq = new AtomicInteger(0);
 
+    /** @hidden */
     protected boolean enableTieBreaker = true;
 
     private GivensProvider givensProvider;
 
-    // Currently only set on Android; null on other platform
     private static GivensProvider defaultGivensProvider;
 
     private final static ModelMap instances = new ModelMap();
@@ -87,10 +89,23 @@ public class DecisionModel {
         this.givensProvider = defaultGivensProvider;
     }
 
+    /**
+     * Get a shared model instance. If a DecisionModel instance with the given modelName has not
+     * been created yet, get(modelName) would create one and cache it, and subsequent calls would
+     * simply return the cached DecisionModel instance.
+     * @param modelName name of the model
+     * @return A DecisionModel instance.
+     */
     public static DecisionModel get(String modelName) {
         return instances.get(modelName);
     }
 
+    /**
+     * Override the cached DecisionModel instance.
+     * @param modelName name of the model.
+     * @param decisionModel the new DecisionModel instance. When null, the cached DecisionModel instance
+     *                      would be removed.
+     */
     public static void put(String modelName, DecisionModel decisionModel) {
         instances.put(modelName, decisionModel);
     }
@@ -199,7 +214,7 @@ public class DecisionModel {
         });
     }
 
-    public String getTrackURL() {
+    public synchronized String getTrackURL() {
         return trackURL;
     }
 
@@ -207,16 +222,12 @@ public class DecisionModel {
      * @param trackURL url for decision tracking. If set as null, no decisions would be tracked.
      * @throws IllegalArgumentException Thrown if trackURL is nonnull and not a valid URL.
      * */
-    public void setTrackURL(String trackURL) {
+    public synchronized void setTrackURL(String trackURL) {
+        this.trackURL = trackURL;
         if(trackURL == null) {
-            this.trackURL = null;
             this.tracker = null;
         } else {
-            if(!Utils.isValidURL(trackURL)) {
-                throw new IllegalArgumentException("invalid trackURL: [" + trackURL + "]");
-            }
-            this.trackURL = trackURL;
-            this.tracker = new DecisionTracker(trackURL, this.trackApiKey);
+            this.tracker = new DecisionTracker(Utils.toURL(trackURL), this.trackApiKey);
         }
     }
 
@@ -227,7 +238,7 @@ public class DecisionModel {
     /**
      * @param trackURL default trackURL for tracking decisions.
      * @throws IllegalArgumentException if trackURL is nonnull and not a valid url
-     * */
+     */
     public static void setDefaultTrackURL(String trackURL) {
         if(trackURL != null && !Utils.isValidURL(trackURL)) {
             throw new IllegalArgumentException("invalid trackURL: " + trackURL);
@@ -235,18 +246,18 @@ public class DecisionModel {
         sDefaultTrackURL = trackURL;
     }
 
-    public String getTrackApiKey() {
+    public synchronized String getTrackApiKey() {
         return trackApiKey;
     }
 
-    public void setTrackApiKey(String trackApiKey) {
+    public synchronized void setTrackApiKey(String trackApiKey) {
         this.trackApiKey = trackApiKey;
         if(tracker != null) {
             tracker.setTrackApiKey(trackApiKey);
         }
     }
 
-    public String getDefaultTrackApiKey() {
+    public static String getDefaultTrackApiKey() {
         return sDefaultTrackApiKey;
     }
 
@@ -254,21 +265,23 @@ public class DecisionModel {
         sDefaultTrackApiKey = defaultTrackApiKey;
     }
 
-    // TODO: defaultGivensProvider is returned anyway even if setGivensProvider(null) is called.
     public GivensProvider getGivensProvider() {
-        return givensProvider != null ? givensProvider : defaultGivensProvider;
+        return givensProvider;
     }
 
     public void setGivensProvider(GivensProvider givensProvider) {
         this.givensProvider = givensProvider;
     }
 
-    // Currently only called on Android platform
+    public static GivensProvider getDefaultGivensProvider() {
+        return defaultGivensProvider;
+    }
+
     public static void setDefaultGivensProvider(GivensProvider givensProvider) {
         defaultGivensProvider = givensProvider;
     }
 
-    public synchronized void setModel(ImprovePredictor predictor) {
+    private synchronized void setModel(ImprovePredictor predictor) {
         if(predictor == null) {
             IMPLog.e(Tag, "predictor is null");
             return ;
@@ -286,34 +299,263 @@ public class DecisionModel {
                 predictor.getModelMetadata().getModelFeatureNames());
     }
 
-    public synchronized ImprovePredictor getModel() {
-        return predictor;
-    }
-
     public String getModelName() {
         return modelName;
     }
 
+    /** @hidden */
     protected DecisionTracker getTracker() {
         return tracker;
     }
 
+    /** @hidden */
     protected FeatureEncoder getFeatureEncoder() {
         return featureEncoder;
     }
 
     /**
+     * Check whether the model is loaded.
+     * @return {@code true} if the model is loaded.
+     * @hidden
+     */
+    protected boolean isLoaded() {
+        return predictor != null;
+    }
+
+    /**
+     * @param givens Additional context info that will be used with each of the variants to calculate
+     *              its feature vector.
+     * @return A DecisionContext object.
+     */
+    public DecisionContext given(Map<String, ?> givens) {
+        return new DecisionContext(this, givens);
+    }
+
+    /**
+     * If this method is called before the model is loaded, or errors occurred
+     * while loading the model file, a randomly generated list of descending
+     * Gaussian scores is returned.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @return scores of the variants
+     */
+    public List<Double> score(List<?> variants) {
+        return given(null).score(variants);
+    }
+
+    /**
+     * Equivalent to decide(variants, false).
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                 booleans.
+     * @return A Decision object
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public <T> Decision<T> decide(List<T> variants) {
+        return decide(variants, false);
+    }
+
+    /**
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                booleans.
-     * @return an IMPDecision object.
+     * @param ordered True means the variants are already in order starting with the best variant.
+     * @return A Decision object.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
-     * */
+     */
+    public <T> Decision<T> decide(List<T> variants, boolean ordered) {
+        return given(null).decide(variants, ordered);
+    }
+
+    /**
+     * The chosen variant is the one with highest score.
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                booleans.
+     * @param scores Scores of the variants.
+     * @return A Decision object.
+     * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
+     * variants.size() != scores.size().
+     */
+    public <T> Decision<T> decide(List<T> variants, List<Double> scores) {
+        return given(null).decide(variants, scores);
+    }
+
+    /**
+     * The variadic version of whichFrom(variants).
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
+     * @param variants A variant can be any JSON encodeable data structure of arbitrary complexity,
+     *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and booleans.
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if variants number is 0.
+     */
+    @SafeVarargs
+    public final <T> T which(T... variants) {
+        return given(null).which(variants);
+    }
+
+    /**
+     * A shorthand of decide(variants).get()
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
+     * @param variants See chooseFrom().
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public <T> T whichFrom(List<T> variants) {
+        return given(null).whichFrom(variants);
+    }
+
+    /**
+     * A shorthand of decide(variants).ranked()
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
+     * @param variants See chooseFrom().
+     * @return Ranked variants list starting with the best.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     */
+    public <T> List<T> rank(List<T> variants) {
+        return given(null).rank(variants);
+    }
+
+    /**
+     * Generates all combinations of variants from the variantMap, and choose the best one.
+     * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable
+     *                   data structure of arbitrary complexity. If they are not lists, they are
+     *                   automatically wrapped as a list containing a single item.
+     *                   So optimize({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                   optimize({"style":["bold", "italic"], "size":[3]})
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if the variants to choose from is nil or empty;
+     * Thrown if variantMap values
+     * are all empty lists.
+     */
+    public Map<String, Object> optimize(Map<String, ?> variantMap) {
+        return given(null).optimize(variantMap);
+    }
+
+    /**
+     * A handy alternative of optimize(variantMap) that converts the chosen map object to a
+     * POJO using Gson.
+     * @param <T> Type of POJO.
+     * @param variantMap The value of the variantMap are expected to be lists of any JSON encodeable
+     *                   data structure of arbitrary complexity. If they are not lists, they are
+     *                   automatically wrapped as a list containing a single item.
+     *                   So optimize({"style":["bold", "italic"], "size":3}) is equivalent to
+     *                   optimize({"style":["bold", "italic"], "size":[3]})
+     * @param classOfT The class of the POJO.
+     * @return Returns the chosen variant
+     * @throws IllegalArgumentException Thrown if the variants to choose from is nil or empty;
+     * Thrown if variantMap values
+     * are all empty lists.
+     */
+    public <T> T optimize(Map<String, ?> variantMap, Class<T> classOfT) {
+        return given(null).optimize(variantMap, classOfT);
+    }
+
+    /**
+     * Generates all combinations of variants from the variantMap. An example here might be more
+     * expressive:
+     * fullFactorialVariants({"style":["bold", "italic"], "size":[3, 5], "width":100}) returns
+     * [
+     *     {"style":"bold", "size":3, "width":100},
+     *     {"style":"italic", "size":3, "width":100},
+     *     {"style":"bold", "size":5, "width":100},
+     *     {"style":"italic", "size":5, "width":100}
+     * ]
+     * @param variantMap The values of the variant map are expected to be lists of any JSON
+     *                   encodeable data structure of arbitrary complexity. If they are not lists,
+     *                   they are automatically wrapped as a list containing a single item.
+     *                   So fullFactorialVariants({"style":["bold", "italic"], "size":3}) is
+     *                   equivalent to fullFactorialVariants({"style":["bold", "italic"], "size":[3]})
+     * @return Returns the full factorial combinations of key and values specified by the input variant map.
+     * @throws IllegalArgumentException Thrown if variantMap is nil or empty; Thrown if variantMap values
+     * are all empty lists.
+     * @hidden
+     */
+    protected static List<Map<String, Object>> fullFactorialVariants(Map<String, ?> variantMap) {
+        if(variantMap == null || variantMap.size() <= 0) {
+            throw new IllegalArgumentException("variantMap can't be null or empty");
+        }
+
+        List<String> allKeys = new ArrayList<>();
+
+        List<List<?>> categories = new ArrayList<>();
+        for(Map.Entry<String, ?> entry : variantMap.entrySet()) {
+            if(entry.getValue() instanceof List) {
+                if(((List<?>)entry.getValue()).size() > 0) {
+                    categories.add((List<?>) entry.getValue());
+                    allKeys.add(entry.getKey());
+                }
+            } else {
+                categories.add(Collections.singletonList(entry.getValue()));
+                allKeys.add(entry.getKey());
+            }
+        }
+        if(categories.size() <= 0) {
+            throw new IllegalArgumentException("variantMap values are all empty lists.");
+        }
+
+        List<Map<String, Object>> combinations = new ArrayList<>();
+        for(int i = 0; i < categories.size(); ++i) {
+            List<?> category = categories.get(i);
+            List<Map<String, Object>> newCombinations = new ArrayList<>();
+            for(int m = 0; m < category.size(); ++m) {
+                if(combinations.size() == 0) {
+                    Map<String, Object> newVariant = new HashMap<>();
+                    newVariant.put(allKeys.get(i), category.get(m));
+                    newCombinations.add(newVariant);
+                } else {
+                    for(int n = 0; n < combinations.size(); ++n) {
+                        Map<String, Object> newVariant = new HashMap<>(combinations.get(n));
+                        newVariant.put(allKeys.get(i), category.get(m));
+                        newCombinations.add(newVariant);
+                    }
+                }
+            }
+            combinations = newCombinations;
+        }
+
+        return combinations;
+    }
+
+    /**
+     * Perform low level tracking of the variant. This is considered a tracked decision for the
+     * purposes of updating the decision_id for DecisionModel.addReward(). Only use this if
+     * necessary, for example for scoring purposes where no decision is made.
+     * @return Returns the tracked decision id.
+     * @hidden
+     */
+    protected String track(Object variant, List<?> runnersUp, Object sample, int samplePoolSize) {
+        return given(null).track(variant, runnersUp, sample, samplePoolSize);
+    }
+
+    /**
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
+     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
+     *                including nested dictionaries, lists, maps, strings, numbers, nulls, and
+     *                booleans.
+     * @return A Decision object.
+     * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0; use {@link #decide(List)} instead.
+     */
+    @Deprecated
     public <T> Decision<T> chooseFrom(List<T> variants) {
         return given(null).chooseFrom(variants);
     }
 
     /**
+     * @param <T> Could be numbers, strings, booleans, nulls, or nested list/map structure of these
+     *           types.
      * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
      *                 including nested dictionaries, lists, maps, strings, numbers, nulls, and
      *                 booleans.
@@ -321,7 +563,9 @@ public class DecisionModel {
      * @return A Decision object which has the variant with highest score as the best variant.
      * @throws IllegalArgumentException Thrown if variants or scores is null or empty; Thrown if
      * variants.size() != scores.size().
+     * @deprecated Remove in 8.0; use {@link #decide(List, List)} instead.
      */
+    @Deprecated
     public <T> Decision<T> chooseFrom(List<T> variants, List<Double> scores) {
         return given(null).chooseFrom(variants, scores);
     }
@@ -341,45 +585,20 @@ public class DecisionModel {
      *                 If not, it would be automatically wrapped as a list containing a single item.
      *                 So chooseMultivariate({"style":["bold", "italic"], "size":3}) is equivalent to
      *                 chooseMultivariate({"style":["bold", "italic"], "size":[3]})
-     * @return An IMPDecision object.
+     * @return A Decision object.
+     * @deprecated Remove in 8.0; use decide({@link #fullFactorialVariants(Map)})
      */
-    public Decision<Map<String, ?>> chooseMultivariate(Map<String, ?> variants) {
+    @Deprecated
+    public Decision<Map<String, Object>> chooseMultivariate(Map<String, ?> variants) {
         return given(null).chooseMultivariate(variants);
-    }
-
-    /**
-     * A shorthand of chooseMultivariate(variantMap).get().
-     */
-    public Map<String, ?> optimize(Map<String, ?> variants) {
-        return given(null).optimize(variants);
-    }
-
-    /**
-     * This is a short hand version of chooseFrom(variants).get() that returns the chosen result
-     * directly.
-     * @param variants See chooseFrom().
-     * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants number is 0.
-     */
-    @SafeVarargs
-    public final <T> T which(T... variants) {
-        return given(null).which(variants);
-    }
-
-    /**
-     * This is a short hand version of chooseFrom(variants).get()
-     * @param variants See chooseFrom().
-     * @return Returns the chosen variant
-     * @throws IllegalArgumentException Thrown if variants is null or empty.
-     */
-    public <T> T which(List<T> variants) {
-        return given(null).which(variants);
     }
 
     /**
      * @param variants See chooseFrom()
      * @return A Decision object which has the first variant as the best.
+     * @deprecated Remove in 8.0; use {@link #decide(List, boolean)}(ordered = true) instead.
      */
+    @Deprecated
     public <T> Decision<T> chooseFirst(List<T> variants) {
         return given(null).chooseFirst(variants);
     }
@@ -389,7 +608,9 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return Returns the first variant.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> T first(List<T> variants) {
         return given(null).first(variants);
     }
@@ -399,7 +620,9 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return Returns the first variant.
      * @throws IllegalArgumentException Thrown if variants number is 0.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     @SafeVarargs
     public final <T> T first(T... variants) {
         return given(null).first(variants);
@@ -410,7 +633,9 @@ public class DecisionModel {
      * @param variants See chooseFrom()
      * @return A Decision object containing a random variant as the decision.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> Decision<T> chooseRandom(List<T> variants) {
         return given(null).chooseRandom(variants);
     }
@@ -420,7 +645,9 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return A random variant.
      * @throws IllegalArgumentException Thrown if variants is null or empty.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     public <T> T random(List<T> variants) {
         return given(null).random(variants);
     }
@@ -430,37 +657,12 @@ public class DecisionModel {
      * @param variants See chooseFrom().
      * @return A random variant.
      * @throws IllegalArgumentException Thrown if variants number is 0.
+     * @deprecated Remove in 8.0.
      */
+    @Deprecated
     @SafeVarargs
     public final <T> T random(T... variants) {
         return given(null).random(variants);
-    }
-
-    /**
-     * @param givens Additional context info that will be used with each of the variants to calculate
-     *              its feature vector.
-     * @return A DecisionContext object.
-     */
-    public DecisionContext given(Map<String, ?> givens) {
-        return new DecisionContext(this, givens);
-    }
-
-    protected Map<String, Object> combinedGivens(Map<String, Object> givens) {
-        GivensProvider provider = getGivensProvider();
-        return provider == null ? givens : provider.givensForModel(this, givens);
-    }
-
-    /**
-     * If this method is called before the model is loaded, or errors occurred
-     * while loading the model file, a randomly generated list of descending
-     * Gaussian scores is returned.
-     * @param variants Variants can be any JSON encodeable data structure of arbitrary complexity,
-     *                 including nested maps, arrays, strings, numbers, nulls, and booleans.
-     * @throws IllegalArgumentException Thrown if variants is null or empty.
-     * @return scores of the variants
-     */
-    public List<Double> score(List<?> variants) {
-        return scoreInternal(variants, combinedGivens(null));
     }
 
     /**
@@ -475,13 +677,12 @@ public class DecisionModel {
      *               other custom GivensProvider.
      * @throws IllegalArgumentException Thrown if variants is null or empty
      * @return scores of the variants
+     * @hidden
      */
     protected List<Double> scoreInternal(List<?> variants, Map<String, ?> givens) {
         if(variants == null || variants.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
-
-//        IMPLog.d(Tag, "givens: " + givens);
 
         if(predictor == null) {
             // When tracking a decision like this:
@@ -564,14 +765,15 @@ public class DecisionModel {
      * @return a list of the variants ranked from best to worst by scores
      * @throws IllegalArgumentException Thrown if variants or scores is null; Thrown if
      * variants.size() not equal to scores.size().
+     * @hidden
      */
-    public static <T> List<T> rank(List<T> variants, List<Double> scores) {
+    protected static <T> List<T> rank(List<T> variants, List<Double> scores) {
         if(variants == null || scores == null) {
             throw new IllegalArgumentException("variants or scores can't be null");
         }
 
         if(variants.size() != scores.size()) {
-            throw new IllegalArgumentException("variants.size() must equal to scores.size()");
+            throw new IllegalArgumentException("variants.size() must be equal to scores.size()");
         }
 
         Integer[] indices = new Integer[variants.size()];
@@ -579,11 +781,11 @@ public class DecisionModel {
             indices[i] = i;
         }
 
-        Arrays.sort(indices, new Comparator<Integer>() {
+        Arrays.sort(indices, Collections.reverseOrder(new Comparator<>() {
             public int compare(Integer obj1, Integer obj2) {
-                return scores.get(obj1) < scores.get(obj2) ? 1 : -1;
+                return Double.compare(scores.get(obj1), scores.get(obj2));
             }
-        });
+        }));
 
         List<T> result = new ArrayList<>(variants.size());
         for(int i = 0; i < indices.length; ++i) {
@@ -607,10 +809,12 @@ public class DecisionModel {
         return modelName != null && modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
     }
 
+    /** @hidden */
     protected static void clearInstances() {
         instances.clear();
     }
 
+    /** @hidden */
     protected static int sizeOfInstances() {
         return instances.size();
     }

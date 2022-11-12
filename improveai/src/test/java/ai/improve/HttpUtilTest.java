@@ -12,6 +12,8 @@ import org.junit.jupiter.api.Test;
 import ai.improve.log.IMPLog;
 import ai.improve.util.HttpUtil;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,8 +28,8 @@ public class HttpUtilTest {
     }
 
     @Test
-    public void testSerializeBody_null_variant() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL, null);
+    public void testSerializeBody_null_variant() throws MalformedURLException {
+        DecisionTracker tracker = new DecisionTracker(new URL(Track_URL), null);
 
         Map<String, Object> body = new HashMap();
         body.put("variant", null);
@@ -36,8 +38,8 @@ public class HttpUtilTest {
     }
 
     @Test
-    public void testSerializeBody_null_leaf() {
-        DecisionTracker tracker = new DecisionTracker(Track_URL, null);
+    public void testSerializeBody_null_leaf() throws MalformedURLException {
+        DecisionTracker tracker = new DecisionTracker(new URL(Track_URL), null);
 
         Map<String, Object> body = new HashMap();
 

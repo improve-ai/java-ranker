@@ -1,11 +1,8 @@
 package ai.improve;
 
-import java.net.MalformedURLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -39,7 +36,7 @@ class DecisionTracker {
 
     private static final int DEFAULT_MAX_RUNNERS_UP = 50;
 
-    private String trackURL;
+    private final URL trackURL;
 
     private String trackApiKey;
 
@@ -53,13 +50,9 @@ class DecisionTracker {
      * */
     private int maxRunnersUp = DEFAULT_MAX_RUNNERS_UP;
 
-    public DecisionTracker(String trackURL, String trackApiKey) {
+    public DecisionTracker(URL trackURL, String trackApiKey) {
         this.trackURL = trackURL;
         this.trackApiKey = trackApiKey;
-        if(Utils.isEmpty(trackURL)) {
-            // Just give a warning
-            IMPLog.e(Tag, "trackURL is empty or null, tracking disabled");
-        }
     }
 
     protected static void setPersistenceProvider(PersistenceProvider persistenceProvider) {
@@ -76,7 +69,7 @@ class DecisionTracker {
      *                      0 disables runners up tracking
      * */
     public void setMaxRunnersUp(int maxRunnersUp) {
-        this.maxRunnersUp = maxRunnersUp >= 0 ? maxRunnersUp : 0;
+        this.maxRunnersUp = Math.max(maxRunnersUp, 0);
     }
 
     protected String getTrackApiKey() {
@@ -92,47 +85,73 @@ class DecisionTracker {
      * that bestVariant is not null , and variants.size() > 0
      * @return the message_id of the tracked decision; null is returned in case of errors
      * */
-    protected <T> String track(Object bestVariant, List<T> variants, Map<String, Object> givens,
-                                 String modelName, boolean variantsRankedAndTrackRunnersUp) {
+    protected <T> String track(List<T> rankedVariants, Map<String, ?> givens, String modelName) {
         if(modelName == null || modelName.isEmpty()) {
             IMPLog.e(Tag, "Improve.track error: modelName is empty or null");
             return null;
         }
 
-        if(Utils.isEmpty(trackURL)) {
-            IMPLog.e(Tag, "Improve.track error: trackURL is empty or null");
-            return null;
-        }
-
         String decisionId = createAndPersistDecisionIdForModel(modelName);
-        if(decisionId == null) {
-            IMPLog.e(Tag, "decisionId generated is null");
-            return null;
-        }
 
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, DECISION_TYPE);
         body.put(MODEL_KEY, modelName);
         body.put(MESSAGE_ID_KEY, decisionId);
 
-        setCount(variants, body);
+        setCount(rankedVariants, body);
 
-        setBestVariant(bestVariant, body);
+        setBestVariant(rankedVariants.get(0), body);
 
         if(givens != null) {
             body.put(GIVENS_KEY, givens);
         }
 
         List<T> runnersUp = null;
-        if(variantsRankedAndTrackRunnersUp) {
-            runnersUp = topRunnersUp(variants, maxRunnersUp);
+        boolean shouldTrackRunnersUp = shouldTrackRunnersUp(rankedVariants.size(), maxRunnersUp);
+        if(shouldTrackRunnersUp) {
+            runnersUp = topRunnersUp(rankedVariants, maxRunnersUp);
             body.put(RUNNERS_UP_KEY, runnersUp);
         }
 
         int runnersUpCount = runnersUp == null ? 0 : runnersUp.size();
-        setSampleVariant(variants, runnersUpCount, variantsRankedAndTrackRunnersUp, bestVariant, body);
+        setSampleVariant(rankedVariants, runnersUpCount, body);
 
         postTrackingRequest(body);
+
+        return decisionId;
+    }
+
+    protected String track(Object variant, Map<String, ?> givens, List<?> runnersUp, Object sample,
+                           int samplePoolSize, String modelName) {
+        int variantCount = 1 + samplePoolSize;
+        if(runnersUp != null) {
+            variantCount += runnersUp.size();
+        }
+
+        String decisionId = createAndPersistDecisionIdForModel(modelName);
+
+        Map<String, Object> body = new HashMap<>();
+        body.put(TYPE_KEY, DECISION_TYPE);
+        body.put(MODEL_KEY, modelName);
+        body.put(MESSAGE_ID_KEY, decisionId);
+        body.put(COUNT_KEY, variantCount);
+        body.put(DECISION_BEST_KEY, variant);
+
+        if(givens != null) {
+            body.put(GIVENS_KEY, givens);
+        }
+
+        if(runnersUp != null && runnersUp.size() > 0) {
+            body.put(RUNNERS_UP_KEY, runnersUp);
+        }
+
+        if(samplePoolSize > 0) {
+            body.put(SAMPLE_VARIANT_KEY, sample);
+        }
+
+        if(HttpUtil.isJsonEncodable(body)) {
+            postTrackingRequest(body);
+        }
 
         return decisionId;
     }
@@ -166,30 +185,18 @@ class DecisionTracker {
      *
      * If the sample variant itself is null, it should also be included in the body map.
      **/
-    protected <T> void setSampleVariant(List<T> variants, int runnersUpCount, boolean ranked, Object bestVariant, Map<String, Object> body) {
-        if(variants == null || variants.size() <= 0) {
+    protected <T> void setSampleVariant(List<T> rankedVariants, int runnersUpCount, Map<String, Object> body) {
+        if(rankedVariants == null || rankedVariants.size() <= 0) {
             return ;
         }
 
-        int samplesCount = variants.size() - runnersUpCount - 1;
+        int samplesCount = rankedVariants.size() - runnersUpCount - 1;
         if (samplesCount <= 0) {
             return ;
         }
 
-        if(ranked) {
-            int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
-            body.put(SAMPLE_VARIANT_KEY, variants.get(randomIndex));
-        } else {
-            int indexOfBestVariant = variants.indexOf(bestVariant);
-            Random r = new Random();
-            while (true) {
-                int randomIdx = r.nextInt(variants.size());
-                if(randomIdx != indexOfBestVariant) {
-                    body.put(SAMPLE_VARIANT_KEY, variants.get(randomIdx));
-                    break;
-                }
-            }
-        }
+        int randomIndex = new Random().nextInt(samplesCount) + runnersUpCount + 1;
+        body.put(SAMPLE_VARIANT_KEY, rankedVariants.get(randomIndex));
     }
 
     /**
@@ -224,7 +231,7 @@ class DecisionTracker {
         }
     }
 
-    protected Map getAddDecisionRewardRequestBody(String ksuid, String modelName, String decisionId, double reward) {
+    protected Map<String, Object> getAddDecisionRewardRequestBody(String ksuid, String modelName, String decisionId, double reward) {
         Map<String, Object> body = new HashMap<>();
         body.put(TYPE_KEY, REWARD_TYPE);
         body.put(MODEL_KEY, modelName);
@@ -240,20 +247,7 @@ class DecisionTracker {
         if(trackApiKey != null) {
             headers.put(TRACK_API_KEY_HEADER, trackApiKey);
         }
-
-        // It's not allowed to send network request in the main thread on Android.
-        new Thread() {
-            @Override
-            public void run() {
-                try {
-                    // android.os.NetworkOnMainThreadException will be thrown if post() is called
-                    // in main thread
-                    HttpUtil.withUrl(trackURL).withHeaders(headers).withBody(body).post();
-                } catch (MalformedURLException e) {
-                    IMPLog.e(Tag, e.getLocalizedMessage());
-                }
-            }
-        }.start();
+        HttpUtil.withUrl(trackURL).withHeaders(headers).withBody(body).post();
     }
 
     private String createAndPersistDecisionIdForModel(String modelName) {
@@ -266,5 +260,12 @@ class DecisionTracker {
 
     protected String lastDecisionIdOfModel(String modelName) {
         return persistenceProvider.lastDecisionIdForModel(modelName);
+    }
+
+    protected static boolean shouldTrackRunnersUp(int variantsCount, int maxRunnersUp) {
+        if(variantsCount <= 1 || maxRunnersUp == 0) {
+            return false;
+        }
+        return Math.random() < 1.0 / Math.min(variantsCount - 1, maxRunnersUp);
     }
 }

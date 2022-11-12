@@ -4,85 +4,113 @@ import java.util.List;
 import java.util.Map;
 
 import ai.improve.log.IMPLog;
-import ai.improve.util.ModelUtils;
 
 public class Decision<T> {
+    /** @hidden */
     public static final String Tag = "Decision";
 
-    private DecisionModel model;
-
-    protected List<T> variants;
-
-    protected Map<String, Object> givens;
-
-    protected List<Double> scores;
+    private final DecisionModel model;
 
     /**
-     * A decision should be tracked only once when calling get(). A boolean here may
-     * be more appropriate in the first glance. But I find it hard to unit test
-     * that it's tracked only once with a boolean value in multi-thread mode. So I'm
-     * using an int here with 0 as 'untracked', and anything else as 'tracked'.
-     * */
-    protected int tracked;
+     * The id that uniquely identifies the decision after it's been tracked. It's null until
+     * the decision is tracked by calling track().
+     */
+    private String id = null;
 
-    protected T best;
+    /**
+     * Additional context info that was used along with each of the variants to score them, including the givens
+     * passed by IMPDecisionModel.given() and givens that was provided by the givensProvider. The givens here
+     * would also be included in tracking.
+     */
+    public final Map<String, ?> givens;
 
-    // The message_id of the tracked decision
-    protected String id;
+    /** The ranked variants */
+    public final List<T> ranked;
 
-    protected Decision(DecisionModel model) {
+    /** The best variant. Could be null if the variants list contains null members. */
+    public final T best;
+
+    /** @hidden  */
+    protected final List<Double> scores;
+
+    /** @hidden */
+    protected Decision(DecisionModel model, List<T> rankedVariants, Map<String, ?> givens, List<Double> scores) {
         this.model = model;
+        this.ranked = rankedVariants;
+        this.givens = givens;
+        this.best = rankedVariants.get(0);
+        this.scores = scores;
     }
 
     /**
-     * Same as get() except that peek won't track the decision.
-     * @return Returns the chosen variant memoized.
-     * @throws IllegalStateException Thrown if called before chooseFrom()
+     * Getter of id.
+     * @return Returns id.
      */
+    public String getId() {
+        return id;
+    }
+
+    /**
+     * Gets the best variant.
+     * @return Returns the best variant. Could be null if the variants list contains null members.
+     * @deprecated Remove in 8.0.
+     */
+    @Deprecated
     public T peek() {
         return best;
     }
 
     /**
-     * Get the chosen variant and track the decision. The decision would be tracked only once.
-     * @return Returns the chosen variant memoized. When the variants contains null members, get()
-     * might return null.
-     * @throws IllegalStateException Thrown if variants is null or empty.
-     * */
+     * Gets the best variant, and also track the decision if it's not been tracked yet.
+     * @return Returns the best variant. Could be null if the variants list contains null members.
+     * @deprecated Remove in 8.0.
+     */
+    @Deprecated
     public synchronized T get() {
-        if(tracked == 0) {
+        if(id == null) {
             DecisionTracker tracker = model.getTracker();
-            if (tracker != null) {
-                if (ModelUtils.shouldtrackRunnersUp(variants.size(), tracker.getMaxRunnersUp())) {
-                    // the more variants there are, the less frequently this is called
-                    List<?> rankedVariants = DecisionModel.rank(variants, scores);
-                    id = tracker.track(best, rankedVariants, givens, model.getModelName(), true);
-                } else {
-                    // faster and more common path, avoids array sort
-                    id = tracker.track(best, variants, givens, model.getModelName(), false);
-                }
-                tracked++;
+            if(tracker == null) {
+                IMPLog.w(Tag, "trackURL not set for the underlying DecisionModel. The decision " +
+                        "won't be tracked.");
             } else {
-                IMPLog.e(Tag, "tracker not set on DecisionModel, decision will not be tracked");
+                id = tracker.track(ranked, givens, model.getModelName());
             }
         }
         return best;
     }
 
     /**
-     * Adds a reward that only applies to this specific decision. This method should not be called
-     * prior to get().
+     * Tracks the decision.
+     * @return Returns the id that uniquely identifies the tracked decision.
+     * @throws IllegalStateException Thrown if trackURL of the underlying DecisionModel is null;
+     * Thrown if the decision is already tracked.
+     */
+    public synchronized String track() {
+        if(id != null) {
+            throw new IllegalStateException("the decision is already tracked!");
+        }
+
+        DecisionTracker tracker = model.getTracker();
+        if(tracker == null) {
+            throw new IllegalStateException("trackURL not set for the underlying DecisionModel!");
+        }
+
+        id = tracker.track(ranked, givens, model.getModelName());
+
+        return id;
+    }
+
+    /**
+     * Adds a reward that only applies to this specific decision. Before calling this method, make
+     * sure that the decision is tracked by calling track().
      * @param reward the reward to add. Must not be NaN, positive infinity, or negative infinity
      * @throws IllegalArgumentException Thrown if `reward` is NaN or +-Infinity
-     * @throws IllegalStateException Thrown if the trackURL of underlying DecisionModel is null
-     * The id could be null when addReward() is called prior to get(), or less likely the system
-     * clock is so biased(beyond 2014~2150) that we can't generate a valid id(ksuid) when get()
-     * is called.
-     * */
+     * @throws IllegalStateException Thrown if the trackURL of the underlying DecisionModel is null;
+     * Thrown if the decision is not tracked yet.
+     */
     public void addReward(double reward) {
         if(id == null) {
-            throw new IllegalStateException("id can't be null. Make sure that addReward() is " +
-                    "called after get(); and the trackURL is set in the DecisionModel.");
+            throw new IllegalStateException("addReward() can't be called before track().");
         }
         model.addReward(reward, id);
     }

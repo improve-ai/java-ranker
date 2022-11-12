@@ -26,8 +26,8 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10};
-var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
+var data = {"i0":10,"i1":42,"i2":10,"i3":42,"i4":10};
+var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"],32:["t6","Deprecated Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
 var tableTab = "tableTab";
@@ -89,13 +89,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>
@@ -153,64 +153,26 @@ extends java.lang.Object</pre>
 <th class="colLast" scope="col">Description</th>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected <a href="Decision.html" title="type parameter in Decision">T</a></code></td>
+<td class="colFirst"><code><a href="Decision.html" title="type parameter in Decision">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#best">best</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#givens">givens</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#id">id</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected java.util.List&lt;java.lang.Double&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#scores">scores</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>static java.lang.String</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#Tag">Tag</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-<tr class="rowColor">
-<td class="colFirst"><code>protected int</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#tracked">tracked</a></span></code></th>
 <td class="colLast">
-<div class="block">A decision should be tracked only once when calling get().</div>
+<div class="block">The best variant.</div>
+</td>
+</tr>
+<tr class="rowColor">
+<td class="colFirst"><code>java.util.Map&lt;java.lang.String,&#8203;?&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#givens">givens</a></span></code></th>
+<td class="colLast">
+<div class="block">Additional context info that was used along with each of the variants to score them, including the givens
+ passed by IMPDecisionModel.given() and givens that was provided by the givensProvider.</div>
 </td>
 </tr>
 <tr class="altColor">
-<td class="colFirst"><code>protected java.util.List&lt;<a href="Decision.html" title="type parameter in Decision">T</a>&gt;</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#variants">variants</a></span></code></th>
-<td class="colLast">&nbsp;</td>
-</tr>
-</table>
-</li>
-</ul>
-</section>
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.summary">
-<!--   -->
-</a>
-<h3>Constructor Summary</h3>
-<table class="memberSummary">
-<caption><span>Constructors</span><span class="tabEnd">&nbsp;</span></caption>
-<tr>
-<th class="colFirst" scope="col">Modifier</th>
-<th class="colSecond" scope="col">Constructor</th>
-<th class="colLast" scope="col">Description</th>
-</tr>
-<tr class="altColor">
-<td class="colFirst"><code>protected </code></td>
-<th class="colConstructorName" scope="row"><code><span class="memberNameLink"><a href="#%3Cinit%3E(ai.improve.DecisionModel)">Decision</a></span>&#8203;(<a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a>&nbsp;model)</code></th>
-<td class="colLast">&nbsp;</td>
+<td class="colFirst"><code>java.util.List&lt;<a href="Decision.html" title="type parameter in Decision">T</a>&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#ranked">ranked</a></span></code></th>
+<td class="colLast">
+<div class="block">The ranked variants</div>
+</td>
 </tr>
 </table>
 </li>
@@ -224,7 +186,7 @@ extends java.lang.Object</pre>
 </a>
 <h3>Method Summary</h3>
 <table class="memberSummary">
-<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
+<caption><span id="t0" class="activeTableTab"><span>All Methods</span><span class="tabEnd">&nbsp;</span></span><span id="t2" class="tableTab"><span><a href="javascript:show(2);">Instance Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t4" class="tableTab"><span><a href="javascript:show(8);">Concrete Methods</a></span><span class="tabEnd">&nbsp;</span></span><span id="t6" class="tableTab"><span><a href="javascript:show(32);">Deprecated Methods</a></span><span class="tabEnd">&nbsp;</span></span></caption>
 <tr>
 <th class="colFirst" scope="col">Modifier and Type</th>
 <th class="colSecond" scope="col">Method</th>
@@ -241,14 +203,32 @@ extends java.lang.Object</pre>
 <td class="colFirst"><code><a href="Decision.html" title="type parameter in Decision">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#get()">get</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Get the chosen variant and track the decision.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
 </td>
 </tr>
 <tr id="i2" class="altColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#getId()">getId</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Getter of id.</div>
+</td>
+</tr>
+<tr id="i3" class="rowColor">
 <td class="colFirst"><code><a href="Decision.html" title="type parameter in Decision">T</a></code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#peek()">peek</a></span>()</code></th>
 <td class="colLast">
-<div class="block">Same as get() except that peek won't track the decision.</div>
+<div class="block"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+</td>
+</tr>
+<tr id="i4" class="altColor">
+<td class="colFirst"><code>java.lang.String</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#track()">track</a></span>()</code></th>
+<td class="colLast">
+<div class="block">Tracks the decision.</div>
 </td>
 </tr>
 </table>
@@ -275,94 +255,36 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Field Detail</h3>
-<a id="Tag">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>Tag</h4>
-<pre>public static final&nbsp;java.lang.String Tag</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="../../constant-values.html#ai.improve.Decision.Tag">Constant Field Values</a></dd>
-</dl>
-</li>
-</ul>
-<a id="variants">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>variants</h4>
-<pre>protected&nbsp;java.util.List&lt;<a href="Decision.html" title="type parameter in Decision">T</a>&gt; variants</pre>
-</li>
-</ul>
 <a id="givens">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>givens</h4>
-<pre>protected&nbsp;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt; givens</pre>
+<pre>public final&nbsp;java.util.Map&lt;java.lang.String,&#8203;?&gt; givens</pre>
+<div class="block">Additional context info that was used along with each of the variants to score them, including the givens
+ passed by IMPDecisionModel.given() and givens that was provided by the givensProvider. The givens here
+ would also be included in tracking.</div>
 </li>
 </ul>
-<a id="scores">
+<a id="ranked">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>scores</h4>
-<pre>protected&nbsp;java.util.List&lt;java.lang.Double&gt; scores</pre>
-</li>
-</ul>
-<a id="tracked">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>tracked</h4>
-<pre>protected&nbsp;int tracked</pre>
-<div class="block">A decision should be tracked only once when calling get(). A boolean here may
- be more appropriate in the first glance. But I find it hard to unit test
- that it's tracked only once with a boolean value in multi-thread mode. So I'm
- using an int here with 0 as 'untracked', and anything else as 'tracked'.</div>
+<h4>ranked</h4>
+<pre>public final&nbsp;java.util.List&lt;<a href="Decision.html" title="type parameter in Decision">T</a>&gt; ranked</pre>
+<div class="block">The ranked variants</div>
 </li>
 </ul>
 <a id="best">
 <!--   -->
 </a>
-<ul class="blockList">
+<ul class="blockListLast">
 <li class="blockList">
 <h4>best</h4>
-<pre>protected&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a> best</pre>
-</li>
-</ul>
-<a id="id">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>id</h4>
-<pre>protected&nbsp;java.lang.String id</pre>
-</li>
-</ul>
-</li>
-</ul>
-</section>
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<section role="region">
-<ul class="blockList">
-<li class="blockList"><a id="constructor.detail">
-<!--   -->
-</a>
-<h3>Constructor Detail</h3>
-<a id="&lt;init&gt;(ai.improve.DecisionModel)">
-<!--   -->
-</a>
-<ul class="blockListLast">
-<li class="blockList">
-<h4>Decision</h4>
-<pre>protected&nbsp;Decision&#8203;(<a href="DecisionModel.html" title="class in ai.improve">DecisionModel</a>&nbsp;model)</pre>
+<pre>public final&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a> best</pre>
+<div class="block">The best variant. Could be null if the variants list contains null members.</div>
 </li>
 </ul>
 </li>
@@ -375,19 +297,35 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="getId()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>getId</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;getId()</pre>
+<div class="block">Getter of id.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns id.</dd>
+</dl>
+</li>
+</ul>
 <a id="peek()">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>peek</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a>&nbsp;peek()</pre>
-<div class="block">Same as get() except that peek won't track the decision.</div>
+<pre class="methodSignature">@Deprecated
+public&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a>&nbsp;peek()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+<div class="block">Gets the best variant.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Returns the chosen variant memoized.</dd>
-<dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.lang.IllegalStateException</code> - Thrown if called before chooseFrom()</dd>
+<dd>Returns the best variant. Could be null if the variants list contains null members.</dd>
 </dl>
 </li>
 </ul>
@@ -397,14 +335,32 @@ extends java.lang.Object</pre>
 <ul class="blockList">
 <li class="blockList">
 <h4>get</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a>&nbsp;get()</pre>
-<div class="block">Get the chosen variant and track the decision. The decision would be tracked only once.</div>
+<pre class="methodSignature">@Deprecated
+public&nbsp;<a href="Decision.html" title="type parameter in Decision">T</a>&nbsp;get()</pre>
+<div class="deprecationBlock"><span class="deprecatedLabel">Deprecated.</span>
+<div class="deprecationComment">Remove in 8.0.</div>
+</div>
+<div class="block">Gets the best variant, and also track the decision if it's not been tracked yet.</div>
 <dl>
 <dt><span class="returnLabel">Returns:</span></dt>
-<dd>Returns the chosen variant memoized. When the variants contains null members, get()
- might return null.</dd>
+<dd>Returns the best variant. Could be null if the variants list contains null members.</dd>
+</dl>
+</li>
+</ul>
+<a id="track()">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>track</h4>
+<pre class="methodSignature">public&nbsp;java.lang.String&nbsp;track()</pre>
+<div class="block">Tracks the decision.</div>
+<dl>
+<dt><span class="returnLabel">Returns:</span></dt>
+<dd>Returns the id that uniquely identifies the tracked decision.</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
-<dd><code>java.lang.IllegalStateException</code> - Thrown if variants is null or empty.</dd>
+<dd><code>java.lang.IllegalStateException</code> - Thrown if trackURL of the underlying DecisionModel is null;
+ Thrown if the decision is already tracked.</dd>
 </dl>
 </li>
 </ul>
@@ -415,17 +371,15 @@ extends java.lang.Object</pre>
 <li class="blockList">
 <h4>addReward</h4>
 <pre class="methodSignature">public&nbsp;void&nbsp;addReward&#8203;(double&nbsp;reward)</pre>
-<div class="block">Adds a reward that only applies to this specific decision. This method should not be called
- prior to get().</div>
+<div class="block">Adds a reward that only applies to this specific decision. Before calling this method, make
+ sure that the decision is tracked by calling track().</div>
 <dl>
 <dt><span class="paramLabel">Parameters:</span></dt>
 <dd><code>reward</code> - the reward to add. Must not be NaN, positive infinity, or negative infinity</dd>
 <dt><span class="throwsLabel">Throws:</span></dt>
 <dd><code>java.lang.IllegalArgumentException</code> - Thrown if `reward` is NaN or +-Infinity</dd>
-<dd><code>java.lang.IllegalStateException</code> - Thrown if the trackURL of underlying DecisionModel is null
- The id could be null when addReward() is called prior to get(), or less likely the system
- clock is so biased(beyond 2014~2150) that we can't generate a valid id(ksuid) when get()
- is called.</dd>
+<dd><code>java.lang.IllegalStateException</code> - Thrown if the trackURL of the underlying DecisionModel is null;
+ Thrown if the decision is not tracked yet.</dd>
 </dl>
 </li>
 </ul>
@@ -482,13 +436,13 @@ extends java.lang.Object</pre>
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li><a href="#field.summary">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.summary">Method</a></li>
 </ul>
 <ul class="subNavList">
 <li>Detail:&nbsp;</li>
 <li><a href="#field.detail">Field</a>&nbsp;|&nbsp;</li>
-<li><a href="#constructor.detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method.detail">Method</a></li>
 </ul>
 </div>

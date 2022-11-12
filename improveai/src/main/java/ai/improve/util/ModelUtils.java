@@ -40,13 +40,6 @@ public class ModelUtils {
         return topVariant;
     }
 
-    public static boolean shouldtrackRunnersUp(int variantsCount, int maxRunnersUp) {
-        if(variantsCount <= 1 || maxRunnersUp == 0) {
-            return false;
-        }
-        return Math.random() < 1.0 / Math.min(variantsCount - 1, maxRunnersUp);
-    }
-
     // Generate n = variants.count random (double) gaussian numbers
     // Sort the numbers descending and return the sorted list
     // The median value of the list is expected to have a score near zero

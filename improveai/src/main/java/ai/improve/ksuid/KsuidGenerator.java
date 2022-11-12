@@ -34,25 +34,14 @@ public class KsuidGenerator {
      * @param t EPOCH time in seconds
      * */
     protected String next(long t, byte[] payload) {
-        t -= EPOCH;
-
-        if(t < 0 || t > UINT32_MAX) {
-            return null;
-        }
-
-        if(payload.length != PAYLOAD_BYTES) {
-            return null;
-        }
-
         // Allocate an extra zero value byte in the first position, so that the unsigned 32bit UTC
-        // timestamp value((INT32_MAX, UINT32_MAX]) is not treated as negative value and thus being
+        // timestamp value in range (INT32_MAX, UINT32_MAX] is not treated as negative value and thus being
         // encoded as "000000000000000000000000000" by the base62 encoder
         byte[] ksuidBytes = ByteBuffer.allocate(TOTAL_BYTES+1)
                 .put((byte)0)
-                .putInt((int)t)
+                .putInt((int)(t - EPOCH))
                 .put(payload)
                 .array();
-
         return base62Encode(ksuidBytes, KSUID_STRING_LENGTH);
     }
 }
