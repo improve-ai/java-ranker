@@ -10,6 +10,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,22 +35,9 @@ public class DecisionTrackerTest {
      * test case here.
      * */
     @Test
-    public void testTrackerRequest() {
-        DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.chooseFrom(Arrays.asList("Hello", "Hi", "Hey")).get();
-    }
-
-    /**
-     * The tracking happens kind of like a side effect of get(), I'm not sure how
-     * to unit test this.
-     *
-     * Currently, I'm just observing the log output of these never-would-fail
-     * test case here.
-     * */
-    @Test
     public void testTrackerNullVariants() {
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.chooseFrom(Arrays.asList(1, null)).get();
+        decisionModel.which(Arrays.asList(1, null));
     }
 
     /**
@@ -58,27 +46,28 @@ public class DecisionTrackerTest {
      * */
     @Test
     public void testTrackNonJsonEncodable() {
-        Map givens = new HashMap();
+        Map<String, Object> givens = new HashMap<>();
         givens.put("font", 12);
         givens.put("color", "#ffffff");
+        givens.put("date", new Date());
         DecisionModel decisionModel = new DecisionModel("music");
-        decisionModel.chooseFrom(Arrays.asList("Hello World", "Howdy World", "Yo World")).get();
+        decisionModel.given(givens).which(Arrays.asList("Hello World", "Howdy World", "Yo World"));
     }
 
     @Test
-    public void testGet_persist_decision_id() {
+    public void testTrack_persist_decision_id() {
         String modelName = "hello";
         DecisionModel decisionModel = new DecisionModel(modelName);
-        Decision decision = decisionModel.chooseFrom(Arrays.asList(1, 2, 3));
+        Decision<Integer> decision = decisionModel.decide(Arrays.asList(1, 2, 3));
 
         String decisionIdBeforeGet = decisionModel.getTracker().lastDecisionIdOfModel(modelName);
-        decision.get();
+        decision.track();
         String decisionIdAfterGet = decisionModel.getTracker().lastDecisionIdOfModel(modelName);
 
-        assertNotNull(decision.id);
-        assertEquals(decision.id, decisionIdAfterGet);
+        assertNotNull(decision.getId());
+        assertEquals(decision.getId(), decisionIdAfterGet);
         assertNotEquals(decisionIdBeforeGet, decisionIdAfterGet);
-        IMPLog.d(Tag, "decisionId: " + decision.id + ", " + decisionIdBeforeGet +
+        IMPLog.d(Tag, "decisionId: " + decision.getId() + ", " + decisionIdBeforeGet +
                 ", " + decisionIdAfterGet);
     }
 }

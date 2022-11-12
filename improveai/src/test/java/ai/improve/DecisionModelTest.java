@@ -12,7 +12,6 @@ import static ai.improve.DecisionTrackerTest.Track_URL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,7 +21,6 @@ import java.util.Map;
 import java.util.Random;
 
 import ai.improve.log.IMPLog;
-import ai.improve.provider.GivensProvider;
 import ai.improve.util.ModelUtils;
 
 
@@ -52,6 +50,10 @@ public class DecisionModelTest {
         return Arrays.asList(0.1, 0.2, 0.3);
     }
 
+    private DecisionModel model() {
+        return new DecisionModel("greetings");
+    }
+
     @BeforeEach
     public void setUp() throws Exception {
         IMPLog.d(Tag, "setUp");
@@ -62,8 +64,8 @@ public class DecisionModelTest {
 
     private class AlphaGivensProvider implements GivensProvider {
         @Override
-        public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, Object> givens) {
-            return null;
+        public Map<String, Object> givensForModel(DecisionModel decisionModel, Map<String, ?> givens) {
+            return Map.of("lang", "mars");
         }
     }
 
@@ -156,6 +158,29 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testGet() {
+        DecisionModel decisionModel = DecisionModel.get("greetings");
+        assertNotNull(decisionModel);
+    }
+
+    @Test
+    public void testGet_invalid_model_name() {
+        try {
+            DecisionModel.get("");
+            fail("model name can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            DecisionModel.get(null);
+            fail("model name can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testSetTrackURL_Null() {
         DecisionModel decisionModel = new DecisionModel("hello");
         assertNotNull(decisionModel.getTrackURL());
@@ -174,7 +199,7 @@ public class DecisionModelTest {
 
         try {
             decisionModel.setTrackURL("");
-        } catch (Exception e) {
+        } catch (IllegalArgumentException e) {
             IMPLog.e(Tag, e.getMessage());
             return ;
         }
@@ -230,16 +255,12 @@ public class DecisionModelTest {
     @Test
     public void testDefaultTrackURL() {
         DecisionModel.setDefaultTrackURL(null);
-
         assertNull(DecisionModel.getDefaultTrackURL());
-        DecisionModel decisionModel = new DecisionModel("hello");
-        assertNull(decisionModel.getTrackURL());
+        assertNull(model().getTrackURL());
 
         DecisionModel.setDefaultTrackURL(Track_URL);
-
-        decisionModel = new DecisionModel("hello");
-        assertNotNull(decisionModel.getTrackURL());
-        assertEquals(Track_URL, decisionModel.getTrackURL());
+        assertNotNull(model().getTrackURL());
+        assertEquals(Track_URL, model().getTrackURL());
     }
 
     @Test
@@ -256,7 +277,41 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRank() {
+    public void testDefaultApiKey() {
+        DecisionModel.setDefaultTrackApiKey(null);
+        assertNull(DecisionModel.getDefaultTrackApiKey());
+        assertNull(model().getTrackApiKey());
+        DecisionModel.setDefaultTrackApiKey("api-key");
+        assertEquals("api-key", DecisionModel.getDefaultTrackApiKey());
+        assertEquals("api-key", model().getTrackApiKey());
+    }
+
+    @Test
+    public void testTrackURL() {
+        DecisionModel model = model();
+        assertNotNull(model.getTrackURL());
+
+        model.setTrackURL(null);
+        assertNull(model.getTrackURL());
+
+        model.setTrackURL(Track_URL);
+        assertEquals(Track_URL, model.getTrackURL());
+    }
+
+    @Test
+    public void testTrackApiKey() {
+        DecisionModel model = model();
+        assertNotNull(model.getTrackApiKey());
+
+        model.setTrackApiKey(null);
+        assertNull(model.getTrackApiKey());
+
+        model.setTrackApiKey("api-key");
+        assertEquals("api-key", model.getTrackApiKey());
+    }
+
+    @Test
+    public void testRankWithScores() {
         int count = 100;
         List<Integer> variants = new ArrayList();
         List<Double> scores = new ArrayList<>();
@@ -265,6 +320,7 @@ public class DecisionModelTest {
             variants.add(i);
             scores.add((double)i);
         }
+
 
         Random random = new Random();
         // shuffle
@@ -276,7 +332,7 @@ public class DecisionModelTest {
         }
         IMPLog.d(Tag, "Shuffled.....");
         for(int i = 0; i < variants.size(); ++i) {
-            IMPLog.d(Tag, "" + variants.get(i));
+            IMPLog.d(Tag, "" + variants.get(i) + ", " + scores.get(i));
         }
 
         IMPLog.d(Tag, "Sorted.....");
@@ -286,13 +342,13 @@ public class DecisionModelTest {
         for(int i = 0; i < sorted.size(); ++i) {
             IMPLog.d(Tag, "" + sorted.get(i));
             if(i != variants.size()-1) {
-                assertTrue((Integer)sorted.get(i) > (Integer) sorted.get(i+1));
+                assertTrue(sorted.get(i) > sorted.get(i+1));
             }
         }
     }
 
     @Test
-    public void testRank_null_variants() {
+    public void testRankWithScores_null_variants() {
         try {
             DecisionModel.rank(null, Arrays.asList(0.1, 0.2));
         } catch (IllegalArgumentException e) {
@@ -303,7 +359,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRank_null_scores() {
+    public void testRankWithScores_null_scores() {
         try {
             DecisionModel.rank(Arrays.asList("hi", "hello"), null);
         } catch (IllegalArgumentException e) {
@@ -314,43 +370,23 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testRankInvalid_largerVariants() {
-        int count = 100;
-        List<Object> variants = new ArrayList();
-        List<Double> scores = new ArrayList<>();
-
-        for(int i = 0; i < count; ++i) {
-            variants.add(i);
-            scores.add((double)i);
-        }
-        variants.add(1);
-
+    public void testRankWithScores_largerVariants() {
         try {
-            DecisionModel.rank(variants, scores);
+            DecisionModel.rank(Arrays.asList("Hi", "Hello", "Hey"), Arrays.asList(1.1, 2.2));
         } catch (IllegalArgumentException e) {
             return ;
         }
-        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
+        fail("variants.size() must be equal to scores.size()");
     }
 
     @Test
-    public void testRankInvalid_largerScores() {
-        int count = 100;
-        List<Integer> variants = new ArrayList();
-        List<Double> scores = new ArrayList<>();
-
-        for(int i = 0; i < count; ++i) {
-            variants.add(i);
-            scores.add((double)i);
-        }
-        scores.add(0.1);
-
+    public void testRankWithScores_largerScores() {
         try {
-            DecisionModel.rank(variants, scores);
+            DecisionModel.rank(Arrays.asList("Hi", "Hello"), Arrays.asList(1.1, 2.2, 3.3));
         } catch (IllegalArgumentException e) {
             return ;
         }
-        fail("An IndexOutOfBoundException should have been thrown, we should never reach here");
+        fail("variants.size() must be equal to scores.size()");
     }
 
     @Test
@@ -471,8 +507,113 @@ public class DecisionModelTest {
         DecisionModel decisionModel = new DecisionModel("music");
         decisionModel.given(givens);
 
-        decisionModel.given(Map.of("lang", "en"));
-        decisionModel.given(Map.of("size", 1));
+        Map<String, Integer> str_int_map = Map.of("a", 1, "b", 2);
+        Map<String, String> str_str_map = Map.of("a", "aa", "b", "bb");
+
+        decisionModel.given(str_int_map);
+        decisionModel.given(str_str_map);
+    }
+
+    @Test
+    public void testDecide() {
+        DecisionModel decisionModel = model();
+
+        Decision<String> decision = decisionModel.decide(Arrays.asList("Hi", "Hello", "Hey"));
+        assertEquals("Hi", decision.get());
+        assertEquals(3, decision.ranked.size());
+
+        String greeting = decisionModel.decide(Arrays.asList("Hi", "Hello", "Hey")).get();
+        int size = decisionModel.decide(Arrays.asList(1, 2, 3)).get();
+        IMPLog.d(Tag, "greeting = " + greeting + ", size = " + size);
+    }
+
+    @Test
+    public void testDecide_null_variants() {
+        try {
+            model().decide(null);
+            fail("variants can't be nil");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecide_empty_variants() {
+        try {
+            model().decide(new ArrayList());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecide_false() {
+        model().decide(variants(), false).get();
+    }
+
+    @Test
+    public void testDecideWithScore() {
+        List<String> variants = Arrays.asList("Hi", "Hello", "Hey");
+        List<Double> scores = Arrays.asList(1.1, 3.3, 2.2);
+        Decision<String> decision = model().decide(variants, scores);
+        assertEquals("Hello", decision.get());
+        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked);
+    }
+
+    @Test
+    public void testDecideWithScores_null_variants() {
+        List<Double> scores = Arrays.asList(1.1, 2.2, 3.3);
+        try {
+            model().decide(null, scores);
+            fail("variants can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_empty_variants() {
+        List<Double> scores = Arrays.asList(1.1, 2.2, 3.3);
+        try {
+            model().decide(new ArrayList(), scores);
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_empty_scores() {
+        try {
+            model().decide(variants(), new ArrayList<>());
+            fail("scores can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_too_few_variants() {
+        List<Double> scores = Arrays.asList(1.1, 2.2, 3.3);
+        try {
+            model().decide(Arrays.asList("hi", "hello"), scores);
+            fail("variants.size() not equal to scores.size()");
+        } catch (IllegalArgumentException e) {
+            assertEquals("variants.size() must be equal to scores.size()", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecideWithScores_too_few_scores() {
+        try {
+            model().decide(variants(), Arrays.asList(1.1, 1.2));
+            fail("variants.size() not equal to scores.size()");
+        } catch (IllegalArgumentException e) {
+            assertEquals("variants.size() must be equal to scores.size()", e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     @Test
@@ -549,10 +690,8 @@ public class DecisionModelTest {
         List<Double> scores = Arrays.asList(0.1, 1.0, -0.1);
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision<String> decision = decisionModel.chooseFrom(variants, scores);
-        assertEquals("hello", decision.best);
+        assertEquals("hello", decision.get());
         assertNull(decision.givens);
-        assertEquals(scores, decision.scores);
-        assertEquals(variants, decision.variants);
     }
 
     @Test
@@ -634,14 +773,7 @@ public class DecisionModelTest {
         variants.put("font", Arrays.asList("Italic", "Bold"));
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseMultivariate(variants);
-        List expected = Arrays.asList(
-                new HashMap<String, String>(){{
-                    put("font", "Italic");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Bold");
-                }});
-        assertEquals(expected, decision.variants);
+        assertEquals(Arrays.asList(Map.of("font", "Italic"), Map.of("font", "Bold")), decision.ranked);
     }
 
     @Test
@@ -651,24 +783,11 @@ public class DecisionModelTest {
         variants.put("color", Arrays.asList("#000000", "#ffffff"));
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseMultivariate(variants);
-        List expected = Arrays.asList(
-                new HashMap<String, String>(){{
-                    put("font", "Italic");
-                    put("color", "#000000");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Italic");
-                    put("color", "#ffffff");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Bold");
-                    put("color", "#000000");
-                }},
-                new HashMap<String, String>(){{
-                    put("font", "Bold");
-                    put("color", "#ffffff");
-                }});
-        assertEquals(expected, decision.variants);
+        assertEquals(Arrays.asList(
+                Map.of("font", "Italic", "color", "#000000"),
+                Map.of("font", "Italic", "color", "#ffffff"),
+                Map.of("font", "Bold", "color", "#000000"),
+                Map.of("font", "Bold", "color", "#ffffff")), decision.ranked);
     }
 
     @Test
@@ -679,51 +798,40 @@ public class DecisionModelTest {
         variants.put("size", 3);
         DecisionModel decisionModel = new DecisionModel("theme");
         Decision decision = decisionModel.chooseMultivariate(variants);
-        List expected = Arrays.asList(
-                new HashMap<String, Object>(){{
-                    put("font", "Italic");
-                    put("color", "#000000");
-                    put("size", 3);
-                }},
-                new HashMap<String, Object>(){{
-                    put("font", "Italic");
-                    put("color", "#ffffff");
-                    put("size", 3);
-                }},
-                new HashMap<String, Object>(){{
-                    put("font", "Bold");
-                    put("color", "#000000");
-                    put("size", 3);
-                }},
-                new HashMap<String, Object>(){{
-                    put("font", "Bold");
-                    put("color", "#ffffff");
-                    put("size", 3);
-                }});
-        assertEquals(expected, decision.variants);
+        assertEquals(Arrays.asList(
+                Map.of("font", "Italic", "color", "#000000", "size", 3),
+                Map.of("font", "Italic", "color", "#ffffff", "size", 3),
+                Map.of("font", "Bold", "color", "#000000", "size", 3),
+                Map.of("font", "Bold", "color", "#ffffff", "size", 3)), decision.ranked);
     }
 
     @Test
     public void testOptimize() {
-        IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        Map variants = new HashMap();
-        variants.put("font", Arrays.asList("Italic", "Bold"));
-        variants.put("size", Arrays.asList(12, 13));
+        Map<String, ?> variantMap = Map.of("font", Arrays.asList("Italic", "Bold"), "size", Arrays.asList(12, 13));
         DecisionModel decisionModel = new DecisionModel("theme");
-        Map<String, String> theme = decisionModel.optimize(variants);
+        Map<String, ?> theme = decisionModel.optimize(variantMap);
         assertEquals(2, theme.size());
         assertNotNull(theme.get("font"));
         assertNotNull(theme.get("size"));
     }
 
     @Test
+    public void testOptimize_null_variants() {
+        try {
+            model().optimize(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
     public void testOptimize_empty_member() {
-        Map variants = new HashMap();
-        variants.put("font", Arrays.asList("Italic", "Bold"));
-        variants.put("size", Arrays.asList(12, 13));
-        variants.put("color", new ArrayList<String>());
-        DecisionModel decisionModel = new DecisionModel("theme");
-        Map<String, String> theme = decisionModel.optimize(variants);
+        Map<String, ?> variantMap = Map.of("font", Arrays.asList("Italic", "Bold"),
+                "size", Arrays.asList(12, 13),
+                "color", new ArrayList<>());
+        Map<String, ?> theme = model().optimize(variantMap);
         assertEquals(2, theme.size());
         assertNotNull(theme.get("font"));
         assertNotNull(theme.get("size"));
@@ -743,7 +851,16 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhichVariadic() {
+    public void testOptimize_deserialize() {
+        Map<String, ?> variantMap = Map.of(
+                "fontColor", Arrays.asList("#ffffff", "#000000"),
+                "fontSize", Arrays.asList(12, 13, 14));
+        Theme theme = model().optimize(variantMap, Theme.class);
+        IMPLog.d(Tag, theme.fontColor + ", " + theme.fontSize + ", " + theme.name);
+    }
+
+    @Test
+    public void testWhich() {
         DecisionModel decisionModel = new DecisionModel("theme");
 
         int size = decisionModel.which(1, 2, 3);
@@ -751,19 +868,16 @@ public class DecisionModelTest {
 
         String greeting = decisionModel.which("hi", "hello", "hey");
         assertEquals("hi", greeting);
-
-        String color = decisionModel.which(Arrays.asList("#ffffff", "#000000", "#f0f0f0"));
-        assertEquals("#ffffff", color);
     }
 
     @Test
-    public void testWhichVariadic_null() {
+    public void testWhich_null() {
         DecisionModel decisionModel = new DecisionModel("theme");
         decisionModel.which((String)null);
     }
 
     @Test
-    public void testWhichVariadic_empty() {
+    public void testWhich_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
             decisionModel.which();
@@ -775,7 +889,7 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhichVariadic_mixed_types() {
+    public void testWhich_mixed_types() {
         DecisionModel decisionModel = new DecisionModel("greetings");
         Object chosen = decisionModel.which("hi", 0, true, 1.2f);
         assertEquals("hi", chosen);
@@ -785,18 +899,18 @@ public class DecisionModelTest {
     }
 
     @Test
-    public void testWhichList() {
+    public void testWhichFrom() {
         List<String> variants = Arrays.asList("Hi", "Hello", "Hey");
         DecisionModel decisionModel = new DecisionModel("theme");
-        String greeting = decisionModel.which(variants);
+        String greeting = decisionModel.whichFrom(variants);
         assertEquals("Hi", greeting);
     }
 
     @Test
-    public void testWhichList_empty() {
+    public void testWhichFrom_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         try {
-            decisionModel.which(new ArrayList<>());
+            decisionModel.whichFrom(new ArrayList<>());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -805,14 +919,73 @@ public class DecisionModelTest {
     }
 
     @Test
+    public void testWhichFrom_null() {
+        DecisionModel decisionModel = new DecisionModel("theme");
+        try {
+            decisionModel.whichFrom(null);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return ;
+        }
+        fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRank() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        List<String> rankedVariants = model().rank(variants);
+        assertEquals(variants.size(), rankedVariants.size());
+        for(String variant : rankedVariants) {
+            assertTrue(variants.contains(variant));
+        }
+    }
+
+    @Test
+    public void testRank_null_variants() {
+        try {
+            model().rank(null);
+            fail("variants can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRank_empty_variants() {
+        try {
+            model().rank(new ArrayList<>());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testFullFactorialVariants() {
+        List variants = DecisionModel.fullFactorialVariants(Map.of(
+                "color", Arrays.asList("black", "white"),
+                "fontSize", Arrays.asList(12, 13),
+                "style", "bold",
+                "count", new ArrayList<>()));
+        assertEquals(4, variants.size());
+        List expectedVariants = Arrays.asList(
+                Map.of("fontSize", 12, "color", "black", "style", "bold"),
+                Map.of("fontSize", 12, "color", "white", "style", "bold"),
+                Map.of("fontSize", 13, "color", "black", "style", "bold"),
+                Map.of("fontSize", 13, "color", "white", "style", "bold"));
+        for(int i = 0; i < variants.size(); ++i) {
+            assertTrue(expectedVariants.contains(variants.get(i)));
+        }
+    }
+
+    @Test
     public void testChooseFirst() {
         List variants = Arrays.asList("hi", "hello", "hey");
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision decision = decisionModel.chooseFirst(variants);
-        assertEquals("hi", decision.best);
-        assertEquals(variants, decision.variants);
+        assertEquals("hi", decision.get());
+        assertEquals(variants, decision.ranked);
         assertNull(decision.givens);
-        assertEquals(variants.size(), decision.scores.size());
     }
 
     @Test
@@ -1189,8 +1362,20 @@ public class DecisionModelTest {
         assertNull(decisionModel.getGivensProvider());
 
         DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
-        assertNotNull(decisionModel.getGivensProvider());
-
+        assertNull(decisionModel.getGivensProvider());
         assertNotNull(new DecisionModel("hello").getGivensProvider());
+
+        // reset to null
+        DecisionModel.setDefaultGivensProvider(null);
+    }
+
+    @Test
+    public void testDefaultGivensProvider() {
+        assertNull(DecisionModel.getDefaultGivensProvider());
+        DecisionModel.setDefaultGivensProvider(new AlphaGivensProvider());
+        assertTrue(DecisionModel.getDefaultGivensProvider() instanceof AlphaGivensProvider);
+
+        // reset to null
+        DecisionModel.setDefaultGivensProvider(null);
     }
 }

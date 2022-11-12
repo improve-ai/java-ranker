@@ -3,8 +3,11 @@ package ai.improve;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
+import java.io.IOException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -40,27 +43,94 @@ public class DecisionContextTest {
         return Map.of("lang", "en");
     }
 
+    private DecisionModel model() {
+        return new DecisionModel("greetings");
+    }
+
+    @Test
+    public void testGivens() {
+        Map<String, String> givens = new HashMap<>();
+        givens.put("lang", "en");
+        DecisionContext decisionContext = model().given(givens);
+        givens.clear();
+        assertEquals("en", decisionContext.decide(variants()).givens.get("lang"));
+    }
+
+    @Test
+    public void testDecide() {
+        DecisionContext decisionContext = model().given(givens());
+
+        Decision<String> decision = decisionContext.decide(Arrays.asList("Hi", "Hello", "Hey"));
+        assertEquals("Hi", decision.get());
+        assertEquals(3, decision.ranked.size());
+
+        String greeting = decisionContext.decide(Arrays.asList("Hi", "Hello", "Hey")).get();
+        int size = decisionContext.decide(Arrays.asList(1, 2, 3)).get();
+        IMPLog.d(Tag, "greeting = " + greeting + ", size = " + size);
+    }
+
+    @Test
+    public void testDecide_null_variants() {
+        try {
+            model().given(givens()).decide(null);
+            fail("variants can't be nil");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecide_empty_variants() {
+        try {
+            model().given(givens()).decide(new ArrayList());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testDecide_ordered_false() {
+        List<String> variants = variants();
+        String chosen = model().given(givens()).decide(variants, false).get();
+        assertEquals(variants.get(0), chosen);
+    }
+
+    @Test
+    public void testDecide_ordered_true() {
+        List<String> variants = variants();
+        List<String> rankedVariants = model().given(givens()).decide(variants, true).ranked;
+        assertTrue(variants != rankedVariants); // different object
+        assertEquals(variants, rankedVariants);
+    }
+
+    @Test
+    public void testDecideWithScore() {
+        List<String> variants = Arrays.asList("Hi", "Hello", "Hey");
+        List<Double> scores = Arrays.asList(1.1, 3.3, 2.2);
+        Decision<String> decision = model().given(givens()).decide(variants, scores);
+        assertEquals("Hello", decision.get());
+        assertEquals(Arrays.asList("Hello", "Hey", "Hi"), decision.ranked);
+    }
+
     @Test
     public void testChooseFrom() {
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
-        Decision decision = decisionContext.chooseFrom(variants());
-        assertNotNull(decision);
+        List<String> variants = variants();
+        Decision<String> decision = model().given(givens()).chooseFrom(variants());
+        assertEquals(variants.get(0), decision.get());
     }
 
     @Test
     public void testChooseFrom_generic() {
         DecisionModel decisionModel = new DecisionModel("greetings");
-        String greeting = decisionModel.given(null).chooseFrom(variants()).get();
+        String greeting = model().given(givens()).chooseFrom(variants()).get();
         IMPLog.d(Tag, "greeting is " + greeting);
     }
 
     @Test
     public void testChooseFrom_null_variants() {
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         try {
-            decisionContext.chooseFrom(null);
+            model().given(givens()).chooseFrom(null);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -70,10 +140,8 @@ public class DecisionContextTest {
 
     @Test
     public void testChooseFrom_empty_variants() {
-        DecisionModel decisionModel = new DecisionModel("greetings");
-        DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         try {
-            decisionContext.chooseFrom(new ArrayList());
+            model().given(givens()).chooseFrom(new ArrayList());
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -88,7 +156,7 @@ public class DecisionContextTest {
         List scores = Arrays.asList(0.05, 0.1, 0.08);
         DecisionModel decisionModel = new DecisionModel("greetings");
         Decision decision = decisionModel.given(givens).chooseFrom(variants, scores);
-        assertEquals("hello", decision.best);
+        assertEquals("hello", decision.get());
         assertEquals(1, decision.givens.size());
         assertEquals("en", decision.givens.get("lang"));
     }
@@ -409,7 +477,16 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichVariadic() {
+    public void testOptimize_deserialize() {
+        Map<String, ?> variantMap = Map.of(
+                "fontColor", Arrays.asList("#ffffff", "#000000"),
+                "fontSize", Arrays.asList(12, 13, 14));
+        Theme theme = model().given(givens()).optimize(variantMap, Theme.class);
+        IMPLog.d(Tag, theme.fontColor + ", " + theme.fontSize);
+    }
+
+    @Test
+    public void testWhich() {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
         int size = decisionContext.which(1, 2, 3);
@@ -420,7 +497,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichVariadic_null() {
+    public void testWhich_null() {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         String greeting = decisionContext.which((String)null);
@@ -428,7 +505,7 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichVariadic_empty() {
+    public void testWhich_empty() {
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = new DecisionContext(decisionModel, null);
         try {
@@ -441,21 +518,31 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichList() {
+    public void testWhich_mixed_types() {
+        Object chosen = model().which(1, "hi", true);
+        IMPLog.d(Tag,"chosen = " + chosen);
+        assertEquals(1, chosen);
+
+        chosen = model().which("hi", 1, true);
+        assertEquals("hi", chosen);
+    }
+
+    @Test
+    public void testWhichFrom() {
         List<String> variants = Arrays.asList("Hello", "Hi", "Hey");
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
-        String greeting = decisionContext.which(variants);
+        String greeting = decisionContext.whichFrom(variants);
         assertEquals("Hello", greeting);
     }
 
     @Test
-    public void testWhichList_null() {
+    public void testWhichFrom_null() {
         List<String> variants = null;
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
         try {
-            decisionContext.which(variants);
+            decisionContext.whichFrom(variants);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
@@ -464,17 +551,47 @@ public class DecisionContextTest {
     }
 
     @Test
-    public void testWhichList_empty() {
+    public void testWhichFrom_empty() {
         List<String> variants = new ArrayList<>();
         DecisionModel decisionModel = new DecisionModel("theme");
         DecisionContext decisionContext = decisionModel.given(null);
         try {
-            decisionContext.which(variants);
+            decisionContext.whichFrom(variants);
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
             return ;
         }
         fail(DefaultFailMessage);
+    }
+
+    @Test
+    public void testRank() {
+        List<String> variants = Arrays.asList("hi", "hello", "hey");
+        List<String> rankedVariants = model().rank(variants);
+        assertEquals(variants.size(), rankedVariants.size());
+        for(String variant : rankedVariants) {
+            assertTrue(variants.contains(variant));
+        }
+    }
+
+    @Test
+    public void testRank_null_variants() {
+        try {
+            model().rank(null);
+            fail("variants can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testRank_empty_variants() {
+        try {
+            model().rank(new ArrayList<>());
+            fail("variants can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 
     @Test

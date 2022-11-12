@@ -1,15 +1,22 @@
 package ai.improve.android;
 
+import android.content.Context;
+
 import java.io.IOException;
 import java.io.InputStream;
 
-import ai.improve.ImproveContentProvider;
 import ai.improve.downloader.ModelLoader;
 
-
 public class AssetModelLoader implements ModelLoader {
+
+    private final Context context;
+
+    public AssetModelLoader(Context context) {
+        this.context = context;
+    }
+
     @Override
     public InputStream load(String path) throws IOException {
-        return ImproveContentProvider.getAppContext().getAssets().open(path);
+        return context.getAssets().open(path);
     }
 }

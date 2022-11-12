@@ -26,7 +26,7 @@
     catch(err) {
     }
 //-->
-var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10};
+var data = {"i0":10,"i1":10,"i2":10,"i3":10,"i4":10,"i5":10,"i6":10,"i7":10,"i8":10,"i9":10,"i10":10,"i11":10,"i12":10,"i13":10,"i14":10,"i15":10,"i16":10};
 var tabs = {65535:["t0","All Methods"],2:["t2","Instance Methods"],8:["t4","Concrete Methods"]};
 var altColor = "altColor";
 var rowColor = "rowColor";
@@ -193,8 +193,8 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i3" class="rowColor">
-<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a></code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseMultiVariate(java.util.Map)">chooseMultiVariate</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</code></th>
+<td class="colFirst"><code><a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;?&gt;&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#chooseMultivariate(java.util.Map)">chooseMultivariate</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i4" class="altColor">
@@ -203,23 +203,65 @@ extends java.lang.Object</pre>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i5" class="rowColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(java.lang.Object...)">first</a></span>&#8203;(java.lang.Object...&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decide(java.util.List)">decide</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i6" class="altColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(java.lang.Object...)">random</a></span>&#8203;(java.lang.Object...&nbsp;variants)</code></th>
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decide(java.util.List,boolean)">decide</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+      boolean&nbsp;ordered)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 <tr id="i7" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#decide(java.util.List,java.util.List)">decide</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+      java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i8" class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(java.util.List)">first</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i9" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#first(T...)">first</a></span>&#8203;(T...&nbsp;variants)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i10" class="altColor">
+<td class="colFirst"><code>java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#optimize(java.util.Map)">optimize</a></span>&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i11" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(java.util.List)">random</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i12" class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#random(T...)">random</a></span>&#8203;(T...&nbsp;variants)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i13" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;java.util.List&lt;T&gt;</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#rank(java.util.List)">rank</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i14" class="altColor">
 <td class="colFirst"><code>&lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;</code></td>
 <th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#score(java.util.List)">score</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
-<tr id="i8" class="altColor">
-<td class="colFirst"><code>java.lang.Object</code></td>
-<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#which(java.lang.Object...)">which</a></span>&#8203;(java.lang.Object...&nbsp;variants)</code></th>
+<tr id="i15" class="rowColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#which(T...)">which</a></span>&#8203;(T...&nbsp;variants)</code></th>
+<td class="colLast">&nbsp;</td>
+</tr>
+<tr id="i16" class="altColor">
+<td class="colFirst"><code>&lt;T&gt;&nbsp;T</code></td>
+<th class="colSecond" scope="row"><code><span class="memberNameLink"><a href="#whichFrom(java.util.List)">whichFrom</a></span>&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</code></th>
 <td class="colLast">&nbsp;</td>
 </tr>
 </table>
@@ -266,6 +308,114 @@ extends java.lang.Object</pre>
 <!--   -->
 </a>
 <h3>Method Detail</h3>
+<a id="score(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>score</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;score&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#score(java.util.List)"><code>DecisionModel.score(List)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="decide(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decide</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;decide&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#decide(java.util.List)"><code>DecisionModel.decide(List)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="decide(java.util.List,boolean)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decide</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;decide&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+                              boolean&nbsp;ordered)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#decide(java.util.List)"><code>DecisionModel.decide(List)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="decide(java.util.List,java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>decide</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;T&gt;&nbsp;decide&#8203;(java.util.List&lt;T&gt;&nbsp;variants,
+                              java.util.List&lt;java.lang.Double&gt;&nbsp;scores)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#decide(java.util.List,java.util.List)"><code>DecisionModel.decide(List, List)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="which(java.lang.Object[])">
+<!--   -->
+</a><a id="which(T...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>which</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;which&#8203;(T...&nbsp;variants)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#which(T...)"><code>DecisionModel.which(Object[])</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="whichFrom(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>whichFrom</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;whichFrom&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#which(T...)"><code>DecisionModel.which(Object[])</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="rank(java.util.List)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>rank</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;T&gt;&nbsp;rank&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#rank(java.util.List)"><code>DecisionModel.rank(List)</code></a></dd>
+</dl>
+</li>
+</ul>
+<a id="optimize(java.util.Map)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>optimize</h4>
+<pre class="methodSignature">public&nbsp;java.util.Map&lt;java.lang.String,&#8203;java.lang.Object&gt;&nbsp;optimize&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variantMap)</pre>
+<dl>
+<dt><span class="seeLabel">See Also:</span></dt>
+<dd><a href="DecisionModel.html#optimize(java.util.Map)"><code>DecisionModel.optimize(Map)</code></a></dd>
+</dl>
+</li>
+</ul>
 <a id="chooseFrom(java.util.List)">
 <!--   -->
 </a>
@@ -306,16 +456,27 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="first(java.lang.Object...)">
+<a id="first(java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>first</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;first&#8203;(java.lang.Object...&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
+</li>
+</ul>
+<a id="first(java.lang.Object[])">
+<!--   -->
+</a><a id="first(T...)">
+<!--   -->
+</a>
+<ul class="blockList">
+<li class="blockList">
+<h4>first</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;first&#8203;(T...&nbsp;variants)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="DecisionModel.html#first(java.lang.Object...)"><code>DecisionModel.first(Object...)</code></a></dd>
+<dd><a href="DecisionModel.html#first(T...)"><code>DecisionModel.first(Object...)</code></a></dd>
 </dl>
 </li>
 </ul>
@@ -332,55 +493,40 @@ extends java.lang.Object</pre>
 </dl>
 </li>
 </ul>
-<a id="random(java.lang.Object...)">
+<a id="random(java.lang.Object[])">
+<!--   -->
+</a><a id="random(T...)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
 <h4>random</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;random&#8203;(java.lang.Object...&nbsp;variants)</pre>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(T...&nbsp;variants)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="DecisionModel.html#random(java.lang.Object...)"><code>DecisionModel.random(Object...)</code></a></dd>
+<dd><a href="DecisionModel.html#random(T...)"><code>DecisionModel.random(Object...)</code></a></dd>
 </dl>
 </li>
 </ul>
-<a id="chooseMultiVariate(java.util.Map)">
+<a id="random(java.util.List)">
 <!--   -->
 </a>
 <ul class="blockList">
 <li class="blockList">
-<h4>chooseMultiVariate</h4>
-<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&nbsp;chooseMultiVariate&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="DecisionModel.html#chooseMultiVariate(java.util.Map)"><code>DecisionModel.chooseMultiVariate(Map)</code></a></dd>
-</dl>
+<h4>random</h4>
+<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;T&nbsp;random&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
 </li>
 </ul>
-<a id="score(java.util.List)">
-<!--   -->
-</a>
-<ul class="blockList">
-<li class="blockList">
-<h4>score</h4>
-<pre class="methodSignature">public&nbsp;&lt;T&gt;&nbsp;java.util.List&lt;java.lang.Double&gt;&nbsp;score&#8203;(java.util.List&lt;T&gt;&nbsp;variants)</pre>
-<dl>
-<dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="DecisionModel.html#score(java.util.List)"><code>DecisionModel.score(List)</code></a></dd>
-</dl>
-</li>
-</ul>
-<a id="which(java.lang.Object...)">
+<a id="chooseMultivariate(java.util.Map)">
 <!--   -->
 </a>
 <ul class="blockListLast">
 <li class="blockList">
-<h4>which</h4>
-<pre class="methodSignature">public&nbsp;java.lang.Object&nbsp;which&#8203;(java.lang.Object...&nbsp;variants)</pre>
+<h4>chooseMultivariate</h4>
+<pre class="methodSignature">public&nbsp;<a href="Decision.html" title="class in ai.improve">Decision</a>&lt;java.util.Map&lt;java.lang.String,&#8203;?&gt;&gt;&nbsp;chooseMultivariate&#8203;(java.util.Map&lt;java.lang.String,&#8203;?&gt;&nbsp;variants)</pre>
 <dl>
 <dt><span class="seeLabel">See Also:</span></dt>
-<dd><a href="DecisionModel.html#which(java.lang.Object...)"><code>DecisionModel.which(Object...)</code></a></dd>
+<dd><a href="DecisionModel.html#chooseMultivariate(java.util.Map)"><code>DecisionModel.chooseMultivariate(Map)</code></a></dd>
 </dl>
 </li>
 </ul>

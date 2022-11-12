@@ -11,7 +11,7 @@ import ai.improve.provider.PersistenceProvider;
 public class AndroidPersistenceProvider implements PersistenceProvider {
     private static final String Key_Last_Decision_Id = "ai.improve.last_decision-%s";
 
-    private Context context;
+    private final Context context;
 
     public AndroidPersistenceProvider(Context context) {
         this.context = context;
@@ -33,6 +33,6 @@ public class AndroidPersistenceProvider implements PersistenceProvider {
 
     @Override
     public void addRewardForModel(String modelName, double reward) {
-        AppGivensProviderUtils.addRewardForModel(modelName, reward);
+        AppGivensProviderUtils.addRewardForModel(context, modelName, reward);
     }
 }
