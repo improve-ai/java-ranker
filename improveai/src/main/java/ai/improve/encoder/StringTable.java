@@ -58,6 +58,11 @@ public class StringTable {
     }
 
 
+    /**
+     * Encodes string hash as a miss
+     * @param stringHash string hash to be encoded as a miss
+     * @return encoded miss value within miss width
+     */
     public double encodeMiss(long stringHash){
         return scale((stringHash & 0xFFFFFFFF) * Math.pow(2.0, -32.0), this.missWidth);
     }
@@ -128,4 +133,8 @@ public class StringTable {
     }
 
     public static native long  xxh3(byte[] data, long seed);
+
+    static {
+        System.loadLibrary("xxhash");
+    }
 }
