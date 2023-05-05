@@ -2,11 +2,15 @@ package ai.improve.xgbpredictor;
 
 import ai.improve.constants.BuildProperties;
 import biz.k11i.xgboost.util.ModelReader;
+
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,6 +23,14 @@ public class ModelMetadata {
 
     public static final String IMPROVE_VERSION_KEY = "ai.improve.version";
 
+    public static final String IMPROVE_SEED_KEY = "ai.improve.seed";
+
+    public static final String IMPROVE_MODEL_NAME_KEY = "ai.improve.model";
+
+    public static final String IMPROVE_FEAtURES_KEY = "ai.improve.features";
+
+    public static final String IMPROVE_STRING_TABLES_KEY = "ai.improve.string_tables";
+
     private Map<String, String> storage = new HashMap<>();
 
     private String modelName;
@@ -26,6 +38,8 @@ public class ModelMetadata {
     private long modelSeed;
 
     private List<String> modelFeatureNames;
+
+    private Map<String, List<Long>> stringTables;
 
     public ModelMetadata(ModelReader r) throws IOException {
         long num_attrs = r.readLong();
@@ -56,6 +70,10 @@ public class ModelMetadata {
         return modelFeatureNames;
     }
 
+    public Map<String, List<Long>> getStringTables() {
+        return stringTables;
+    }
+
     public String getValue(String key) {
         return storage.get(key);
     }
@@ -66,7 +84,7 @@ public class ModelMetadata {
 
     private void parseMetadata(String value) throws IOException {
         try {
-            JsonObject root = JsonParser.parseString(value).getAsJsonObject().getAsJsonObject("json");
+            JsonObject root = JsonParser.parseString(value).getAsJsonObject();
             if(root.has(IMPROVE_VERSION_KEY)) {
                 String modelVersion = root.get(IMPROVE_VERSION_KEY).getAsString();
                 if(!canParseModel(modelVersion, BuildProperties.getSDKVersion())) {
@@ -74,14 +92,17 @@ public class ModelMetadata {
                             "can't load the model of version("+ modelVersion + ").");
                 }
             }
-            modelName = root.get("model_name").getAsString();
-            modelSeed = root.get("model_seed").getAsLong();
+            modelName = root.get(IMPROVE_MODEL_NAME_KEY).getAsString();
+            modelSeed = root.get(IMPROVE_SEED_KEY).getAsLong();
 
-            JsonArray featuresArray = root.get("feature_names").getAsJsonArray();
+            JsonArray featuresArray = root.get(IMPROVE_FEAtURES_KEY).getAsJsonArray();
             modelFeatureNames = new ArrayList<>(featuresArray.size());
             for (int i = 0; i < featuresArray.size(); ++i) {
                 modelFeatureNames.add(featuresArray.get(i).getAsString());
             }
+
+            Type type = new TypeToken<Map<String, List<Long>>>(){}.getType();
+            stringTables = new Gson().fromJson(root.get(IMPROVE_STRING_TABLES_KEY), type);
         } catch (RuntimeException e) {
             throw new IOException("Failed to parse the model metadata. Looks like the model being loaded is invalid.");
         }

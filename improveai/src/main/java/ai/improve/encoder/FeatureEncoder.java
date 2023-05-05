@@ -113,7 +113,16 @@ public class FeatureEncoder {
         if (context != null) {
             encodeContext(context, into, noiseShiftAndScale[0], noiseShiftAndScale[1]);
         }
+    }
 
+    public List<FVec> encodeFeatureVectors(List<?> items, Object context, double noise) {
+        List<FVec> result = new ArrayList<>();
+        for(int i = 0; i < items.size(); ++i) {
+            double[] fvalues = new double[this.featureIndexes.size()];
+            encodeFeatureVector(items.get(i), context, fvalues, noise);
+            result.add(FVec.Transformer.fromArray(fvalues, false));
+        }
+        return result;
     }
 
     /**
