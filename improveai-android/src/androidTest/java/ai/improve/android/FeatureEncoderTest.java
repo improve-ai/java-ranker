@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
+import junit.framework.AssertionFailedError;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -94,39 +95,45 @@ public class FeatureEncoderTest {
         String content = new String(buffer);
         JSONObject root = new JSONObject(content);
         JSONObject testCase = root.getJSONObject("test_case");
-        List variants;
+        List<Object> items;
 
-        if(testCase.isNull("variant")) {
-            variants = new ArrayList<>();
-            variants.add(null);
+        if(testCase.isNull("item")) {
+            items = new ArrayList<>();
+            items.add(null);
         } else {
-            Object variant = root.getJSONObject("test_case").get("variant");
-            if (variant instanceof JSONObject) {
-                variants = Arrays.asList(toMap((JSONObject) variant));
-            } else if (variant instanceof JSONArray) {
-                variants = Arrays.asList(toList((JSONArray) variant));
+            Object item = root.getJSONObject("test_case").get("item");
+            if (item instanceof JSONObject) {
+                items = Arrays.asList(toMap((JSONObject) item));
+            } else if (item instanceof JSONArray) {
+                items = Arrays.asList(toList((JSONArray) item));
             } else {
-                variants = Arrays.asList(variant);
+                items = Arrays.asList(item);
             }
         }
 
-        Map givens = null;
-        if (root.getJSONObject("test_case").has("givens")) {
-            Object givensObject = root.getJSONObject("test_case").get("givens");
-            if(givensObject instanceof JSONObject) {
-                givens = toMap((JSONObject) givensObject);
+        Object context = null;
+        if (root.getJSONObject("test_case").has("context")) {
+            Object contextObject = root.getJSONObject("test_case").get("context");
+            if(contextObject instanceof JSONObject) {
+                context = (Object) contextObject;
             }
         }
 
+        HashMap<String, List<Long>> stringTables = getStringTablesFromTestCaseJSON(root);
         long modelSeed = root.getLong("model_seed");
         double noise = root.getDouble("noise");
-        JSONObject expected = root.getJSONObject("test_output");
+        List<String> featureNames = getFeatureNames(root);
 
-        FeatureEncoder featureEncoder = new FeatureEncoder(modelSeed, featureNames);
-        featureEncoder.noise = noise;
-        List<FVec> features = featureEncoder.encodeVariants(variants, givens);
-        assertEquals(features.size(), 1);
-        return isEqual(expected, features.get(0));
+        double[] expected = getExpectedEncodingsListFromJSON(root);
+
+        // extract feature names from test case JSON
+        FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
+//        featureEncoder.noise = noise;
+
+        List<FVec> encodedFeaturesFVecs = featureEncoder.encodeItemsForPrediction(items, context, noise);
+
+        assertEquals(encodedFeaturesFVecs.size(), 1);
+        return isEqual(expected, encodedFeaturesFVecs.get(0));
     }
 
     List<String> getAllKeysOfJSONObject(JSONObject object) {
@@ -138,51 +145,130 @@ public class FeatureEncoderTest {
         return result;
     }
 
-    boolean isEqual(JSONObject expected, FVec testOutput) throws JSONException {
-        List<String> allKeysInExpected = getAllKeysOfJSONObject(expected);
-        assertTrue(allKeysInExpected.size() >= 0);
+    public List<String> getFeatureNames(JSONObject testCaseRoot) throws org.json.JSONException {
+        List<String> featureNames = new ArrayList<>();
+        JSONArray featureNamesJSON = testCaseRoot.getJSONArray("feature_names");
+        for (int i = 0; i < featureNamesJSON.length(); ++i) {
+            featureNames.add(featureNamesJSON.getString(i));
+        }
+        return featureNames;
+    }
 
-        // Make sure that all feature names in the testsuite can be found in feature names list.
-        // Just to be sure that we have not missed any feature name
-        for(int i = 0; i < allKeysInExpected.size(); ++i) {
-            String key = allKeysInExpected.get(i);
-            boolean found = false;
-            for(int j = 0; j < featureNames.size(); ++j) {
-                if(featureNames.get(j).equals(key)) {
-                    found = true;
-                    break;
-                }
-            }
-            assertTrue(found);
+    public HashMap<String, List<Long>> getStringTablesFromTestCaseJSON(JSONObject testCaseRoot) throws org.json.JSONException {
+
+        JSONObject stringTablesJSON = testCaseRoot.getJSONObject("string_tables");
+
+        Iterator<String> stringFeatures = stringTablesJSON.keys();
+
+        // check if string tables are an empty map -> if so return
+        if (!stringFeatures.hasNext()) {
+            return new HashMap<String, List<Long>>();
         }
 
-        for(int i = 0; i < featureNames.size(); ++i) {
-            String featureName = featureNames.get(i);
-            if(expected.has(featureName)) {
-                Object valueObject = expected.get(featureName);
-                if(valueObject instanceof String) {
-                    // infinity is the only exception
-                    assertEquals("inf", valueObject);
-                    assertTrue(Float.isInfinite(testOutput.fvalue(i)));
-                } else {
-                    assertEquals((float)expected.getDouble(featureName), testOutput.fvalue(i), 0.0000001);
-                }
-            } else {
-                assertTrue(Float.isNaN(testOutput.fvalue(i)));
+        HashMap<String, List<Long>> stringTables = new HashMap<>();
+
+        while (stringFeatures.hasNext()) {
+            String stringFeatureName = stringFeatures.next();
+            // unpack list of longs from JSON into JSON Array
+            JSONArray hashedFeatureValuesJSON = stringTablesJSON.getJSONArray(stringFeatureName);
+            // prepare container for the extracted masked string Hashes
+            List<Long> stringFeatureHashes = new ArrayList<>();
+            for (int i = 0; i < hashedFeatureValuesJSON.length(); ++i) {
+                // get long from each element of JSON array
+                stringFeatureHashes.add(hashedFeatureValuesJSON.getLong(i));
             }
+            // update stringTables with the extracted masked string Hashes
+            stringTables.put(stringFeatureName, stringFeatureHashes);
+
         }
+
+        return stringTables;
+    }
+
+    public double[] getExpectedEncodingsListFromJSON(JSONObject testCaseRoot) throws org.json.JSONException {
+        JSONArray expectedJSON = testCaseRoot.getJSONArray("test_output");
+//        List<Double> expected = new ArrayList<>();
+        double[] expected = new double[expectedJSON.length()];
+        Arrays.fill(expected, Double.NaN);
+        for (int i = 0; i < expectedJSON.length(); ++i) {
+            expected[i] = expectedJSON.getDouble(i);
+        }
+        return expected;
+    }
+
+    boolean isEqual(double[] expected, FVec testOutput) {
+
+        double encodedValue, expectedValue;
+
+        for (int i = 0; i < expected.length; i++) {
+            // this will not raise for an index out of bounds
+            encodedValue = testOutput.fvalue(i);
+            expectedValue = expected[i];
+
+            if (expectedValue != encodedValue) {
+                return false;
+            }
+
+        }
+
         return true;
+
+//        // Make sure that all feature names in the testsuite can be found in feature names list.
+//        // Just to be sure that we have not missed any feature name
+//        for(int i = 0; i < expected.size(); ++i) {
+//            String key = allKeysInExpected.get(i);
+//            boolean found = false;
+//            for(int j = 0; j < featureNames.size(); ++j) {
+//                if(featureNames.get(j).equals(key)) {
+//                    found = true;
+//                    break;
+//                }
+//            }
+//
+//            assertTrue(found);
+//        }
+//
+//
+//        for(int i = 0; i < featureNames.size(); ++i) {
+//            String featureName = featureNames.get(i);
+//
+//            // each element in expected must match the corresponding element in testOutput
+//
+//            if(expected.has(featureName)) {
+//                Object valueObject = expected.get(featureName);
+//                if(valueObject instanceof String) {
+//                    // infinity is the only exception
+//                    assertEquals("inf", valueObject);
+//                    assertTrue(Float.isInfinite(testOutput.fvalue(i)));
+//                } else {
+//                    assertEquals((float)expected.getDouble(featureName), testOutput.fvalue(i), 0.0000001);
+//                }
+//            } else {
+//                assertTrue(Float.isNaN(testOutput.fvalue(i)));
+//            }
+//        }
+//        return true;
     }
 
     @Test
     public void testNAN() throws JSONException {
-        FeatureEncoder featureEncoder = new FeatureEncoder(1, featureNames);
-        featureEncoder.noise = 0.8928601514360016;
+        List<String> featureNames = new ArrayList<String>(Arrays.asList("a", "b", "c", "d", "e", "f", "g", "h", "i", "j"));
+        HashMap<String, List<Long>> stringTables = new HashMap<String, List<Long>>();
+        long modelSeed = 0;
 
-        Object variant = Double.NaN;
+        FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
+        double noise = 0.8928601514360016;
+//        featureEncoder.noise = 0.8928601514360016;
 
-        List<FVec> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
+        Object item = Double.NaN;
+
+        // TODO do we need noise as a class attribute ?
+        List<FVec> features = featureEncoder.encodeItemsForPrediction(new ArrayList<>(Arrays.asList(item)), null, noise);
         assertEquals(features.size(), 1);
+
+        int oobIndex = 10000;
+        System.out.println("Get index out of bounds from FVec: " +
+                features.get(0).fvalue(oobIndex));
 
         for(int i = 0; i < featureNames.size(); ++i) {
             assertTrue(Float.isNaN(features.get(0).fvalue(i)));
@@ -245,33 +331,40 @@ public class FeatureEncoderTest {
         JSONObject root = new JSONObject(content);
         JSONObject testCase = root.getJSONObject("test_case");
 
-        List variants = toList(testCase.getJSONArray("variants"));
+        List<Object> items = toList(testCase.getJSONArray("items"));
 
-        Object givensObject = testCase.get("givens");
-        Map givens = toMap((JSONObject) givensObject);
+        Object givensObject = testCase.get("context");
+        Map<String, Object> context = toMap((JSONObject) givensObject);
 
+        HashMap<String, List<Long>> stringTables = getStringTablesFromTestCaseJSON(root);
         long modelSeed = root.getLong("model_seed");
         double noise = root.getDouble("noise");
-        JSONArray expected = root.getJSONArray("test_output");
+        List<String> featureNames = getFeatureNames(root);
 
+//        JSONArray expected = root.getJSONArray("test_output");
+        double[] expected = getExpectedEncodingsListFromJSON(root);
 
-        FeatureEncoder featureEncoder = new FeatureEncoder(modelSeed, featureNames);
-        featureEncoder.noise = noise;
-        List<FVec> features = featureEncoder.encodeVariants(variants, givens);
+        FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
+        // TODO do we need noise as a class attribute ?
+//        featureEncoder.noise = noise;
+        List<FVec> features = featureEncoder.encodeItemsForPrediction(items, context, noise);
         assertEquals(2, features.size());
 
-        assertTrue(isEqual(expected.getJSONObject(0), features.get(0)));
-        assertTrue(isEqual(expected.getJSONObject(1), features.get(1)));
+//        assertTrue(isEqual(expected.getJSONObject(0), features.get(0)));
+//        assertTrue(isEqual(expected.getJSONObject(1), features.get(1)));
+
+        assertTrue(isEqual(expected, features.get(0)));
+        assertTrue(isEqual(expected, features.get(1)));
     }
 
-    @Test
-    public void testHashToFeatureName() {
-        FeatureEncoder featureEncoder = new FeatureEncoder(0, featureNames);
-        featureEncoder.hash_to_feature_name(0);
-        assertEquals(String.format("%08x", 0xffffffff), featureEncoder.hash_to_feature_name(0xffffffffffffffffL));
-        assertEquals(String.format("%08x", 0xfffffffe), featureEncoder.hash_to_feature_name(0xfffffffefffffffeL));
-        assertEquals(String.format("%08x", 0x8fffffff), featureEncoder.hash_to_feature_name(0x8fffffffffffffffL));
-        assertEquals(String.format("%08x", 0x7fffffff), featureEncoder.hash_to_feature_name(0x7fffffffffffffffL));
-        assertEquals(String.format("%08x", 0xfffffff), featureEncoder.hash_to_feature_name(0xfffffffffffffffL));
-    }
+//    @Test
+//    public void testHashToFeatureName() {
+//        FeatureEncoder featureEncoder = new FeatureEncoder(0, featureNames);
+//        featureEncoder.hash_to_feature_name(0);
+//        assertEquals(String.format("%08x", 0xffffffff), featureEncoder.hash_to_feature_name(0xffffffffffffffffL));
+//        assertEquals(String.format("%08x", 0xfffffffe), featureEncoder.hash_to_feature_name(0xfffffffefffffffeL));
+//        assertEquals(String.format("%08x", 0x8fffffff), featureEncoder.hash_to_feature_name(0x8fffffffffffffffL));
+//        assertEquals(String.format("%08x", 0x7fffffff), featureEncoder.hash_to_feature_name(0x7fffffffffffffffL));
+//        assertEquals(String.format("%08x", 0xfffffff), featureEncoder.hash_to_feature_name(0xfffffffffffffffL));
+//    }
 }

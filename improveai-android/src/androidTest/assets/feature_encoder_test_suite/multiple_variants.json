@@ -1,6 +1,6 @@
 {
     "test_case": {
-        "givens": {
+        "context": {
             "pkqz": "a",
             "blnz": "a",
             "pbmo": "a",
@@ -19,7 +19,7 @@
             "xifg": "a",
             "kkdv": "a"
         },
-        "variants": [{
+        "items": [{
             "198x": "a",
             "1zal": "a",
             "c1os": "a",

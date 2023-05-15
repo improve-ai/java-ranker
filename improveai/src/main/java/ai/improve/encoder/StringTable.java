@@ -2,8 +2,8 @@ package ai.improve.encoder;
 
 import java.util.List;
 import java.util.HashMap;
-
 import java.util.Collections;
+import com.sun.source.tree.BreakTree;
 
 
 public class StringTable {
@@ -17,7 +17,7 @@ public class StringTable {
     /**
      * 32 bit int mask used for string encoding, e.g. 000...11
      */
-    public int mask;
+    public long mask;
 
 
     /**
@@ -31,8 +31,10 @@ public class StringTable {
      */
     public HashMap<Long, Double> valueTable;
 
+    private static final String Tag = "StringTable";
 
-    public StringTable(List<Long> jsonStringTable, int modelSeed){
+
+    public StringTable(List<Long> jsonStringTable, long modelSeed){
         // init modelSeed param
         this.modelSeed = modelSeed;
         // set mask for xxhash string encoding
@@ -75,7 +77,7 @@ public class StringTable {
      */
     public double encode(String string){
         // compute xxhash3 for input string
-        long stringHash = xxh3(string.getBytes(), this.modelSeed);
+        long stringHash = xxhash3(string.getBytes(), this.modelSeed);
 
         // compute mask hash because it will be used twice
         long maskedHashedString = stringHash & this.mask;
@@ -104,7 +106,7 @@ public class StringTable {
      * @param stringTable a list of integers representing string encoding for a given string feature
      * @return uint32 mask used for string encoding
      */
-    public static int getMask(List<Long> stringTable){
+    public static long getMask(List<Long> stringTable){
         if (stringTable.size() == 0) {
             return 0;
         }
@@ -114,7 +116,7 @@ public class StringTable {
             return 0;
         }
 
-        return (1 << (int) (StringTable.log2(maxValue) + 1)) - 1;
+        return ((long) 1 << (long) ((StringTable.log2(maxValue) + 1.0)) - 1);
     }
 
 
@@ -132,7 +134,7 @@ public class StringTable {
 
     }
 
-    public static native long  xxh3(byte[] data, long seed);
+    public static native long xxhash3(byte[] data, long seed);
 
     static {
         System.loadLibrary("xxhash");

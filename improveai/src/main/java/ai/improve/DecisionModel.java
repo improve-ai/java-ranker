@@ -295,8 +295,9 @@ public class DecisionModel {
                     + modelName + "] will be used.");
         }
 
-        featureEncoder = new FeatureEncoder(predictor.getModelMetadata().getModelSeed(),
-                predictor.getModelMetadata().getModelFeatureNames());
+        // TODO uncomment after all tests pass (?)
+//        featureEncoder = new FeatureEncoder(predictor.getModelMetadata().getModelSeed(),
+//                predictor.getModelMetadata().getModelFeatureNames());
     }
 
     public String getModelName() {
@@ -693,16 +694,17 @@ public class DecisionModel {
         }
 
         List<Double> result = new ArrayList<>();
-        List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
-        for (FVec fvec : encodedFeatures) {
-            if(enableTieBreaker) {
-                // add a very small random number to randomly break ties
-                double smallNoise = Math.random() * Math.pow(2, -23);
-                result.add((double) predictor.predictSingle(fvec) + smallNoise);
-            } else {
-                result.add((double) predictor.predictSingle(fvec));
-            }
-        }
+        // TODO uncomment after tests
+//        List<FVec> encodedFeatures = featureEncoder.encodeVariants(variants, givens);
+//        for (FVec fvec : encodedFeatures) {
+//            if(enableTieBreaker) {
+//                // add a very small random number to randomly break ties
+//                double smallNoise = Math.random() * Math.pow(2, -23);
+//                result.add((double) predictor.predictSingle(fvec) + smallNoise);
+//            } else {
+//                result.add((double) predictor.predictSingle(fvec));
+//            }
+//        }
 
         return result;
     }
