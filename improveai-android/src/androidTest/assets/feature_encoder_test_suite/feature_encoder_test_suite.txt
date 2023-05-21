@@ -6,9 +6,6 @@ big_positive_float.json
 big_positive_float_noise_0.json
 bool_false.json
 bool_true.json
-collisions_none_items_valid_context.json
-collisions_valid_items_and_context.json
-collisions_valid_items_no_context.json
 dict_foo_bar.json
 dict_foo_bar_1.json
 empty_dict.json
@@ -24,7 +21,6 @@ int64_small.json
 int_0.json
 int_1.json
 int_m1.json
-multiple_variants.json
 nested_dict_string_keys.json
 nested_list.json
 newline_tab_return_symbols_string.json

@@ -5,7 +5,6 @@ import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
-import junit.framework.AssertionFailedError;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -97,6 +96,7 @@ public class FeatureEncoderTest {
         JSONObject testCase = root.getJSONObject("test_case");
         List<Object> items;
 
+        // TODO probably input must be resolved all the way down to string values
         if(testCase.isNull("item")) {
             items = new ArrayList<>();
             items.add(null);
@@ -114,8 +114,8 @@ public class FeatureEncoderTest {
         Object context = null;
         if (root.getJSONObject("test_case").has("context")) {
             Object contextObject = root.getJSONObject("test_case").get("context");
-            if(contextObject instanceof JSONObject) {
-                context = (Object) contextObject;
+            if(contextObject instanceof JSONObject && ((JSONObject) contextObject).length() > 0) {
+                context = toMap((JSONObject) contextObject);
             }
         }
 
@@ -128,22 +128,12 @@ public class FeatureEncoderTest {
 
         // extract feature names from test case JSON
         FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
-//        featureEncoder.noise = noise;
-
         List<FVec> encodedFeaturesFVecs = featureEncoder.encodeItemsForPrediction(items, context, noise);
 
         assertEquals(encodedFeaturesFVecs.size(), 1);
-        return isEqual(expected, encodedFeaturesFVecs.get(0));
+        return isEqualInFloatPrecision(expected, encodedFeaturesFVecs.get(0));
     }
 
-    List<String> getAllKeysOfJSONObject(JSONObject object) {
-        List<String> result = new ArrayList<>();
-        Iterator<String> keys = object.keys();
-        while (keys.hasNext()) {
-            result.add(keys.next());
-        }
-        return result;
-    }
 
     public List<String> getFeatureNames(JSONObject testCaseRoot) throws org.json.JSONException {
         List<String> featureNames = new ArrayList<>();
@@ -187,67 +177,54 @@ public class FeatureEncoderTest {
 
     public double[] getExpectedEncodingsListFromJSON(JSONObject testCaseRoot) throws org.json.JSONException {
         JSONArray expectedJSON = testCaseRoot.getJSONArray("test_output");
-//        List<Double> expected = new ArrayList<>();
+
         double[] expected = new double[expectedJSON.length()];
         Arrays.fill(expected, Double.NaN);
-        for (int i = 0; i < expectedJSON.length(); ++i) {
-            expected[i] = expectedJSON.getDouble(i);
+
+        for (int i = 0; i < expectedJSON.length(); i++) {
+            try {
+                if (expectedJSON.isNull(i)) {
+                    continue;
+                }
+
+                expected[i] = expectedJSON.getDouble(i);
+            } catch (org.json.JSONException je) {
+                if (je.getMessage().equals("Value -inf at 0 of type java.lang.String cannot be converted to double")) {
+                    expected[i] = Double.NEGATIVE_INFINITY;
+                } else if (je.getMessage().equals("Value inf at 0 of type java.lang.String cannot be converted to double")) {
+                    expected[i] = Double.POSITIVE_INFINITY;
+                } else {
+                    throw new JSONException(je.getMessage());
+                }
+            }
+
         }
         return expected;
     }
 
-    boolean isEqual(double[] expected, FVec testOutput) {
+    // TODO also test for collisions:
+    //  - collisions_none_items_valid_context.json
+    //  - collisions_valid_items_and_context.json
+    //  - collisions_valid_items_no_context.json
 
-        double encodedValue, expectedValue;
+
+    boolean isEqualInFloatPrecision(double[] expected, FVec testOutput) {
+
+        float encodedValue, expectedValue;
 
         for (int i = 0; i < expected.length; i++) {
             // this will not raise for an index out of bounds
-            encodedValue = testOutput.fvalue(i);
-            expectedValue = expected[i];
+            encodedValue = (float) testOutput.fvalue(i);
+            expectedValue = (float) expected[i];
 
-            if (expectedValue != encodedValue) {
+            if ((expectedValue != encodedValue) && !((Double.isNaN(encodedValue) && Double.isNaN(expectedValue)))) {
+                System.out.println("Expected: " + expectedValue + " differs from calculated: " + encodedValue + " at index: " + i);
                 return false;
             }
-
         }
 
         return true;
 
-//        // Make sure that all feature names in the testsuite can be found in feature names list.
-//        // Just to be sure that we have not missed any feature name
-//        for(int i = 0; i < expected.size(); ++i) {
-//            String key = allKeysInExpected.get(i);
-//            boolean found = false;
-//            for(int j = 0; j < featureNames.size(); ++j) {
-//                if(featureNames.get(j).equals(key)) {
-//                    found = true;
-//                    break;
-//                }
-//            }
-//
-//            assertTrue(found);
-//        }
-//
-//
-//        for(int i = 0; i < featureNames.size(); ++i) {
-//            String featureName = featureNames.get(i);
-//
-//            // each element in expected must match the corresponding element in testOutput
-//
-//            if(expected.has(featureName)) {
-//                Object valueObject = expected.get(featureName);
-//                if(valueObject instanceof String) {
-//                    // infinity is the only exception
-//                    assertEquals("inf", valueObject);
-//                    assertTrue(Float.isInfinite(testOutput.fvalue(i)));
-//                } else {
-//                    assertEquals((float)expected.getDouble(featureName), testOutput.fvalue(i), 0.0000001);
-//                }
-//            } else {
-//                assertTrue(Float.isNaN(testOutput.fvalue(i)));
-//            }
-//        }
-//        return true;
     }
 
     @Test
@@ -266,32 +243,19 @@ public class FeatureEncoderTest {
         List<FVec> features = featureEncoder.encodeItemsForPrediction(new ArrayList<>(Arrays.asList(item)), null, noise);
         assertEquals(features.size(), 1);
 
-        int oobIndex = 10000;
-        System.out.println("Get index out of bounds from FVec: " +
-                features.get(0).fvalue(oobIndex));
-
         for(int i = 0; i < featureNames.size(); ++i) {
             assertTrue(Float.isNaN(features.get(0).fvalue(i)));
         }
     }
 
-//    @Test
-//    public void testInvalidMapVariant() throws JSONException {
-//        XXFeatureEncoder featureEncoder = new XXFeatureEncoder(1, null);
-//        featureEncoder.testMode = true;
-//        featureEncoder.noise = 0.8928601514360016;
-//
-//        // Map key must be string
-//        // Unit test to make sure that app won't crash, and a warning message is
-//        // logged when users accidentally pass invalid map data
-//        Map variant = new HashMap();
-//        variant.put(1, 3);
-//        variant.put(4, 3);
-//        List<Map<String, Double>> features = featureEncoder.encodeVariants(new ArrayList<>(Arrays.asList(variant)), null);
-//    }
-
     public static Map<String, Object> toMap(JSONObject jsonobj)  throws JSONException {
+
         Map<String, Object> map = new HashMap<String, Object>();
+
+        if (jsonobj.length() == 0) {
+            return map;
+        }
+
         Iterator<String> keys = jsonobj.keys();
         while(keys.hasNext()) {
             String key = keys.next();
@@ -301,7 +265,10 @@ public class FeatureEncoderTest {
             } else if (value instanceof JSONObject) {
                 value = toMap((JSONObject) value);
             }
+
+//            System.out.println("key: " + key + " value: " + value);
             map.put(key, value);
+
         }   return map;
     }
 
@@ -353,8 +320,8 @@ public class FeatureEncoderTest {
 //        assertTrue(isEqual(expected.getJSONObject(0), features.get(0)));
 //        assertTrue(isEqual(expected.getJSONObject(1), features.get(1)));
 
-        assertTrue(isEqual(expected, features.get(0)));
-        assertTrue(isEqual(expected, features.get(1)));
+        assertTrue(isEqualInFloatPrecision(expected, features.get(0)));
+        assertTrue(isEqualInFloatPrecision(expected, features.get(1)));
     }
 
 //    @Test

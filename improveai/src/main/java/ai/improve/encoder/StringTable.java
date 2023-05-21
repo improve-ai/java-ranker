@@ -3,7 +3,6 @@ package ai.improve.encoder;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Collections;
-import com.sun.source.tree.BreakTree;
 
 
 public class StringTable {
@@ -36,9 +35,16 @@ public class StringTable {
 
     public StringTable(List<Long> jsonStringTable, long modelSeed){
         // init modelSeed param
+        // make sure that input modelSeed is a valid result of pythonic random.getrandbits(32)
+        if (modelSeed < 0) {
+            throw new IllegalArgumentException("Provided modelSeed must be greater than 0 ");
+        }
         this.modelSeed = modelSeed;
+
         // set mask for xxhash string encoding
         this.mask = getMask(jsonStringTable);
+
+        // get max position in string table
         int maxPosition = jsonStringTable.size() - 1;
 
         // empty and single entry tables will have a miss_width of 1 or range [-0.5, 0.5]
@@ -54,7 +60,7 @@ public class StringTable {
         for (int i = 0; i < reversedStringTable.size(); i++) {
             this.valueTable.put(
                     reversedStringTable.get(i),
-                    (maxPosition == 0.0) ? 1.0 : StringTable.scale( (double) i / (double) maxPosition, this.missWidth));
+                    (maxPosition == 0.0) ? 1.0 : StringTable.scale( (double) i / (double) maxPosition));
         }
 
     }
@@ -66,7 +72,7 @@ public class StringTable {
      * @return encoded miss value within miss width
      */
     public double encodeMiss(long stringHash){
-        return scale((stringHash & 0xFFFFFFFF) * Math.pow(2.0, -32.0), this.missWidth);
+        return scale((double) (stringHash & 0xFFFFFFFFL) * Math.pow(2.0, -32.0), this.missWidth);
     }
 
 
@@ -101,6 +107,7 @@ public class StringTable {
     }
 
 
+    // TODO test getMask()
     /**
      * helper method to calculate log2
      * @param stringTable a list of integers representing string encoding for a given string feature
@@ -116,9 +123,18 @@ public class StringTable {
             return 0;
         }
 
-        return ((long) 1 << (long) ((StringTable.log2(maxValue) + 1.0)) - 1);
+        return ((long) 1 << (long) ((StringTable.log2(maxValue) + 1.0))) - 1;
     }
 
+
+    /**
+     * Scales input miss value to [-1, 1] (miss width defaults to 2.0). Assumes input is within [0, 1] range.
+     * @param val value to scale into [-1, 1] range
+     * @return scaled value
+     */
+    public static double scale(double val){
+        return StringTable.scale(val, 2.0);
+    }
 
     /**
      * Scales input miss value to [-width/2, width/2]. Assumes input is within [0, 1] range.
