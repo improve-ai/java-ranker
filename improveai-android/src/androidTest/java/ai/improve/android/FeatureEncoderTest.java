@@ -218,6 +218,31 @@ public class FeatureEncoderTest {
         return expected;
     }
 
+    public double[][] getExpectedEncodingsMatrixFromJSON(JSONObject testCaseRoot, int featureNamesCount) throws org.json.JSONException {
+        JSONArray expectedJSON = testCaseRoot.getJSONArray("test_output");
+
+        double[][] expected = new double[expectedJSON.length()][featureNamesCount];
+        for (int i = 0; i < expectedJSON.length(); i++) {
+            Arrays.fill(expected[i], Double.NaN);
+        }
+
+        // fill expected f=with values from JSON
+
+        for(int i = 0; i < expectedJSON.length(); i++){
+            for(int j = 0; j < featureNamesCount; j++){
+
+                if (expectedJSON.getJSONArray(i).isNull(j)) {
+                    continue;
+                }
+
+                expected[i][j] = expectedJSON.getJSONArray(i).getDouble(j);
+            }
+        }
+
+        return expected;
+
+    }
+
 
     public boolean verifyCollision(String filename) throws Exception {
         Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
@@ -377,7 +402,7 @@ public class FeatureEncoderTest {
         JSONObject root = new JSONObject(content);
         JSONObject testCase = root.getJSONObject("test_case");
 
-        List<Object> items = toList(testCase.getJSONArray("items"));
+        List<Object> items = toList(testCase.getJSONArray("candidates"));
 
         Object givensObject = testCase.get("context");
         Map<String, Object> context = toMap((JSONObject) givensObject);
@@ -387,15 +412,17 @@ public class FeatureEncoderTest {
         double noise = root.getDouble("noise");
         List<String> featureNames = getFeatureNames(root);
 
-        double[] expected = getExpectedEncodingsListFromJSON(root);
+        double[][] expected = getExpectedEncodingsMatrixFromJSON(root, featureNames.size());
 
         FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
 
         List<FVec> features = featureEncoder.encodeItemsForPrediction(items, context, noise);
-        assertEquals(2, features.size());
 
-        assertTrue(isEqualInFloatPrecision(expected, features.get(0)));
-        assertTrue(isEqualInFloatPrecision(expected, features.get(1)));
+
+        for (int i = 0; i < features.size(); i++) {
+            assertTrue(isEqualInFloatPrecision(expected[i], features.get(i)));
+        }
+
     }
 
 }
