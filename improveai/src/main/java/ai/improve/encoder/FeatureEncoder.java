@@ -23,16 +23,32 @@ public class FeatureEncoder {
      */
     public static final String CONTEXT_FEATURE_KEY = "context";
 
+    /**
+     * A mapping containing feature name -> feature index pairs
+     */
     public HashMap<String, Integer> featureIndexes;
 
+    /**
+     * A list of StringTable objects for each feature
+     */
     private List<StringTable> internalStringTables;
 
+    /**
+     * A StringTable used to initialize internalStringTables
+     */
     private StringTable sharedStringTable;
 
     private static final String Tag = "FeatureEncoder";
 
+    // TODO perhaps this is no longer needed?
     public double noise;
 
+    /**
+     * Creates a new FeatureEncoder instance
+     * @param featureNames a list of feature names
+     * @param stringTables a map of <string feature name> : <list of target - value hashes for string feature>
+     * @param model_seed a non-negative 32 bit int used for xxhash3
+     */
     public FeatureEncoder(List<String> featureNames, Map<String, List<Long>> stringTables, long model_seed){
         this.featureIndexes = new HashMap<>();
 

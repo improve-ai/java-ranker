@@ -82,6 +82,22 @@ public class FeatureEncoderTest {
             IMPLog.d(Tag, i + ", verify case " + allTestCases[i]);
             assertTrue(verify(rootDir + allTestCases[i]));
         }
+        // TODO also test for collisions:
+        //  - collisions_none_items_valid_context.json
+        //  - collisions_valid_items_and_context.json
+        //  - collisions_valid_items_no_context.json
+        String[] collisionTestCases = new String[]{
+                "collisions_none_items_valid_context.json",
+                "collisions_valid_items_and_context.json",
+                "collisions_valid_items_no_context.json"};
+        int k = 0;
+        for (String collisionTestCaseFileName : collisionTestCases) {
+            IMPLog.d(Tag, k + ", collision test case: " + collisionTestCaseFileName);
+            assertTrue(verifyCollision(rootDir + collisionTestCaseFileName));
+            k++;
+        }
+
+
     }
 
     private boolean verify(String filename) throws Exception {
@@ -202,10 +218,74 @@ public class FeatureEncoderTest {
         return expected;
     }
 
-    // TODO also test for collisions:
-    //  - collisions_none_items_valid_context.json
-    //  - collisions_valid_items_and_context.json
-    //  - collisions_valid_items_no_context.json
+
+    public boolean verifyCollision(String filename) throws Exception {
+        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        InputStream inputStream = appContext.getAssets().open(filename);
+        byte[] buffer = new byte[inputStream.available()];
+        inputStream.read(buffer);
+        inputStream.close();
+
+        String content = new String(buffer);
+        JSONObject root = new JSONObject(content);
+        JSONObject testCase = root.getJSONObject("test_case");
+        List<Object> allItems = toList(testCase.getJSONArray("items"));
+        List<Object> contexts = new ArrayList<>(allItems.size());
+        if (testCase.has("contexts")) {
+            contexts = toList(testCase.getJSONArray("contexts"));
+        }
+
+        List<String> featureNames = getFeatureNames(root);
+        HashMap<String, List<Long>> stringTables = getStringTablesFromTestCaseJSON(root);
+        long modelSeed = root.getLong("model_seed");
+
+        // initialize FeatureEncoder
+        FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
+
+        // unpack expected output in a per record fashion
+        JSONArray expectedArraysJSONs = root.getJSONArray("test_output");
+
+        Object testedContext = null;
+        double noise = root.getDouble("noise");
+
+        double[] currentlyEncodedFeatures = new double[featureNames.size()];
+        boolean expectedEqualsCalculated = false;
+
+        for (int i = 0; i < allItems.size(); i++) {
+
+            // fill into array with NaNs to begin with
+            Arrays.fill(currentlyEncodedFeatures, Double.NaN);
+            // encode item with corresponding context
+            if (contexts.size() > 0) {
+                testedContext = contexts.get(i);
+            }
+            featureEncoder.encodeFeatureVector(allItems.get(i), testedContext, currentlyEncodedFeatures, noise);
+
+            JSONArray expectedList = expectedArraysJSONs.getJSONArray(i);
+            double[] expected = new double[featureNames.size()];
+            Arrays.fill(expected, Double.NaN);
+
+            for (int j = 0; j < expectedList.length(); j++) {
+
+                if (expectedList.get(j).equals(null)) {
+                    continue;
+                }
+                expected[j] = expectedList.getDouble(j);
+
+            }
+
+            expectedEqualsCalculated = isEqualInFloatPrecision(
+                    expected, FVec.Transformer.fromArray(currentlyEncodedFeatures, false));
+            if (!expectedEqualsCalculated) {
+                return false;
+            }
+
+        }
+
+
+        return true;
+    }
+
 
 
     boolean isEqualInFloatPrecision(double[] expected, FVec testOutput) {
@@ -266,7 +346,6 @@ public class FeatureEncoderTest {
                 value = toMap((JSONObject) value);
             }
 
-//            System.out.println("key: " + key + " value: " + value);
             map.put(key, value);
 
         }   return map;
@@ -308,30 +387,15 @@ public class FeatureEncoderTest {
         double noise = root.getDouble("noise");
         List<String> featureNames = getFeatureNames(root);
 
-//        JSONArray expected = root.getJSONArray("test_output");
         double[] expected = getExpectedEncodingsListFromJSON(root);
 
         FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
-        // TODO do we need noise as a class attribute ?
-//        featureEncoder.noise = noise;
+
         List<FVec> features = featureEncoder.encodeItemsForPrediction(items, context, noise);
         assertEquals(2, features.size());
-
-//        assertTrue(isEqual(expected.getJSONObject(0), features.get(0)));
-//        assertTrue(isEqual(expected.getJSONObject(1), features.get(1)));
 
         assertTrue(isEqualInFloatPrecision(expected, features.get(0)));
         assertTrue(isEqualInFloatPrecision(expected, features.get(1)));
     }
 
-//    @Test
-//    public void testHashToFeatureName() {
-//        FeatureEncoder featureEncoder = new FeatureEncoder(0, featureNames);
-//        featureEncoder.hash_to_feature_name(0);
-//        assertEquals(String.format("%08x", 0xffffffff), featureEncoder.hash_to_feature_name(0xffffffffffffffffL));
-//        assertEquals(String.format("%08x", 0xfffffffe), featureEncoder.hash_to_feature_name(0xfffffffefffffffeL));
-//        assertEquals(String.format("%08x", 0x8fffffff), featureEncoder.hash_to_feature_name(0x8fffffffffffffffL));
-//        assertEquals(String.format("%08x", 0x7fffffff), featureEncoder.hash_to_feature_name(0x7fffffffffffffffL));
-//        assertEquals(String.format("%08x", 0xfffffff), featureEncoder.hash_to_feature_name(0xfffffffffffffffL));
-//    }
 }
