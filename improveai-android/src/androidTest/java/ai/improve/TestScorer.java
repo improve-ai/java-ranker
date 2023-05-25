@@ -6,6 +6,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.List;
 
@@ -25,14 +26,14 @@ public class TestScorer {
 
     @Test
     public void testScore() throws IOException, InterruptedException {
-        Scorer scorer = new Scorer(ModelUrl);
+        Scorer scorer = new Scorer(new URL(ModelUrl));
         List scores = scorer.score(Arrays.asList(0, 1, 2));
         IMPLog.d(Tag, "scores: " + scores);
     }
 
     @Test
     public void testLoad_v8_model() throws IOException, InterruptedException {
-        Scorer scorer = new Scorer(DummyV8ModelUrl);
+        Scorer scorer = new Scorer(new URL(DummyV8ModelUrl));
         List scores = scorer.score(Arrays.asList(0, 1, 2));
         IMPLog.d(Tag, "scores: " + scores);
     }

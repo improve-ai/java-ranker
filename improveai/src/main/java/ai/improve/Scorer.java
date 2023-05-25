@@ -21,13 +21,6 @@ public class Scorer {
 
     private FeatureEncoder featureEncoder;
 
-    public Scorer(String modelUrl) throws IOException, InterruptedException {
-        loadModel(new URL(modelUrl));
-        if(predictor == null) {
-            throw new IOException("Failed to load model " + modelUrl);
-        }
-    }
-
     public Scorer(URL modelUrl) throws IOException, InterruptedException {
         loadModel(modelUrl);
         if(predictor == null) {
@@ -45,7 +38,7 @@ public class Scorer {
 
     protected  <T> List<Double> score(List<?> items, T context, double noise) {
         if(items == null || items.size() <= 0) {
-            throw new IllegalArgumentException("variants can't be null or empty");
+            throw new IllegalArgumentException("items can't be null or empty");
         }
 
         List<Double> result = new ArrayList<>();
@@ -58,7 +51,7 @@ public class Scorer {
         return result;
     }
 
-    private synchronized void setModel(ImprovePredictor predictor) {
+    private void setModel(ImprovePredictor predictor) {
         this.predictor = predictor;
 
         featureEncoder = new FeatureEncoder(predictor.getModelMetadata().getModelFeatureNames(),
