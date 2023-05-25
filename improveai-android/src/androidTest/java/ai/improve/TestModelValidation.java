@@ -28,7 +28,7 @@ import ai.improve.log.IMPLog;
 public class TestModelValidation {
     public static final String Tag = "TestModelValidation";
 
-    private Context getContext() {
+    public static Context getContext() {
         return InstrumentationRegistry.getInstrumentation().getTargetContext();
     }
 
