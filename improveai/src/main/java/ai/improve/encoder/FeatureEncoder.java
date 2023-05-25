@@ -119,6 +119,7 @@ public class FeatureEncoder {
         List<FVec> result = new ArrayList<>();
         for(int i = 0; i < items.size(); ++i) {
             double[] fvalues = new double[this.featureIndexes.size()];
+            Arrays.fill(fvalues, Double.NaN);
             encodeFeatureVector(items.get(i), context, fvalues, noise);
             result.add(FVec.Transformer.fromArray(fvalues, false));
         }
@@ -219,8 +220,8 @@ public class FeatureEncoder {
             Arrays.fill(recordInto, Double.NaN);
             encodeFeatureVector(items.get(i), context, recordInto, noise);
             encodedFeaturesFVecs.add(FVec.Transformer.fromArray(recordInto, false));
-            }
-        return encodedFeaturesFVecs;
         }
+        return encodedFeaturesFVecs;
+    }
 
 }

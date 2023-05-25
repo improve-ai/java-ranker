@@ -10,5 +10,4 @@
 2_numeric_items_no_context_large_binary_reward
 a_z
 happy_sunday
-model_test_suite.txt
 primitive_items_no_context_binary_reward

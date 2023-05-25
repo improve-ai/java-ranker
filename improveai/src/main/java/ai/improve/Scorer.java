@@ -21,10 +21,15 @@ public class Scorer {
 
     private FeatureEncoder featureEncoder;
 
-    private boolean enableTieBreaker = true;
-
     public Scorer(String modelUrl) throws IOException, InterruptedException {
         loadModel(new URL(modelUrl));
+        if(predictor == null) {
+            throw new IOException("Failed to load model " + modelUrl);
+        }
+    }
+
+    public Scorer(URL modelUrl) throws IOException, InterruptedException {
+        loadModel(modelUrl);
         if(predictor == null) {
             throw new IOException("Failed to load model " + modelUrl);
         }
@@ -35,23 +40,21 @@ public class Scorer {
     }
 
     public <T> List<Double> score(List<?> items, T context) {
+        return score(items, context, Math.random());
+    }
+
+    protected  <T> List<Double> score(List<?> items, T context, double noise) {
         if(items == null || items.size() <= 0) {
             throw new IllegalArgumentException("variants can't be null or empty");
         }
 
         List<Double> result = new ArrayList<>();
-        List<FVec> encodedFeatures = featureEncoder.encodeFeatureVectors(items, context, Math.random());
+        List<FVec> encodedFeatures = featureEncoder.encodeFeatureVectors(items, context, noise);
         for (FVec fvec : encodedFeatures) {
-
-            if(enableTieBreaker) {
-                // add a very small random number to randomly break ties
-                double smallNoise = Math.random() * Math.pow(2, -23);
-                result.add((double) predictor.predictSingle(fvec) + smallNoise);
-            } else {
-                result.add((double) predictor.predictSingle(fvec));
-            }
+            // add a very small random number to randomly break ties
+            double smallNoise = Math.random() * Math.pow(2, -23);
+            result.add((double) predictor.predictSingle(fvec) + smallNoise);
         }
-
         return result;
     }
 
