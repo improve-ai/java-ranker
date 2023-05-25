@@ -28,15 +28,15 @@ public class Scorer {
         }
     }
 
-    public <T> List<Double> score(List<?> items) {
+    public List<Double> score(List<?> items) {
         return score(items, null);
     }
 
-    public <T> List<Double> score(List<?> items, T context) {
+    public List<Double> score(List<?> items, Object context) {
         return score(items, context, Math.random());
     }
 
-    protected  <T> List<Double> score(List<?> items, T context, double noise) {
+    protected  List<Double> score(List<?> items, Object context, double noise) {
         if(items == null || items.size() <= 0) {
             throw new IllegalArgumentException("items can't be null or empty");
         }
