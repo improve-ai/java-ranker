@@ -182,7 +182,7 @@ public class FeatureEncoder {
             // for null do nothing
 
         } else {
-            throw new RuntimeException("unsupported type <" + obj.getClass().getCanonicalName() + ">, not JSON encodeable." +
+            throw new IllegalArgumentException("unsupported type <" + obj.getClass().getCanonicalName() + ">, not JSON encodable." +
                     " Must be one of type map, list, string, number, boolean, or null");
         }
 

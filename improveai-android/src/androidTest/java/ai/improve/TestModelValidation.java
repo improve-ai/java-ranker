@@ -59,13 +59,8 @@ public class TestModelValidation {
         Scorer scorer = new Scorer(modelUrl);
 
         // load testcase json
-        InputStream inputStream = getContext().getAssets().open("validate_models/" + path + "/" + path + ".json");
-        byte[] buffer = new byte[inputStream.available()];
-        inputStream.read(buffer);
-        inputStream.close();
+        JSONObject root = TestUtils.loadJson(getContext(), "validate_models/" + path + "/" + path + ".json");
 
-        String content = new String(buffer);
-        JSONObject root = new JSONObject(content);
         JSONObject testCase = root.getJSONObject("test_case");
         JSONArray expectedOutputs = root.getJSONArray("expected_output");
         double noise = testCase.getDouble("noise");

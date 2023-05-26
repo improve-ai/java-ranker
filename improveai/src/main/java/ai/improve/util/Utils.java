@@ -66,4 +66,8 @@ public class Utils {
 
         return result;
     }
+
+    public static boolean isValidModelName(String modelName) {
+        return modelName != null && modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
+    }
 }

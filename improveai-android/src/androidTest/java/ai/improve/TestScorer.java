@@ -14,7 +14,9 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +44,30 @@ public class TestScorer {
     }
 
     @Test
+    public void testScore_null_items() throws IOException, InterruptedException {
+        Scorer scorer = new Scorer(new URL(DummyV8ModelUrl));
+        try {
+            scorer.score(null);
+            fail("items can't be null");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    @Test
+    public void testScore_empty_items() throws IOException, InterruptedException {
+        Scorer scorer = new Scorer(new URL(DummyV8ModelUrl));
+        try {
+            scorer.score(new ArrayList<>());
+            fail("items can't be empty");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    @Test
     public void testScore_with_context() throws IOException, InterruptedException {
         Scorer scorer = new Scorer(new URL(DummyV8ModelUrl));
         List scores = scorer.score(Arrays.asList(0, 1, 2), "context");
@@ -55,6 +81,17 @@ public class TestScorer {
         Scorer scorer = new Scorer(new URL(DummyV8ModelUrl));
         List scores = scorer.score(Arrays.asList(item));
         IMPLog.d(Tag, "scores: " + scores);
+    }
+
+    @Test
+    public void testScore_non_json_encodable() throws JSONException, IOException, InterruptedException {
+        Scorer scorer = new Scorer(new URL(DummyV8ModelUrl));
+        try {
+            scorer.score(Arrays.asList(new Date()));
+            fail("items must be JSON encodable");
+        } catch (RuntimeException e) {
+            return;
+        }
     }
 
     @Test

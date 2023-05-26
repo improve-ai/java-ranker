@@ -1,7 +1,5 @@
 package ai.improve;
 
-import com.google.gson.JsonNull;
-
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -9,7 +7,9 @@ import java.util.Map;
 import java.util.Random;
 
 import ai.improve.ksuid.KsuidGenerator;
+import ai.improve.provider.PersistenceProvider;
 import ai.improve.util.HttpUtil;
+import ai.improve.util.Utils;
 
 public class RewardTracker {
     private static final String TYPE_KEY = "type";
@@ -37,6 +37,8 @@ public class RewardTracker {
 
     private static final KsuidGenerator KSUID_GENERATOR = new KsuidGenerator();
 
+    public static PersistenceProvider persistenceProvider;
+
     /**
      * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
      *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
@@ -45,9 +47,14 @@ public class RewardTracker {
      * @param trackApiKey track endpoint API key (if applicable); can be null.
      */
     public RewardTracker(String modelName, URL trackUrl, String trackApiKey) {
-        if(!isValidModelName(modelName)) {
+        if(!Utils.isValidModelName(modelName)) {
             throw new IllegalArgumentException("invalid modelName: [" + modelName + "]");
         }
+
+        if(trackUrl == null) {
+            throw new IllegalArgumentException("trackUrl can't be null");
+        }
+
         this.modelName = modelName;
         this.trackURL = trackUrl;
         this.trackApiKey = trackApiKey;
@@ -73,50 +80,86 @@ public class RewardTracker {
      * Tracks the item selected from candidates and a random sample from the remaining ones.
      *
      * @param item Any JSON encodable object chosen from candidates.
-     * @param candidates Collection of items from which the best is chosen.
-     * @param context
+     * @param candidates Collection of items from which the item is chosen.
+     * @param context Extra context info that was used to score the candidates.
      * @return rewardId of this track request.
+     * @throws IllegalArgumentException Thrown if candidates is null; Thrown if item is not included
+     * in candidates; Thrown if item/context or a random sample picked from candidates is not JSON
+     * encodable.
      */
     public String track(Object item, List<?> candidates, Object context) {
+        if(candidates == null) {
+            throw new IllegalArgumentException("candidates can't be null");
+        }
+
         int index = candidates.indexOf(item);
         if(index == -1) {
             throw new IllegalArgumentException("candidates must include item!");
         }
 
-        if(candidates.size() <= 1) {
-            return track(item, null, candidates.size());
-        }
-
-        int randomIndex;
-        Random random = new Random();
-        while (true) {
-            randomIndex = random.nextInt(candidates.size());
-            if(randomIndex != index) {
-                break;
+        Object sample = null;
+        if(candidates.size() > 1) {
+            int randomIndex;
+            Random random = new Random();
+            while (true) {
+                randomIndex = random.nextInt(candidates.size());
+                if (randomIndex != index) {
+                    break;
+                }
             }
+            sample = candidates.get(randomIndex);
         }
 
-        Object sample = candidates.get(randomIndex);
-        if(sample == null) {
-            return track(item, JsonNull.INSTANCE, candidates.size(), context);
-        } else {
-            return track(item, sample, candidates.size(), context);
+        String ksuid = KSUID_GENERATOR.next();
+
+        Map<String, Object> body = new HashMap<>();
+        body.put(TYPE_KEY, DECISION_TYPE);
+        body.put(MODEL_KEY, modelName);
+        body.put(COUNT_KEY, candidates.size());
+        body.put(MESSAGE_ID_KEY, ksuid);
+
+        body.put(ITEM_KEY, item);
+
+        // Exclude sample if there's none.
+        if(candidates.size() > 1) {
+            body.put(SAMPLE_ITEM_KEY, sample);
         }
+
+        // Exclude if context is null
+        if(context != null) {
+            body.put(CONTEXT_KEY, context);
+        }
+
+        if(!HttpUtil.isJsonEncodable(body)) {
+            throw new IllegalArgumentException("item, context or a random sample picked from candidates is not JSON encodable!");
+        }
+
+        postTrackingRequest(body);
+
+        return ksuid;
     }
 
-    public String track(Object item, Object sample, int numCandidates) {
-        return track(item, sample, numCandidates, null);
+    public String trackWithSample(Object item, Object sample, int numCandidates) {
+        return trackWithSample(item, sample, numCandidates, null);
     }
 
     /**
-     * Tracks the item selected from candidates and a random sample from the remaining ones.
+     * Tracks the item selected from candidates and a specific sample from the remaining ones.
      *
      * @param item The selected item.
-     * @param sample A random sample from the candidates.
+     * @param sample A random sample from the candidates. If there's no sample, please call the track()
+     *               method instead.
+     * @param numCandidates total number of candidates, including the selected item.
      * @param context Extra context info that was used to score these candidates.
      * @return rewardId of this track request.
+     * @throws IllegalArgumentException Thrown if numCandidates < 2; Thrown if item/sample/context
+     * is not JSON encodable.
      */
-    public String track(Object item, Object sample, int numCandidates, Object context) {
+    public String trackWithSample(Object item, Object sample, int numCandidates, Object context) {
+        if(numCandidates < 2) {
+            throw new IllegalArgumentException("numCandidates can't be smaller than 2");
+        }
+
         String ksuid = KSUID_GENERATOR.next();
 
         Map<String, Object> body = new HashMap<>();
@@ -127,17 +170,18 @@ public class RewardTracker {
 
         body.put(ITEM_KEY, item);
 
-        if(sample != null) {
-            body.put(SAMPLE_ITEM_KEY, sample);
-        }
+        body.put(SAMPLE_ITEM_KEY, sample);
 
+        // exclude is context is null
         if(context != null) {
             body.put(CONTEXT_KEY, context);
         }
 
-        if(HttpUtil.isJsonEncodable(body)) {
-            postTrackingRequest(body);
+        if(!HttpUtil.isJsonEncodable(body)) {
+            throw new IllegalArgumentException("item/sample/context must be JSON encodable!");
         }
+
+        postTrackingRequest(body);
 
         return ksuid;
     }
@@ -153,7 +197,7 @@ public class RewardTracker {
             throw new IllegalArgumentException("reward must not be NaN or infinity");
         }
 
-        if(rewardId == null || rewardId.length() != KSUID_GENERATOR.KSUID_STRING_LENGTH) {
+        if(rewardId == null || rewardId.length() != KsuidGenerator.KSUID_STRING_LENGTH) {
             throw new IllegalArgumentException("invalid rewardId. Please use the one returned from track().");
         }
 
@@ -178,7 +222,7 @@ public class RewardTracker {
         HttpUtil.withUrl(trackURL).withHeaders(headers).withBody(body).post();
     }
 
-    private boolean isValidModelName(String modelName) {
-        return modelName != null && modelName.matches("^[a-zA-Z0-9][\\w\\-.]{0,63}$");
+    protected static void setPersistenceProvider(PersistenceProvider persistenceProvider) {
+        RewardTracker.persistenceProvider = persistenceProvider;
     }
 }

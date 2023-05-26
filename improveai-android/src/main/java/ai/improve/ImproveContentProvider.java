@@ -29,6 +29,8 @@ public class ImproveContentProvider extends ContentProvider {
 
         ModelDownloader.setAssetModelLoader(new AssetModelLoader(mContext));
 
+        RewardTracker.setPersistenceProvider(new AndroidPersistenceProvider(mContext));
+
         return true;
     }
 

@@ -21,11 +21,13 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.TestUtils;
 import ai.improve.log.IMPLog;
 import ai.improve.encoder.FeatureEncoder;
 import biz.k11i.xgboost.util.FVec;
 
 import static org.junit.Assert.*;
+import static ai.improve.TestModelValidation.getContext;
 
 /**
  * Instrumented test, which will execute on an Android device.
@@ -96,19 +98,11 @@ public class FeatureEncoderTest {
             assertTrue(verifyCollision(rootDir + collisionTestCaseFileName));
             k++;
         }
-
-
     }
 
     private boolean verify(String filename) throws Exception {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open(filename);
-        byte[] buffer = new byte[inputStream.available()];
-        inputStream.read(buffer);
-        inputStream.close();
+        JSONObject root = TestUtils.loadJson(getContext(), filename);
 
-        String content = new String(buffer);
-        JSONObject root = new JSONObject(content);
         JSONObject testCase = root.getJSONObject("test_case");
         List<Object> items;
 
@@ -245,14 +239,7 @@ public class FeatureEncoderTest {
 
 
     public boolean verifyCollision(String filename) throws Exception {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open(filename);
-        byte[] buffer = new byte[inputStream.available()];
-        inputStream.read(buffer);
-        inputStream.close();
-
-        String content = new String(buffer);
-        JSONObject root = new JSONObject(content);
+        JSONObject root = TestUtils.loadJson(getContext(), filename);
         JSONObject testCase = root.getJSONObject("test_case");
         List<Object> allItems = toList(testCase.getJSONArray("items"));
         List<Object> contexts = new ArrayList<>(allItems.size());
@@ -314,7 +301,6 @@ public class FeatureEncoderTest {
 
 
     boolean isEqualInFloatPrecision(double[] expected, FVec testOutput) {
-
         float encodedValue, expectedValue;
 
         for (int i = 0; i < expected.length; i++) {
@@ -322,6 +308,7 @@ public class FeatureEncoderTest {
             encodedValue = (float) testOutput.fvalue(i);
             expectedValue = (float) expected[i];
 
+            IMPLog.d(Tag, "expected: " + expectedValue + ", real: " + encodedValue);
             if ((expectedValue != encodedValue) && !((Double.isNaN(encodedValue) && Double.isNaN(expectedValue)))) {
                 System.out.println("Expected: " + expectedValue + " differs from calculated: " + encodedValue + " at index: " + i);
                 return false;
@@ -329,7 +316,6 @@ public class FeatureEncoderTest {
         }
 
         return true;
-
     }
 
     @Test
@@ -392,14 +378,7 @@ public class FeatureEncoderTest {
 
     @Test
     public void testEncodeMultipleVariants() throws Exception {
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open("feature_encoder_test_suite/multiple_variants.json");
-        byte[] buffer = new byte[inputStream.available()];
-        inputStream.read(buffer);
-        inputStream.close();
-
-        String content = new String(buffer);
-        JSONObject root = new JSONObject(content);
+        JSONObject root = TestUtils.loadJson(getContext(), "feature_encoder_test_suite/multiple_variants.json");
         JSONObject testCase = root.getJSONObject("test_case");
 
         List<Object> items = toList(testCase.getJSONArray("candidates"));
@@ -418,11 +397,8 @@ public class FeatureEncoderTest {
 
         List<FVec> features = featureEncoder.encodeItemsForPrediction(items, context, noise);
 
-
         for (int i = 0; i < features.size(); i++) {
             assertTrue(isEqualInFloatPrecision(expected[i], features.get(i)));
         }
-
     }
-
 }

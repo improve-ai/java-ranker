@@ -9,7 +9,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 
+import ai.improve.RewardTracker;
 import ai.improve.log.IMPLog;
+import ai.improve.provider.PersistenceProvider;
+
 import com.google.gson.GsonBuilder;
 
 /**
@@ -23,6 +26,8 @@ public class HttpUtil {
     private Map<String, Object> body;
 
     private URL url;
+
+    public static boolean writeBody = false;
 
     HttpUtil(URL url) {
         this.url = url;
@@ -49,6 +54,9 @@ public class HttpUtil {
         }
 
         String jsonBody = serializeBody(body);
+        if(writeBody) {
+            RewardTracker.persistenceProvider.write("improve.ai.trackRequestBody", jsonBody);
+        }
 
         new Thread() {
             @Override

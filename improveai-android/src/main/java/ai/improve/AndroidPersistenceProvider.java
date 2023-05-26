@@ -29,4 +29,10 @@ public class AndroidPersistenceProvider implements PersistenceProvider {
         SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         return sp.getString(key, "");
     }
+
+    @Override
+    public void write(String key, String value) {
+        SharedPreferences sp = context.getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
+        sp.edit().putString(key, value).apply();
+    }
 }
