@@ -1,19 +1,13 @@
 package ai.improve;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
-
-import static ai.improve.DecisionTrackerTest.Track_URL;
 
 import org.junit.jupiter.api.Test;
 
 import ai.improve.log.IMPLog;
 import ai.improve.util.HttpUtil;
 
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -25,32 +19,6 @@ public class HttpUtilTest {
 
     static {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-    }
-
-    @Test
-    public void testSerializeBody_null_variant() throws MalformedURLException {
-        DecisionTracker tracker = new DecisionTracker(new URL(Track_URL), null);
-
-        Map<String, Object> body = new HashMap();
-        body.put("variant", null);
-        tracker.setBestVariant(null, body);
-        assertEquals(HttpUtil.serializeBody(body), "{\"variant\":null}");
-    }
-
-    @Test
-    public void testSerializeBody_null_leaf() throws MalformedURLException {
-        DecisionTracker tracker = new DecisionTracker(new URL(Track_URL), null);
-
-        Map<String, Object> body = new HashMap();
-
-        Map<String, Object> variant = new HashMap<>();
-        variant.put("theme", null);
-        variant.put("font", null);
-        variant.put("color", "#f0f0f0");
-
-        tracker.setBestVariant(variant, body);
-
-        assertEquals(HttpUtil.serializeBody(body), "{\"variant\":{\"color\":\"#f0f0f0\",\"theme\":null,\"font\":null}}");
     }
 
     @Test

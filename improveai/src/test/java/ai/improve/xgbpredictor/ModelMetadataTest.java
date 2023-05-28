@@ -2,12 +2,9 @@ package ai.improve.xgbpredictor;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
-
-import static ai.improve.DecisionModelTest.DefaultFailMessage;
 
 import java.io.DataOutputStream;
 import java.io.File;
@@ -19,7 +16,6 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import ai.improve.log.IMPLog;
 import biz.k11i.xgboost.util.ModelReader;
 
 public class ModelMetadataTest {
@@ -41,47 +37,15 @@ public class ModelMetadataTest {
     }
 
     @Test
-    public void testParseMetadata_valid() throws IOException, URISyntaxException {
-        URL resource = getClass().getClassLoader().getResource("metadata/metadata_valid");
-        ModelReader modelReader = new ModelReader(new FileInputStream(new File(resource.toURI())));
-        ModelMetadata metadata = new ModelMetadata(modelReader);
-        IMPLog.d(Tag, metadata.getModelName());
-    }
-
-    @Test
-    public void testParseMetadata_invalid() throws URISyntaxException {
-        try {
-            URL resource = getClass().getClassLoader().getResource("metadata/metadata_invalid");
-            ModelReader modelReader = new ModelReader(new FileInputStream(new File(resource.toURI())));
-            ModelMetadata metadata = new ModelMetadata(modelReader);
-            IMPLog.d(Tag, metadata.getModelName());
-        } catch (IOException e) {
-            e.printStackTrace();
-            return ;
-        }
-        fail("An IOException should have been thrown");
-    }
-
-    @Test
     public void testParseMetadata_no_version() throws IOException, URISyntaxException {
         URL resource = getClass().getClassLoader().getResource("metadata/metadata_no_version");
         ModelReader modelReader = new ModelReader(new FileInputStream(new File(resource.toURI())));
-        ModelMetadata metadata = new ModelMetadata(modelReader);
-        assertEquals("test", metadata.getModelName());
-    }
-
-    @Test
-    public void testParseMetadata_outdated_version() throws URISyntaxException {
         try {
-            URL resource = getClass().getClassLoader().getResource("metadata/metadata_outdated_version");
-            ModelReader modelReader = new ModelReader(new FileInputStream(new File(resource.toURI())));
-            ModelMetadata metadata = new ModelMetadata(modelReader);
+            new ModelMetadata(modelReader);
+            fail("metadata must contains version field!");
         } catch (IOException e) {
-            e.printStackTrace();
-            assertTrue(e.getMessage().startsWith("Major version don't match"));
-            return ;
+            return;
         }
-        fail(DefaultFailMessage);
     }
 
     // Generate metadata for testing

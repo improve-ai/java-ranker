@@ -23,7 +23,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -184,7 +183,12 @@ public class TestRewardTracker {
 
     @Test
     public void testTrack_not_json_encodable() throws MalformedURLException {
-        tracker().track(1, Arrays.asList(1, 2, 3), new Date());
+        try {
+            tracker().track(1, Arrays.asList(1, 2, 3), new Date());
+            fail("item/sample/context must be JSON encodable");
+        } catch (IllegalArgumentException e) {
+            return;
+        }
     }
 
     @Test
@@ -210,7 +214,7 @@ public class TestRewardTracker {
         }
         IMPLog.d(Tag, "count2 = " + count2 + ", count3 = " + count3);
         assertEquals(loop, count2 + count3);
-        assertTrue(Math.abs(count2 - count3) < 100);
+        assertTrue(Math.abs(count2 - count3) < (loop/2 * 0.03));
     }
 
     @Test
