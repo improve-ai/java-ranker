@@ -190,6 +190,17 @@ public class TestRewardTracker {
     }
 
     @Test
+    public void testTrack_map_key_not_string() throws MalformedURLException {
+        Map<Integer, Integer> item = new HashMap<>();
+        item.put(1, 1);
+        try {
+            tracker().track(item, Arrays.asList(item), 1);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     public void testTrack_random_sample() throws MalformedURLException, JSONException {
         URL trackUrl = new URL("https://xxxx"); // dummy url doesn't matter here.
         RewardTracker tracker = new RewardTracker("greetings", trackUrl, trackApiKey);

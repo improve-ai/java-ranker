@@ -2,7 +2,6 @@ package ai.improve.util;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.List;
@@ -11,7 +10,6 @@ import java.util.zip.GZIPInputStream;
 
 import ai.improve.RewardTracker;
 import ai.improve.log.IMPLog;
-import ai.improve.provider.PersistenceProvider;
 
 import com.google.gson.GsonBuilder;
 
@@ -124,6 +122,9 @@ public class HttpUtil {
             return true;
         } else if (node instanceof Map) {
             for (Map.Entry<String, Object> entry : ((Map<String, Object>)node).entrySet()) {
+                if(!(entry.getKey() instanceof String)) {
+                    return false;
+                }
                 if(!isJsonEncodable(entry.getValue())) {
                     return false;
                 }
@@ -137,7 +138,7 @@ public class HttpUtil {
                 }
             }
             return true;
-        } else if(node == null) {
+        } else if(node == null || node.equals(null)) {
             return true;
         } else {
             return false;

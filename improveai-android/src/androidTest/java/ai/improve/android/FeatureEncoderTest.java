@@ -24,6 +24,7 @@ import java.util.Map;
 import ai.improve.TestUtils;
 import ai.improve.log.IMPLog;
 import ai.improve.encoder.FeatureEncoder;
+import ai.improve.util.HttpUtil;
 import biz.k11i.xgboost.util.FVec;
 
 import static org.junit.Assert.*;
@@ -38,35 +39,9 @@ import static ai.improve.TestModelValidation.getContext;
 public class FeatureEncoderTest {
     public static final String Tag = "FeatureEncoderTest";
 
-    private List<String> featureNames;
-
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         IMPLog.setLogLevel(IMPLog.LOG_LEVEL_ALL);
-        loadFeatureNames();
-    }
-
-    /**
-     * How is the feature names collected?
-     *
-     * 1. Run testFeatureEncoder for once, and let all test cases pass
-     * 2. Filter the logcat output with tag "FeatureEncoder"
-     * 3. Copy all the feature names to 'txt'
-     * 4. cat txt | awk -F " " '{print $6}' | sort | uniq > feature_names.txt
-     * 5. cp feature_names.txt ~/workspace/improve-android/improveai-android/src/androidTest/assets/
-     * */
-    private void loadFeatureNames() throws IOException {
-        String rootDir = "feature_encoder_test_suite/";
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
-        InputStream inputStream = appContext.getAssets().open(rootDir + "feature_names.txt");
-        byte[] buffer = new byte[inputStream.available()];
-        inputStream.read(buffer);
-        inputStream.close();
-
-        String content = new String(buffer);
-        String[] allFeatureNames = content.split("\\n");
-
-        featureNames = new ArrayList<>(Arrays.asList(allFeatureNames));
     }
 
     @Test
@@ -138,7 +113,7 @@ public class FeatureEncoderTest {
 
         // extract feature names from test case JSON
         FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
-        List<FVec> encodedFeaturesFVecs = featureEncoder.encodeItemsForPrediction(items, context, noise);
+        List<FVec> encodedFeaturesFVecs = featureEncoder.encodeFeatureVectors(items, context, noise);
 
         assertEquals(encodedFeaturesFVecs.size(), 1);
         return isEqualInFloatPrecision(expected, encodedFeaturesFVecs.get(0));
@@ -234,7 +209,6 @@ public class FeatureEncoderTest {
         }
 
         return expected;
-
     }
 
 
@@ -291,14 +265,10 @@ public class FeatureEncoderTest {
             if (!expectedEqualsCalculated) {
                 return false;
             }
-
         }
-
 
         return true;
     }
-
-
 
     boolean isEqualInFloatPrecision(double[] expected, FVec testOutput) {
         float encodedValue, expectedValue;
@@ -331,7 +301,7 @@ public class FeatureEncoderTest {
         Object item = Double.NaN;
 
         // TODO do we need noise as a class attribute ?
-        List<FVec> features = featureEncoder.encodeItemsForPrediction(new ArrayList<>(Arrays.asList(item)), null, noise);
+        List<FVec> features = featureEncoder.encodeFeatureVectors(new ArrayList<>(Arrays.asList(item)), null, noise);
         assertEquals(features.size(), 1);
 
         for(int i = 0; i < featureNames.size(); ++i) {
@@ -395,10 +365,23 @@ public class FeatureEncoderTest {
 
         FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, modelSeed);
 
-        List<FVec> features = featureEncoder.encodeItemsForPrediction(items, context, noise);
+        List<FVec> features = featureEncoder.encodeFeatureVectors(items, context, noise);
 
         for (int i = 0; i < features.size(); i++) {
             assertTrue(isEqualInFloatPrecision(expected[i], features.get(i)));
         }
+    }
+
+    @Test
+    public void testEncode_null() {
+        List<String> featureNames = new ArrayList<>();
+        featureNames.add("aaa");
+        featureNames.add("bbb");
+        HashMap<String, List<Long>> stringTables = new HashMap<>();
+        FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, 1);
+        double[] into = new double[featureNames.size()];
+        Map<String, Integer> item = new HashMap<>();
+        item.put("a", null);
+        featureEncoder.encodeFeatureVector(item, null, into, Math.random());
     }
 }

@@ -1,5 +1,8 @@
 package ai.improve.encoder;
 
+import com.google.gson.JsonNull;
+import com.google.gson.JsonObject;
+
 import java.util.*;
 
 import ai.improve.log.IMPLog;
@@ -139,9 +142,7 @@ public class FeatureEncoder {
      * @param noiseScale a small multiplier for each of values encoded form item
      */
     private void encode(Object obj, String path, double[] into, double noiseShift, double noiseScale) {
-
         if (obj instanceof Boolean || obj instanceof Number) {
-
             if (!featureIndexes.containsKey(path)) {
                 return;
             }
@@ -150,7 +151,6 @@ public class FeatureEncoder {
             if (obj instanceof Boolean) {
                 into[featureIndex] = sprinkle((Boolean) obj ? 1.0 : 0.0, noiseShift, noiseScale);
             } else {
-                int dummy = 0;
                 into[featureIndex] = sprinkle(((Number) obj).doubleValue(), noiseShift, noiseScale);
             }
 
@@ -171,21 +171,18 @@ public class FeatureEncoder {
         } else if (obj instanceof Map) {
             for (Map.Entry<String, Object> entry : ((Map<String, Object>)obj).entrySet()) {
                 if(!(entry.getKey() instanceof String)) {
-                    IMPLog.w(Tag, "Map entry ignored: map key must be of type String.");
-                    continue;
+                    throw new IllegalArgumentException("Map keys must be String.");
                 }
                 encode(entry.getValue(), path + "." + entry.getKey(), into, noiseShift, noiseScale);
             }
 
-//        } else if (obj == null) {
-        } else if (obj.equals(null)) {
+        } else if (obj == null || obj.equals(null)) {
             // for null do nothing
-
-        } else {
+        }
+        else {
             throw new IllegalArgumentException("unsupported type <" + obj.getClass().getCanonicalName() + ">, not JSON encodable." +
                     " Must be one of type map, list, string, number, boolean, or null");
         }
-
     }
 
     /**
@@ -208,20 +205,4 @@ public class FeatureEncoder {
     public static double sprinkle(double x, double noiseShift, double noiseScale) {
         return (x + noiseShift) * noiseScale;
     }
-
-
-    // TODO does that even make sense for tests' sake?
-    public List<FVec> encodeItemsForPrediction(List<Object> items, Object context, double noise) {
-        List<FVec> encodedFeaturesFVecs = new ArrayList<>(items.size());
-
-        for (int i = 0; i < items.size(); ++i) {
-            // Object item, Object context, double[] into, double noise
-            double[] recordInto = new double[this.featureIndexes.size()];
-            Arrays.fill(recordInto, Double.NaN);
-            encodeFeatureVector(items.get(i), context, recordInto, noise);
-            encodedFeaturesFVecs.add(FVec.Transformer.fromArray(recordInto, false));
-        }
-        return encodedFeaturesFVecs;
-    }
-
 }
