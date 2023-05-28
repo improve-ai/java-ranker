@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import ai.improve.ksuid.KsuidGenerator;
 import ai.improve.log.IMPLog;
 import ai.improve.util.HttpUtil;
 import ai.improve.util.Utils;
@@ -67,7 +68,6 @@ public class TestRewardTracker {
             fail("trackUrl can't be null");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -78,7 +78,6 @@ public class TestRewardTracker {
             fail("invalid model name");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -89,7 +88,6 @@ public class TestRewardTracker {
             fail("invalid model name");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -120,8 +118,9 @@ public class TestRewardTracker {
     }
 
     @Test
-    public void testTrack() throws MalformedURLException, InterruptedException, JSONException {
-        tracker().track(1, Arrays.asList(1, 2, 3));
+    public void testTrack() throws MalformedURLException, JSONException {
+        String rewardId = tracker().track(1, Arrays.asList(1, 2, 3));
+        assertEquals(KsuidGenerator.KSUID_STRING_LENGTH, rewardId.length());
 
         SharedPreferences sp = getContext().getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
         JSONObject root = new JSONObject(sp.getString(RequestBodyKey, ""));
@@ -149,7 +148,6 @@ public class TestRewardTracker {
             fail("candidates can't be null.");
         } catch (IllegalArgumentException e) {
             e.printStackTrace();
-            return;
         }
     }
 
@@ -165,7 +163,7 @@ public class TestRewardTracker {
     }
 
     @Test
-    public void testTrack_context() throws MalformedURLException, InterruptedException, JSONException {
+    public void testTrack_context() throws MalformedURLException, JSONException {
         tracker().track(1, Arrays.asList(1, 2, 3), 1);
 
         SharedPreferences sp = getContext().getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
@@ -187,7 +185,7 @@ public class TestRewardTracker {
             tracker().track(1, Arrays.asList(1, 2, 3), new Date());
             fail("item/sample/context must be JSON encodable");
         } catch (IllegalArgumentException e) {
-            return;
+            e.printStackTrace();
         }
     }
 
@@ -208,7 +206,7 @@ public class TestRewardTracker {
             assertTrue(sample == 2 || sample == 3);
             if(sample == 2) {
                 count2++;
-            } else if (sample == 3) {
+            } else {
                 count3++;
             }
         }
@@ -234,7 +232,7 @@ public class TestRewardTracker {
 
     @Test
     public void testTrackWithSample_context() throws MalformedURLException, JSONException {
-        Map context = new HashMap();
+        Map<String, String> context = new HashMap<>();
         context.put("lang", "en");
         tracker().trackWithSample("hi", "hello", 3, context);
 
@@ -258,7 +256,7 @@ public class TestRewardTracker {
             tracker().trackWithSample("hi", "hello", 1);
             fail("numCandidates must not be smaller than 2");
         } catch (IllegalArgumentException e) {
-            return;
+            e.printStackTrace();
         }
     }
 
@@ -268,7 +266,7 @@ public class TestRewardTracker {
             tracker().trackWithSample("hi", "hello", 2, new Date());
             fail("item/sample/context must be JSON encodable!");
         } catch (IllegalArgumentException e) {
-            return;
+            e.printStackTrace();
         }
     }
 }

@@ -29,11 +29,11 @@ public class RewardTracker {
     private static final String CONTENT_TYPE_HEADER = "Content-Type";
     private static final String APPLICATION_JSON = "application/json";
 
-    private String modelName;
+    private final String modelName;
 
-    private URL trackURL;
+    private final URL trackURL;
 
-    private String trackApiKey;
+    private final String trackApiKey;
 
     private static final KsuidGenerator KSUID_GENERATOR = new KsuidGenerator();
 

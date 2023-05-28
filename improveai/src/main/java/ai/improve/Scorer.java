@@ -15,7 +15,7 @@ import biz.k11i.xgboost.util.FVec;
 public class Scorer {
     public static final String Tag = "Scorer";
 
-    private CountDownLatch loadModelSignal = new CountDownLatch(1);
+    private final CountDownLatch loadModelSignal = new CountDownLatch(1);
 
     private ImprovePredictor predictor;
 

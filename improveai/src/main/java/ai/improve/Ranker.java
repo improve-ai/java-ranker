@@ -7,7 +7,7 @@ import java.util.List;
 import ai.improve.util.Utils;
 
 public class Ranker {
-    private Scorer scorer;
+    private final Scorer scorer;
 
     public Ranker(Scorer scorer) {
         this.scorer = scorer;
