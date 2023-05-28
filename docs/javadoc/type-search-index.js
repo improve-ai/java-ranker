@@ -1,1 +1,0 @@
-typeSearchIndex = [{"l":"All Classes","url":"allclasses-index.html"},{"p":"ai.improve","l":"Decision"},{"p":"ai.improve","l":"DecisionContext"},{"p":"ai.improve","l":"DecisionModel"},{"p":"ai.improve","l":"GivensProvider"},{"p":"ai.improve.log","l":"IMPLog"},{"p":"ai.improve","l":"DecisionModel.LoadListener"},{"p":"ai.improve.log","l":"IMPLog.Logger"}]
