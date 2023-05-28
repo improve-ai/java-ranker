@@ -269,4 +269,78 @@ public class TestRewardTracker {
             e.printStackTrace();
         }
     }
+
+    @Test
+    public void testAddReward() throws MalformedURLException, JSONException {
+        tracker().addReward(0.1, "2QPrixFvU4EvsHpWVU0RoikHfpB");
+
+        SharedPreferences sp = getContext().getSharedPreferences(Improve_SP_File_Name, Context.MODE_PRIVATE);
+        JSONObject root = new JSONObject(sp.getString(RequestBodyKey, ""));
+        assertEquals(toMap(root).size(), 5);
+        assertEquals("greetings", root.getString("model"));
+        assertEquals(0.1, root.getDouble("reward"), 0.0000001);
+        assertEquals("reward", root.getString("type"));
+        assertEquals(27, root.getString("decision_id").length());
+        assertEquals(27, root.getString("message_id").length());
+    }
+
+    @Test
+    public void testAddReward_nan() throws MalformedURLException {
+        try {
+            tracker().addReward(Double.NaN, "2QPrixFvU4EvsHpWVU0RoikHfpB");
+            fail("reward can't be NaN");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testAddReward_positive_infinity() throws MalformedURLException {
+        try {
+            tracker().addReward(Double.POSITIVE_INFINITY, "2QPrixFvU4EvsHpWVU0RoikHfpB");
+            fail("reward can't be Infinity");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testAddReward_negative_infinity() throws MalformedURLException {
+        try {
+            tracker().addReward(Double.NEGATIVE_INFINITY, "2QPrixFvU4EvsHpWVU0RoikHfpB");
+            fail("reward can't be Infinity");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testAddReward_rewardId_null() throws MalformedURLException {
+        try {
+            tracker().addReward(Double.NEGATIVE_INFINITY, null);
+            fail("invalid rewardId");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testAddReward_rewardId_length_26() throws MalformedURLException {
+        try {
+            tracker().addReward(Double.NEGATIVE_INFINITY, "2QPrixFvU4EvsHpWVU0RoikHfp");
+            fail("invalid rewardId");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
+    public void testAddReward_rewardId_length_28() throws MalformedURLException {
+        try {
+            tracker().addReward(Double.NEGATIVE_INFINITY, "2QPrixFvU4EvsHpWVU0RoikHfpB0");
+            fail("invalid rewardId");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
+    }
 }
