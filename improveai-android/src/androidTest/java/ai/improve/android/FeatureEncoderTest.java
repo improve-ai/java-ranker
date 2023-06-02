@@ -12,10 +12,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -24,7 +24,6 @@ import java.util.Map;
 import ai.improve.TestUtils;
 import ai.improve.log.IMPLog;
 import ai.improve.encoder.FeatureEncoder;
-import ai.improve.util.HttpUtil;
 import biz.k11i.xgboost.util.FVec;
 
 import static org.junit.Assert.*;
@@ -383,5 +382,24 @@ public class FeatureEncoderTest {
         Map<String, Integer> item = new HashMap<>();
         item.put("a", null);
         featureEncoder.encodeFeatureVector(item, null, into, Math.random());
+    }
+
+    @Test
+    public void testEncode_non_string_key() {
+        List<String> featureNames = new ArrayList<>();
+        featureNames.add("aaa");
+        featureNames.add("bbb");
+        HashMap<String, List<Long>> stringTables = new HashMap<>();
+        FeatureEncoder featureEncoder = new FeatureEncoder(featureNames, stringTables, 1);
+
+        Map item = new HashMap();
+        item.put(new Date(), "aaa");
+
+        try {
+            featureEncoder.encodeFeatureVectors(Arrays.asList(item), null, 0);
+            fail("Map keys must be String.");
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+        }
     }
 }

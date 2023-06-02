@@ -1,11 +1,7 @@
 package ai.improve.encoder;
 
-import com.google.gson.JsonNull;
-import com.google.gson.JsonObject;
-
 import java.util.*;
 
-import ai.improve.log.IMPLog;
 import biz.k11i.xgboost.util.FVec;
 
 public class FeatureEncoder {
@@ -34,17 +30,7 @@ public class FeatureEncoder {
     /**
      * A list of StringTable objects for each feature
      */
-    private List<StringTable> internalStringTables;
-
-    /**
-     * A StringTable used to initialize internalStringTables
-     */
-    private StringTable sharedStringTable;
-
-    private static final String Tag = "FeatureEncoder";
-
-    // TODO perhaps this is no longer needed?
-    public double noise;
+    private final List<StringTable> internalStringTables;
 
     /**
      * Creates a new FeatureEncoder instance
@@ -56,7 +42,7 @@ public class FeatureEncoder {
         this.featureIndexes = new HashMap<>();
 
         this.internalStringTables = new ArrayList<>(featureNames.size());
-        this.sharedStringTable = new StringTable(new ArrayList<>(), model_seed);
+        StringTable sharedStringTable = new StringTable(new ArrayList<>(), model_seed);
 
         for (String featureName: featureNames) {
             this.featureIndexes.put(featureName, this.featureIndexes.size());
@@ -178,8 +164,7 @@ public class FeatureEncoder {
 
         } else if (obj == null || obj.equals(null)) {
             // for null do nothing
-        }
-        else {
+        } else {
             throw new IllegalArgumentException("unsupported type <" + obj.getClass().getCanonicalName() + ">, not JSON encodable." +
                     " Must be one of type map, list, string, number, boolean, or null");
         }
