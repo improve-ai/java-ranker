@@ -22,7 +22,7 @@ allprojects {
 Add the dependency in your app/build.gradle file
 ```gradle
 dependencies {
-    implementation 'com.github.improve-ai:android-sdk:8.0.0'
+    implementation 'com.github.improve-ai:java-rankder:8.0.0'
 }
 ```
 
@@ -91,7 +91,7 @@ public class RewardTracker {
      * Create a RewardTracker for a specific model.
      * @param modelName Name of the model such as "songs" or "discounts"
      * @param trackUrl The track endpoint URL that all tracked data will be sent to.
-     * @param trackApiKey track endpoint API key (if applicable); Can be nil.
+     * @param trackApiKey track endpoint API key (if applicable); Can be null.
      */
     public RewardTracker(String modelName, URL trackUrl, String trackApiKey) {
         // for true implementation please check out RewardTracker class file
@@ -138,21 +138,21 @@ public class RewardTracker {
 
 Create a list of JSON encodable items and simply call *new Ranker.rank(items)*.
 
-For instance, in an bedtime story app, you may have a list of *Stories*:
+For instance, in an bedtime story app, you may have a list of *Themes*:
 
 ```java
-HashMap<String, Object> Story = new HashMap<>();
-Story.put("title", "The Three Little Pigs");
-Story.put("author", "Joseph Jacobs");
-Story.put("pages", 32);
+themes = Arrays.asList(
+        Map.of("font", "Helvetica", "size", 12, "color", "#000000"),
+        Map.of("font", "Comic Sans", "size", 16, "color", "#F0F0F0"));
+
+rankedThemes = ranker.rank(themes);
 ```
 
-To obtain a ranked list of stories, use just one line of code:
+To obtain a ranked list of themes, use just one line of code:
 
 ```java
-List<?> rankedStories = new Ranker(url1).rank(stories);
+List rankedThemes = ranker.rank(themes);
 ```
-
 
 ## Reward Assignment
 
@@ -161,16 +161,16 @@ Easily train your rankers using [reinforcement learning](https://improve.ai/rein
 First, track when an item is used:
 
 ```java
-RewardTracker tracker = new RewardTracker("stories", trackUrl, null);
-String rewardId = tracker.track(story, rankedStories);
+RewardTracker tracker = new RewardTracker("themes", trackUrl, null);
+String rewardId = tracker.track(theme, themes);
 ```
 
 Later, if a positive outcome occurs, provide a reward:
 
 ```java
 if (purchased) {
-        tracker.addReward(profit, rewardId);
-        }
+    tracker.addReward(profit, rewardId);
+}
 ```
 
 Reinforcement learning uses positive rewards for favorable outcomes (a "carrot") and negative rewards for undesirable outcomes (a "stick"). 
@@ -196,10 +196,7 @@ List<String> greetings = Arrays.asList(
 rank() also considers the context of each decision. The context can be any JSON-encodable data structure.
 
 ```java
-HashMap<String, Object> context = new HashMap<>();
-            context.put("day_time", 12.0);
-            context.put("language", "en");
-
+HashMap context = Map.of("day_time", 12.0, "language", "en");
 List<String> ranked = ranker.rank(greetings, context);
 String greeting = ranked.get(0);
 ```

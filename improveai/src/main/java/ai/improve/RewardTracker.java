@@ -45,7 +45,7 @@ public class RewardTracker {
      *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
      *                  and the first character must be an alphanumeric one.
      * @param trackUrl The track endpoint URL that all tracked data will be sent to.
-     * @param trackApiKey track endpoint API key (if applicable); Can be nil.
+     * @param trackApiKey track endpoint API key (if applicable); Can be null.
      */
     public RewardTracker(String modelName, URL trackUrl, String trackApiKey) {
         if(!Utils.isValidModelName(modelName)) {
