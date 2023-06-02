@@ -21,6 +21,12 @@ public class Scorer {
 
     private FeatureEncoder featureEncoder;
 
+    /**
+     * @param modelUrl URL of a plain or gzip compressed xgb model. Could be like:
+     *                 https://improve.ai/model.xgb
+     *                 https://improve.ai/model.xgb.gz
+     *                 file:///android_asset/models/model.xgb(Bundled models in assets folder)
+     */
     public Scorer(URL modelUrl) throws IOException, InterruptedException {
         loadModel(modelUrl);
         if(predictor == null) {
@@ -28,10 +34,22 @@ public class Scorer {
         }
     }
 
+    /**
+     * Uses the model to score a list of items.
+     * @param items The list of items to score.
+     * @return A list of double values representing the score the items.
+     */
     public List<Double> score(List<?> items) {
         return score(items, null);
     }
 
+    /**
+     * Uses the model to score a list of items with the given context.
+     * @param items The list of items to score.
+     * @param context Extra JSON encodable context info that will be used with each of the item to
+     *               get its score.
+     * @return A list of double values representing the score the items.
+     */
     public List<Double> score(List<?> items, Object context) {
         return score(items, context, Math.random());
     }
