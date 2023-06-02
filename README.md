@@ -22,7 +22,7 @@ allprojects {
 Add the dependency in your app/build.gradle file
 ```gradle
 dependencies {
-    implementation 'com.github.improve-ai:android-sdk:7.2.0'
+    implementation 'com.github.improve-ai:android-sdk:8.0.0'
 }
 ```
 
