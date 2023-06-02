@@ -12,6 +12,9 @@ import ai.improve.log.IMPLog;
 import ai.improve.xgbpredictor.ImprovePredictor;
 import biz.k11i.xgboost.util.FVec;
 
+/**
+ Scores items with optional context using a CoreML model.
+ */
 public class Scorer {
     public static final String Tag = "Scorer";
 
@@ -22,10 +25,12 @@ public class Scorer {
     private FeatureEncoder featureEncoder;
 
     /**
-     * @param modelUrl URL of a plain or gzip compressed xgb model. Could be like:
+     * Initialize a Scorer instance.
+     * @param modelUrl URL of a plain or gzip compressed CoreML model resource.
      *                 https://improve.ai/model.xgb
      *                 https://improve.ai/model.xgb.gz
      *                 file:///android_asset/models/model.xgb(Bundled models in assets folder)
+     * @throws IOException, InterruptedException -> An error if the model cannot be loaded or if the metadata cannot be extracted.
      */
     public Scorer(URL modelUrl) throws IOException, InterruptedException {
         loadModel(modelUrl);
@@ -36,8 +41,9 @@ public class Scorer {
 
     /**
      * Uses the model to score a list of items.
-     * @param items The list of items to score.
-     * @return A list of double values representing the score the items.
+     * @param items the list of items to score.
+     * @throws Exception -> error if the items list is empty or if there's an issue with the prediction.
+     * @return List<Double> an array of `Double` values representing the scores of the items.
      */
     public List<Double> score(List<?> items) {
         return score(items, null);
@@ -45,15 +51,23 @@ public class Scorer {
 
     /**
      * Uses the model to score a list of items with the given context.
-     * @param items The list of items to score.
-     * @param context Extra JSON encodable context info that will be used with each of the item to
-     *               get its score.
-     * @return A list of double values representing the score the items.
+     * @param items the list of items to score.
+     * @param context extra context info that will be used with each of the item to get its score.
+     * @throws Exception -> error if the items list is empty or if there's an issue with the prediction.
+     * @return List<Double> an array of `Double` values representing the scores of the items.
      */
     public List<Double> score(List<?> items, Object context) {
         return score(items, context, Math.random());
     }
 
+    /**
+     * Uses the model to score a list of items with the given context.
+     * @param items the list of items to score.
+     * @param context extra context info that will be used with each of the item to get its score.
+     * @param noise value in [0, 1) which will be used to slightly modify the feature values
+     * @throws Exception -> error if the items list is empty or if there's an issue with the prediction.
+     * @return List<Double> an array of `Double` values representing the scores of the items.
+     */
     protected  List<Double> score(List<?> items, Object context, double noise) {
         if(items == null || items.size() <= 0) {
             throw new IllegalArgumentException("items can't be null or empty");

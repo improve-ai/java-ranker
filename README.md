@@ -1,9 +1,9 @@
-**!!! The release of v8 is imminent and features a brand new API. We do not recommend deploying v7 at this time !!!**
+# Rank, Score & Optimize Swift Data Structures
 
-Improve AI is a machine learning platform for quickly implementing app optimization, personalization, and recommendations for [iOS](https://improve.ai/ios-sdk/), [Android](https://improve.ai/android-sdk/), and [Python](https://improve.ai/python-sdk/).
+Improve AI is a machine learning platform for quickly implementing app optimization, personalization, and recommendations for [iOS](https://github.com/improve-ai/swift-ranker), [Android](https://github.com/improve-ai/java-ranker), and [Python](https://github.com/improve-ai/python-ranker).
 
 The SDKs provide simple APIs for AI [decisions](https://improve.ai/decisions/), [ranking](https://improve.ai/ranking/), [scoring](https://improve.ai/scoring/), and [multivariate optimization](https://improve.ai/multivariate-optimization/) that execute immediately, on-device, with zero network latency.
-
+Items and their rewards are with the [Improve AI Tracker / Trainer](https://github.com/improve-ai/tracker-trainer) and updated models are trained regularly for continuous learning.
 
 ## Installation
 
@@ -18,6 +18,7 @@ allprojects {
 }
 ```
 
+
 Add the dependency in your app/build.gradle file
 ```gradle
 dependencies {
@@ -25,174 +26,194 @@ dependencies {
 }
 ```
 
-## Initialization
 
-Add default track url to your AndroidManifest.xml file:
 
-```
-// The track url is obtained from your Improve AI Gym configuration.
-<application>
-    <meta-data
-        android:name="ai.improve.DEFAULT_TRACK_URL"
-        android:value="https://xxxx.lambda-url.us-east-1.on.aws/" />
-</application>
-```
+## Instructions for ChatGPT
 
-Load the model:
+```java
+// The following is the Java API documentation for ImproveAI, which is imported with 'import ai.improve.*` . Simply respond with 'ImproveAI documentation imported':
 
-```Java
-public class SampleApplication extends Application {
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        
-        // The model url is obtained from your Improve AI Gym configuration
-        String modelURL = "https://xxxx.s3.amazonaws.com/models/latest/greetings.xgb.gz";
-        
-        DecisionModel.get("greetings").loadAsync(modelUrl);
+/**
+ * A utility for ranking items based on their scores. The Ranker struct takes a Improve AI model to evaluate and rank the given items.
+ */
+public class Ranker {
+    /**
+     * Create a Ranker instance with a Improve AI model.
+     * @param modelUrl URL of a plain or gzip compressed CoreML model resource
+     * @throws IOException, InterruptedException if there is an issue initializing the Scorer with the modelUrl.
+     */
+    public Ranker(URL modelUrl) throws IOException, InterruptedException {
+        // for true implementation please check out Ranker class file
+    }
+
+    /**
+     * Rank the list of items by their scores.
+     * @param items the list of items to rank.
+     * @param context extra context info that will be used with each of the item to get its score.
+     * @return an array of ranked items, sorted by their scores in descending order.
+     */
+    public <T> List<T> rank(List<T> items, Object context) {
+        // for true implementation please check out Ranker class file
+    }
+}
+    
+/**
+ * Scores items with optional context using Improve AI model.
+ */
+public class Scorer {
+    /**
+     * Initialize a Scorer instance.
+     * @param modelUrl URL of a plain or gzip compressed CoreML model resource.
+     * @throws IOException, InterruptedException -> An error if the model cannot be loaded or if the metadata cannot be extracted.
+     */
+    public Scorer(URL modelUrl) throws IOException, InterruptedException {
+        // for true implementation please check out Ranker class file
+    }
+
+
+    /**
+     * Uses the model to score a list of items with the given context.
+     * @param items the list of items to score.
+     * @param context extra context info that will be used with each of the item to get its score.
+     * @throws Exception -> error if the items list is empty or if there's an issue with the prediction.
+     * @return List<Double> an array of `Double` values representing the scores of the items.
+     */
+    public List<Double> score(List<?> items, Object context) {
+        // for true implementation please check out Ranker class file
+    }
+}
+
+/**
+ * Tracks items and rewards for training updated scoring models. When an item becomes causal, pass it to the track() function, which will return a rewardId. Use the rewardId to track future rewards associated with that item.
+ */
+public class RewardTracker {
+    /**
+     * Create a RewardTracker for a specific model.
+     * @param modelName Name of the model such as "songs" or "discounts"
+     * @param trackUrl The track endpoint URL that all tracked data will be sent to.
+     * @param trackApiKey track endpoint API key (if applicable); Can be nil.
+     */
+    public RewardTracker(String modelName, URL trackUrl, String trackApiKey) {
+        // for true implementation please check out RewardTracker class file
+    }
+
+    /**
+     * Tracks the item selected from candidates and a random sample from the remaining items.
+     * @param item: Any JSON encodable object chosen as best from candidates.
+     * @param candidates Collection of items from which best is chosen.
+     * @param context Extra context info that was used with each of the item to get its score.
+     * @throws IllegalArgumentException Thrown if candidates is null; Thrown if item is not included
+     * in candidates; Thrown if item/context or a random sample picked from candidates is not JSON
+     * encodable.
+     * @return String rewardId of this track request.
+     */
+    public String track(Object item, List<?> candidates, Object context) {
+        // for true implementation please check out RewardTracker class file
+    }
+
+    /**
+     Tracks the item selected and a specific sample.
+     * @param item The selected item.
+     * @param sample A random sample from the candidates.
+     * @param numCandidates Total number of candidates, including the selected item.
+     * @param context Extra context info that was used with each of the item to get its score.
+     * @eturn String rewardId of this track request
+     */
+    public String trackWithSample(Object item, Object sample, int numCandidates, Object context) {
+        // for true implementation please check out RewardTracker class file
+    }
+
+    /**
+     * Add reward for the provided rewardId
+     * @param reward The reward to add. Must not be NaN or Infinite.
+     * @param rewardId The id that was returned from the track() methods.
+     */
+    public void addReward(double reward, String rewardId) {
+        // for true implementation please check out RewardTracker class file
     }
 }
 ```
 
 ## Usage
 
-The heart of Improve AI is the *which()* statement. *which()* is like an AI *if/then* statement.
+Create a list of JSON encodable items and simply call *new Ranker.rank(items)*.
 
-```Java
-greeting = DecisionModel.get("greetings").which("Hello", "Howdy", "Hola");
+For instance, in an bedtime story app, you may have a list of *Stories*:
+
+```java
+HashMap<String, Object> Story = new HashMap<>();
+Story.put("title", "The Three Little Pigs");
+Story.put("author", "Joseph Jacobs");
+Story.put("pages", 32);
 ```
 
-*which()* takes a list of *variants* and returns the best - the "best" being the variant that provides the highest expected reward given the current conditions.
+To obtain a ranked list of stories, use just one line of code:
 
-Decision models are easily trained with [reinforcement learning](https://improve.ai/reinforcement-learning/):
-
-```Java
-if (success) {
-    DecisionModel.get("greetings").addReward(1.0);
-}
+```java
+List<?> rankedStories = new Ranker(url1).rank(stories);
 ```
 
-With reinforcement learning, positive rewards are assigned for positive outcomes (a "carrot") and negative rewards are assigned for undesirable outcomes (a "stick").
 
-*which()* automatically tracks it's decision with the [Improve AI Gym](https://github.com/improve-ai/gym/). Rewards are credited to the most recent tracked decision for each model, including from a previous app session.
+## Reward Assignment
 
-## Contextual Decisions
+Easily train your rankers using [reinforcement learning](https://improve.ai/reinforcement-learning/).
 
-Unlike A/B testing or feature flags, Improve AI uses *context* to make the best decision for each user. On Android, the following context is automatically included:
+First, track when an item is used:
 
-- *$country* - two letter country code
-- *$lang* - two letter language code
-- *$tz* - numeric GMT offset
-- *$carrier* - cellular network
-- *$device* - string portion of device model
-- *$devicev* - device version
-- *$os* - string portion of OS name
-- *$osv* - OS version
-- *$pixels* - screen width x screen height
-- *$app* - app name
-- *$appv* - app version
-- *$sdkv* - Improve AI SDK version
-- *$weekday* - (ISO 8601, monday==1.0, sunday==7.0) plus fractional part of day
-- *$time* - fractional day since midnight
-- *$runtime* - fractional days since session start
-- *$day* - fractional days since born
-- *$d* - the number of decisions for this model
-- *$r* - total rewards for this model
-- *$r/d* - total rewards/decisions
-- *$d/day* - decisions/$day
-
-Using the context, on a Spanish speaker's device we expect our *greetings* model to learn to choose *Hola*.
-
-Custom context can also be provided via *given()*:
-
-```Java
-greeting = greetingsModel.given(Map.of("language", "cowboy")).which("Hello", "Howdy", "Hola");
+```java
+RewardTracker tracker = new RewardTracker("stories", trackUrl, null);
+String rewardId = tracker.track(story, rankedStories);
 ```
 
-Given the language is *cowboy*, the variant with the highest expected reward should be *Howdy* and the model would learn to make that choice.
+Later, if a positive outcome occurs, provide a reward:
 
-## Ranking
-
-[Ranking](https://improve.ai/ranking/) is a fundamental task in recommender systems, search engines, and social media feeds. Fast ranking can be performed on-device in a single line of code:
-
-```Java
-rankedWines = sommelierModel.given(entree).rank(wines);
+```java
+if (purchased) {
+        tracker.addReward(profit, rewardId);
+        }
 ```
 
-**Note**: Decisions are not tracked when calling *rank()*. *which()* or *decide()* must be used to train models for ranking.
+Reinforcement learning uses positive rewards for favorable outcomes (a "carrot") and negative rewards for undesirable outcomes (a "stick"). 
+By assigning rewards based on business metrics, such as revenue or conversions, the system optimizes these metrics over time.
 
-## Scoring
+## Contextual Ranking & Scoring
 
-[Scoring](https://improve.ai/scoring/) makes it easy to turn any database table into a recommendation engine.
+Improve AI turns XGBoost into a contextual multi-armed bandit, meaning that context is considered when making ranking or scoring decisions.
 
-Simply add a *score* column to the database and update the score for each row.
+Often, the choice of the best variant depends on the context that the decision is made within. 
+Let's take the example of greetings for different times of the day:
 
-```Java
-scores = conversionRateModel.score(rows);
+```java
+List<String> greetings = Arrays.asList(
+        "Good Morning",
+        "Good Afternoon",
+        "Good Evening",
+        "Buenos Días",
+        "Buenas Tardes",
+        "Buenas Noches");
 ```
 
-At query time, sort the query results descending by the *score* column and the first results will be the top recommendations. This works particularly well with local databases on mobile devices where the scores can be personalized to each individual user.
+rank() also considers the context of each decision. The context can be any JSON-encodable data structure.
 
-*score()* is also useful for crafting custom optimization algorithms or providing supplemental metrics in a multi-stage recommendation system.
+```java
+HashMap<String, Object> context = new HashMap<>();
+            context.put("day_time", 12.0);
+            context.put("language", "en");
 
-**Note**: Decisions are not tracked when calling *score()*. *which()*, *decide()*, or *optimize()* must be used to train models for scoring.
-
-## Multivariate Optimization
-
-[Multivariate optimization](https://improve.ai/multivariate-optimization/) is the joint optimization of multiple variables simultaneously. This is often useful for app configuration and performance tuning.
-
-```Java
-config = configModel.optimize(Map.of(
-      "bufferSize", [1024, 2048, 4096, 8192],
-      "videoBitrate", [256000, 384000, 512000]);
+List<String> ranked = ranker.rank(greetings, context);
+String greeting = ranked.get(0);
 ```
 
-This example decides multiple variables simultaneously.  Notice that instead of a single list of variants, a mapping of keys to arrays of variants is provided. This multi-variate mode jointly optimizes all variables for the highest expected reward.  
-
-*optimize()* automatically tracks it's decision with the [Improve AI Gym](https://github.com/improve-ai/gym/). Rewards are credited to the most recent decision made by the model, including from a previous app session.
-
-## Variant Types
-
-Variants and givens can be any JSON encodable object. This includes *Integer*, *Double*, *Boolean*, *String*, *Map*, *List*, and *null*. Nested values within collections are automatically encoded as machine learning features to assist in the decision making process.
-
-The following are all valid:
-
-```Java
-greeting = greetingsModel.which("Hello", "Howdy", "Hola")
-
-discount = discountModel.which(0.1, 0.2, 0.3)
-
-enabled = featureFlagModel.which(true, false)
-
-item = filterModel.which(item, nil)
-
-themes = Arrays.asList(
-    Map.of("font", "Helvetica", "size", 12, "color", "#000000"),
-          ("font", "Comic Sans", "size": 16, "color", "#F0F0F0"));
-
-theme = themeModel.which(themes)
-```
-
-## Privacy
-  
-It is strongly recommended to never include Personally Identifiable Information (PII) in variants or givens so that it is never tracked, persisted, or used as training data.
+Trained with appropriate rewards, Improve AI would learn from scratch which greeting is best for each time of day and language.
 
 ## Resources
 
 - [Quick Start Guide](https://improve.ai/quick-start/)
-- [iOS SDK API Docs](https://improve.ai/ios-sdk/)
-- [Improve AI Gym](https://github.com/improve-ai/gym/)
-- [Improve AI Trainer (FREE)](https://aws.amazon.com/marketplace/pp/prodview-pyqrpf5j6xv6g)
-- [Improve AI Trainer (PRO)](https://aws.amazon.com/marketplace/pp/prodview-adchtrf2zyvow)
-- [Reinforcement Learning](https://improve.ai/reinforcement-learning/)
-- [Decisions](https://improve.ai/multivariate-optimization/)
-- [Ranking](https://improve.ai/ranking/)
-- [Scoring](https://improve.ai/scoring/)
-- [Multivariate optimization](https://improve.ai/multivariate-optimization/)
-
+- [Tracker / Trainer](https://github.com/improve-ai/tracker-trainer/)
+- [Reinforcement Learning](https://github.com/improve-ai/tracker-trainer/)
 
 ## Help Improve Our World
 
-The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love. 
+The mission of Improve AI is to make our corner of the world a little bit better each day. When each of us improve our corner of the world, the whole world becomes better. If your product or work does not make the world better, do not use Improve AI. Otherwise, welcome, I hope you find value in my labor of love.
 
 -- Justin Chapweske

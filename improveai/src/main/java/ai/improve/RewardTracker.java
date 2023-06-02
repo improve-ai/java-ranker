@@ -40,11 +40,12 @@ public class RewardTracker {
     public static PersistenceProvider persistenceProvider;
 
     /**
-     * @param modelName Length of modelName must be in range [1, 64]; Only alphanumeric
+     * @param modelName Name of the model such as "songs" or "discounts";
+     *                  Length of modelName must be in range [1, 64]; Only alphanumeric
      *                  characters([a-zA-Z0-9]), '-', '.' and '_' are allowed in the modelName
      *                  and the first character must be an alphanumeric one.
      * @param trackUrl The track endpoint URL that all tracked data will be sent to.
-     * @param trackApiKey track endpoint API key (if applicable); can be null.
+     * @param trackApiKey track endpoint API key (if applicable); Can be nil.
      */
     public RewardTracker(String modelName, URL trackUrl, String trackApiKey) {
         if(!Utils.isValidModelName(modelName)) {
@@ -86,6 +87,7 @@ public class RewardTracker {
      * @throws IllegalArgumentException Thrown if candidates is null; Thrown if item is not included
      * in candidates; Thrown if item/context or a random sample picked from candidates is not JSON
      * encodable.
+     * @return String rewardId of this track request.
      */
     public String track(Object item, List<?> candidates, Object context) {
         if(candidates == null) {
@@ -187,7 +189,7 @@ public class RewardTracker {
     }
 
     /**
-     * Adds reward for a previous decision tracked by rewardId
+     * Add reward for the provided rewardId
      *
      * @param reward The reward to add. Must not be NaN or infinity.
      * @param rewardId The id that was returned from track() methods.
