@@ -1,4 +1,4 @@
-# Rank, Score & Optimize Swift Data Structures
+# Rank, Score & Optimize Java Objects
 
 Improve AI is a machine learning platform for quickly implementing app optimization, personalization, and recommendations for [iOS](https://github.com/improve-ai/swift-ranker), [Android](https://github.com/improve-ai/java-ranker), and [Python](https://github.com/improve-ai/python-ranker).
 
@@ -22,13 +22,15 @@ allprojects {
 Add the dependency in your app/build.gradle file
 ```gradle
 dependencies {
-    implementation 'com.github.improve-ai:java-rankder:8.0.0'
+    implementation 'com.github.improve-ai:java-ranker:8.0.0'
 }
 ```
 
 
 
 ## Instructions for ChatGPT
+
+Copy and paste the following into ChatGPT as the first message in a conversation. After that you can ask it to write code against the Improve APIs.
 
 ```java
 // The following is the Java API documentation for ImproveAI, which is imported with 'import ai.improve.*` . Simply respond with 'ImproveAI documentation imported':
@@ -207,7 +209,7 @@ Trained with appropriate rewards, Improve AI would learn from scratch which gree
 
 - [Quick Start Guide](https://improve.ai/quick-start/)
 - [Tracker / Trainer](https://github.com/improve-ai/tracker-trainer/)
-- [Reinforcement Learning](https://github.com/improve-ai/tracker-trainer/)
+- [Reinforcement Learning](https://improve.ai/reinforcement-learning/)
 
 ## Help Improve Our World
 
