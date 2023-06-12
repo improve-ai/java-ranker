@@ -4,3 +4,7 @@
 # These are explicitly windows files and should use crlf
 *.bat           text eol=crlf
 
+*.mk linguist-language=Java
+*.sh linguist-language=Java
+*.c linguist-language=Java
+*.h linguist-language=Java
